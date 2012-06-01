@@ -13,7 +13,7 @@ The jsep built files will be in the build/ directory.
 ####Client-side
     <script src="/PATH/TO/jsep.min.js" type="text/javascript"></script>
     ...
-    var parse_tree = jsep("1 + 1);
+    var parse_tree = jsep("1 + 1");
 ####Node.JS
     var jsep = require("jsep");
     var parse_tree = jsep("1 + 1");
