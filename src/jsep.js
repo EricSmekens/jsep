@@ -4,7 +4,7 @@
 	var unary_ops = ["-", "!"], // Permissible unary operations
 		binary_ops = ["+", "-", "*", "/", "&&", "||", "&", "|", "<<", ">>", "===", "==", ">=", "<=",  "<", ">"]; //Permissible binary operations
 
-	var ltrim_regex = /^\s+/,
+	var ltrim2regex = /^\s+/,
 		ltrim = function (str) {
 			return str.replace(ltrim_regex, '');
 		};
@@ -28,13 +28,14 @@
 				rv.push(this.curr_node);
 			}
 			if (rv.length === 1) {
-				return rv[0];
+				rv = rv[0];
 			} else {
-				return {
+				rv = {
 					type: "compound",
 					statements: rv
 				};
 			}
+			return rv;
 		};
 
 		proto.gobble_expression = function () {
@@ -188,8 +189,8 @@
 		var close_paren_regex = new RegExp("^\\s*\\)");
 		proto.parse_fn_call = function () {
 			if (this.curr_node && (this.curr_node.type === "prop" || this.curr_node.type === "var" || this.curr_node.type === "fn_call")) {
-				var match;
-				if (match = this.buffer.match(open_paren_regex)) {
+				var match = this.buffer.match(open_paren_regex);
+				if (match) {
 					var arg_node = false;
 					this.buffer = this.buffer.substr(1); // Kill the open paren
 					var args = [];
@@ -198,13 +199,17 @@
 						this.curr_node = null;
 						arg_node = this.gobble_expression();
 						args.push(arg_node);
-						if (match = this.buffer.match(fn_arg_regex)) {
+						match = this.buffer.match(fn_arg_regex);
+						if (match) {
 							this.buffer = this.buffer.substr(match[0].length);
-						} else if (match = this.buffer.match(close_paren_regex)) {
-							this.buffer = this.buffer.substr(match[0].length);
-							break;
+						} else {
+							match = this.buffer.match(close_paren_regex);
+							if (match) {
+								this.buffer = this.buffer.substr(match[0].length);
+								break;
+							}
 						}
-					} while(arg_node);
+					} while (arg_node);
 					this.curr_node = old_curr_node;
 					var node = {
 						type: "fn_call",
@@ -218,17 +223,19 @@
 		};
 
 		var starts_with = function (str, substr) {
-			return str.substr(0,substr.length) === substr;
+			return str.substr(0, substr.length) === substr;
 		};
 
 		proto.parse_parens = function () {
-			var match;
-			if(match = this.buffer.match(open_paren_regex)) {
+			var match = this.buffer.match(open_paren_regex);
+
+			if (match) {
 				this.buffer = this.buffer.substr(match[0].length);
 				var previous_node = this.curr_node;
 				this.curr_node = null;
 				var contents = this.gobble_expression();
-				if(match = this.buffer.match(close_paren_regex)) {
+				match = this.buffer.match(close_paren_regex);
+				if (match) {
 					this.buffer = this.buffer.substr(match[0].length);
 					var node = {
 						type: "grouping",
@@ -243,9 +250,9 @@
 		};
 		proto.parse_unary_op = function () {
 			var i, leni;
-			for(i = 0, leni = unary_ops.length; i<leni; i++) {
+			for (i = 0, leni = unary_ops.length; i < leni; i += 1) {
 				var unary_op = unary_ops[i];
-				if(starts_with(this.buffer, unary_op)) {
+				if (starts_with(this.buffer, unary_op)) {
 					this.buffer = this.buffer.substr(unary_op.length);
 					var operand = this.gobble_expression();
 
@@ -261,11 +268,11 @@
 			return false;
 		};
 		proto.parse_binary_op = function () {
-			if(this.curr_node !== null) {
+			if (this.curr_node !== null) {
 				var i, len;
-				for(i = 0, len = binary_ops.length; i<len; i++) {
+				for (i = 0, len = binary_ops.length; i < len; i += 1) {
 					var binary_op = binary_ops[i];
-					if(starts_with(this.buffer, binary_op)) {
+					if (starts_with(this.buffer, binary_op)) {
 						this.buffer = this.buffer.substr(binary_op.length);
 						var operand_1 = this.curr_node;
 						this.curr_node = null;
