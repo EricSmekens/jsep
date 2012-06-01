@@ -21,12 +21,19 @@
 		var proto = my.prototype;
 		proto.tokenize = function () {
 			var rv = [];
+			var last_buffer = this.buffer;
 			while (this.buffer) {
 				this.gobble_expression();
 				if (this.curr_node === false) {
 					throw new Error("Unexpected " + this.buffer);
+				} else {
+					rv.push(this.curr_node);
 				}
-				rv.push(this.curr_node);
+				if (this.buffer === last_buffer) {
+					throw new Error("Could not parse " + this.buffer);
+				} else {
+					last_buffer = this.buffer;
+				}
 			}
 			if (rv.length === 1) {
 				rv = rv[0];
@@ -64,6 +71,11 @@
 
 				if (node) {
 					this.curr_node = node;
+				} else {
+					var separator_node = this.parse_separator();
+					if(separator_node) {
+						break;
+					}
 				}
 			} while (node);
 
@@ -126,24 +138,39 @@
 			}
 			return false;
 		};
-		var square_brackets_regex = new RegExp("^\\[([^\\]]+)\\]");
+		var open_square_brackets_regex = new RegExp("^\\[");
+		var close_square_brackets_regex = new RegExp("^\\]");
 		proto.parse_square_brackets_property = function () {
-			var match = this.buffer.match(square_brackets_regex);
+			var buffers = [];
+			var match = this.buffer.match(open_square_brackets_regex);
 			if (match) {// We're dealing with square brackets
-				var match_parser = new Parser(match[1]);
-				var prop_node = match_parser.tokenize();
+				buffers.push(this.buffer);
+				this.buffer = this.buffer.substr(match[0].length); // Kill the open bracket
+				buffers.push(this.buffer);
+				var old_curr_node = this.curr_node;
+				this.curr_node = null;
+				var contents = this.gobble_expression();
+				if (contents) {
+					match = this.buffer.match(close_square_brackets_regex);
+					if(match) {
+						buffers.push(this.buffer);
+						this.buffer = this.buffer.substr(match[0].length); // Kill the close bracket
+						buffers.push(this.buffer);
 
-				this.buffer = this.buffer.substr(match[0].length);
-				if (prop_node) {
-					var node = {
-						type: "prop",
-						subtype: "square_brackets",
-						parent: this.curr_node,
-						child: prop_node,
-						outer_text: match[0],
-						inner_text: match[1]
-					};
-					return node;
+						var outer_text = buffers[0].substring(0, buffers[0].length - buffers[3].length);
+						var inner_text = buffers[1].substring(0, buffers[1].length - buffers[2].length);
+						var node = {
+							type: "prop",
+							subtype: "square_brackets",
+							parent: old_curr_node,
+							child: contents,
+							outer_text: outer_text,
+							inner_text: inner_text
+						};
+						return node;
+					} else {
+						throw new Error("Unclosed [");
+					}
 				} else {
 					throw new Error("Unexpected property '" + match[1] + "'");
 				}
@@ -193,7 +220,7 @@
 				var match = this.buffer.match(open_paren_regex);
 				if (match) {
 					var arg_node = false;
-					this.buffer = this.buffer.substr(1); // Kill the open paren
+					this.buffer = this.buffer.substr(match[0].length); // Kill the open paren
 					var args = [];
 					var old_curr_node = this.curr_node;
 					do {
@@ -211,11 +238,11 @@
 							}
 						}
 					} while (arg_node);
-					this.curr_node = old_curr_node;
+					//this.curr_node = old_curr_node;
 					var node = {
 						type: "fn_call",
 						args: args,
-						fn: this.curr_node
+						fn: old_curr_node
 					};
 					return node;
 				}
@@ -291,12 +318,26 @@
 			}
 			return false;
 		};
+		var separator_regex = new RegExp("^[;,]");
+		proto.parse_separator = function () {
+			var match = this.buffer.match(separator_regex);
+			if(match) {
+				this.buffer = this.buffer.substr(match[0].length);
+				var node = {
+					type: "separator",
+					separator: match[0],
+				};
+				return node;
+			}
+			return false;
+		};
 	}(Parser));
 
 	var do_parse = function (expr, options) {
 		var parser = new Parser(expr, options);
 		return parser.tokenize();
 	};
+	do_parse.version = "0.0.4";
 
 	if (typeof exports !== 'undefined') {
 		if (typeof module !== 'undefined' && module.exports) {
