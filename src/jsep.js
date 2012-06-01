@@ -4,7 +4,8 @@
 	var unary_ops = ["-", "!"], // Permissible unary operations
 		binary_ops = ["+", "-", "*", "/", "&&", "||", "&", "|", "<<", ">>", "===", "==", ">=", "<=",  "<", ">"]; //Permissible binary operations
 
-	var ltrim2regex = /^\s+/,
+	//Trim the left hand side of a string
+	var ltrim_regex = /^\s+/,
 		ltrim = function (str) {
 			return str.replace(ltrim_regex, '');
 		};
@@ -292,8 +293,17 @@
 		};
 	}(Parser));
 
-	root.jsep = function (expr, options) {
+	var do_parse = function (expr, options) {
 		var parser = new Parser(expr, options);
 		return parser.tokenize();
 	};
+
+	if (typeof exports !== 'undefined') {
+		if (typeof module !== 'undefined' && module.exports) {
+			exports = module.exports = do_parse;
+		}
+		exports.do_parse = do_parse;
+	} else {
+		root.jsep = do_parse;
+	}
 }(this));
