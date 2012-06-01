@@ -22,4 +22,4 @@ The jsep built files will be in the build/ directory.
 
 See LICENSE file.
 
-[jsep.from.so]: http://jsep.from.so/
+[jsep homepage](http://jsep.from.so/)
