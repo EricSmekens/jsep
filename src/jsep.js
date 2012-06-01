@@ -73,7 +73,7 @@
 					this.curr_node = node;
 				} else {
 					var separator_node = this.parse_separator();
-					if(separator_node) {
+					if (separator_node) {
 						break;
 					}
 				}
@@ -152,7 +152,7 @@
 				var contents = this.gobble_expression();
 				if (contents) {
 					match = this.buffer.match(close_square_brackets_regex);
-					if(match) {
+					if (match) {
 						buffers.push(this.buffer);
 						this.buffer = this.buffer.substr(match[0].length); // Kill the close bracket
 						buffers.push(this.buffer);
@@ -321,7 +321,7 @@
 		var separator_regex = new RegExp("^[;,]");
 		proto.parse_separator = function () {
 			var match = this.buffer.match(separator_regex);
-			if(match) {
+			if (match) {
 				this.buffer = this.buffer.substr(match[0].length);
 				var node = {
 					type: "separator",
