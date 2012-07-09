@@ -345,6 +345,12 @@
 		}
 		exports.do_parse = do_parse;
 	} else {
+		var old_jsep = root.jsep;
 		root.jsep = do_parse;
+		do_parse.noConflict = function() {
+			var jsep = root.jsep;
+			root.jsep = old_jsep;
+			return jsep;
+		};
 	}
 }(this));
