@@ -1,8 +1,10 @@
 (function (root) {
 	"use strict";
 
-	var unary_ops = ["-", "!"], // Permissible unary operations
-		binary_ops = ["+", "-", "*", "/", "&&", "||", "&", "|", "<<", ">>", "===", "==", ">=", "<=",  "<", ">"]; //Permissible binary operations
+	var default_unary_ops = ["-", "!"], // Permissible unary operations
+		default_binary_ops = ["+", "-", "*", "/", "&&", "||", "&", "|", "<<", ">>", "===", "==", ">=", "<=",  "<", ">"], //Permissible binary operations
+		default_constants = ["true", "false"];
+
 
 	//Trim the left hand side of a string
 	var ltrim_regex = /^\s+/,
@@ -12,7 +14,11 @@
 
 	var Parser = function (expr, options) {
 		this.expr = expr;
-		this.options = options;
+		this.options = _.extend({
+									unary_ops: default_unary_ops,
+									binary_ops: default_binary_ops,
+									constrants: default_constants
+								}, options);
 		this.buffer = this.expr;
 		this.curr_node = null;
 	};
@@ -97,6 +103,9 @@
 				node = this.parse_square_brackets_property();
 			}
 			if (node === false) {
+				node = this.parse_predef();
+			}
+			if (node === false) {
 				node = this.parse_constant();
 			}
 			return node;
@@ -177,6 +186,25 @@
 			}
 			return false;
 		};
+
+		proto.parse_predef = function () {
+			var match;
+			var i, len;
+			for (i = 0, len = this.options.constants.length; i<len; i++) {
+				var constant = this.options.constants[i];
+				var regex = new RegExp("^("+constant+")[^a-zA-Z0-9_\\$]");
+				match = this.buffer.match(regex);
+				if(match) {
+					this.buffer = this.buffer.substr(match[0].length);
+					return {
+						type: "predef",
+						value: match[0]
+					};
+				}
+			}
+			return false;
+		};
+
 		var start_str_regex = new RegExp("^['\"]");
 		var number_regex = new RegExp("^(\\d+(\\.\\d+)?)");
 		proto.parse_constant = function () {
@@ -278,8 +306,8 @@
 		};
 		proto.parse_unary_op = function () {
 			var i, leni;
-			for (i = 0, leni = unary_ops.length; i < leni; i += 1) {
-				var unary_op = unary_ops[i];
+			for (i = 0, leni = this.options.unary_ops.length; i < leni; i += 1) {
+				var unary_op = this.options.unary_ops[i];
 				if (starts_with(this.buffer, unary_op)) {
 					this.buffer = this.buffer.substr(unary_op.length);
 					var operand = this.gobble_expression();
@@ -298,8 +326,8 @@
 		proto.parse_binary_op = function () {
 			if (this.curr_node !== null) {
 				var i, len;
-				for (i = 0, len = binary_ops.length; i < len; i += 1) {
-					var binary_op = binary_ops[i];
+				for (i = 0, len = this.options.binary_ops.length; i < len; i += 1) {
+					var binary_op = this.options.binary_ops[i];
 					if (starts_with(this.buffer, binary_op)) {
 						this.buffer = this.buffer.substr(binary_op.length);
 						var operand_1 = this.curr_node;
@@ -337,7 +365,7 @@
 		var parser = new Parser(expr, options);
 		return parser.tokenize();
 	};
-	do_parse.version = "0.0.4";
+	do_parse.version = "0.1.0";
 
 	if (typeof exports !== 'undefined') {
 		if (typeof module !== 'undefined' && module.exports) {

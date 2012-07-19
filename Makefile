@@ -1,8 +1,12 @@
-all: core
+all: _build
 
-core:
+_build:
 	mkdir -p build
-	./Makefile.dryice.js
+	./Makefile.dryice.js build
+
+dist: _build
+	mkdir -p dist
+	./Makefile.dryice.js dist
 
 clean:
 	rm -f build/*.js
