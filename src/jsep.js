@@ -3,7 +3,7 @@
 
 	var default_unary_ops = ["-", "!"], // Permissible unary operations
 		default_binary_ops = ["+", "-", "*", "/", "&&", "||", "&", "|", "<<", ">>", "===", "==", ">=", "<=",  "<", ">"], //Permissible binary operations
-		default_constants = ["true", "false"];
+		default_keywords = ["true", "false", "this"];
 
 
 	//Trim the left hand side of a string
@@ -17,7 +17,7 @@
 		this.options = _.extend({
 									unary_ops: default_unary_ops,
 									binary_ops: default_binary_ops,
-									constrants: default_constants
+									keywords: default_keywords
 								}, options);
 		this.buffer = this.expr;
 		this.curr_node = null;
@@ -190,8 +190,8 @@
 		proto.parse_predef = function () {
 			var match;
 			var i, len;
-			for (i = 0, len = this.options.constants.length; i<len; i++) {
-				var constant = this.options.constants[i];
+			for (i = 0, len = this.options.keywords.length; i<len; i++) {
+				var constant = this.options.keywords[i];
 				var regex = new RegExp("^("+constant+")[^a-zA-Z0-9_\\$]");
 				match = this.buffer.match(regex);
 				if(match) {
