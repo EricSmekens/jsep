@@ -5,6 +5,16 @@
 		default_binary_ops = ["+", "-", "*", "/", "&&", "||", "&", "|", "<<", ">>", "===", "==", ">=", "<=",  "<", ">"], //Permissible binary operations
 		default_keywords = ["true", "false", "this"];
 
+	var extend = function(obj) {
+		var i, len = arguments.length;
+		for(i = 1; i<len; i++) {
+			var source = arguments[i];
+			for (var prop in source) {
+				obj[prop] = source[prop];
+			}
+		}
+		return obj;
+	};
 
 	//Trim the left hand side of a string
 	var ltrim_regex = /^\s+/,
@@ -14,7 +24,7 @@
 
 	var Parser = function (expr, options) {
 		this.expr = expr;
-		this.options = _.extend({
+		this.options = extend({
 									unary_ops: default_unary_ops,
 									binary_ops: default_binary_ops,
 									keywords: default_keywords
