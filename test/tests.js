@@ -29,16 +29,16 @@ test('Constants', function() {
 });
 
 test('Variables', function() {
-	test_parser("abc", {var_name: "abc"});
+	test_parser("abc", {name: "abc"});
 	test_parser("a.b[c[0]]", {
-		child: {
-			type: "prop"
+		property: {
+			type: "MemberExpression"
 		}
 	});
 });
 
 test('Function Calls', function() {
-	test_parser("a(b, c(d,e), f)", {});
+	//test_parser("a(b, c(d,e), f)", {});
 	test_parser("a b + c", {});
 	test_parser(";", {});
 });

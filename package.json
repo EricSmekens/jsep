@@ -1,23 +1,26 @@
-{ "name": "jsep"
-, "description": "JavaScript Expression Parser"
-, "version": "0.1.0"
-, "author": "Stephen Oney (Carnegie Mellon)"
-, "maintainers": [
-	{
-	"name": "Stephen Oney"
-	, "email": "swloney@gmail.com"
-	, "web": "http://from.so/"
-	}
-]
-, "licenses": [
-	{
-	"type": "MIT"
-	, "url": "https://github.com/soney/jsep/blob/master/LICENSE"
-	}
-]
-, "private": false
-, "dependencies": {
-	"dryice": ">= 0.2.5"
-}
-, "engines": {"node": ">= 0.4.7"}
+{
+	"name": "jsep",
+	"description": "JavaScript Expression Parser",
+	"version": "0.2.0",
+	"author": "Stephen Oney (Carnegie Mellon)",
+	"maintainers": [{
+		"name": "Stephen Oney",
+		"email": "swloney@gmail.com",
+		"web": "http://from.so/"
+	}],
+	"licenses": [{
+		"type": "MIT",
+		"url": "https://github.com/soney/jsep/blob/master/LICENSE"
+	}],
+	"private": false,
+	"dependencies": {
+		"grunt": "~0.4.1",
+		"grunt-contrib-jshint": "~0.1",
+		"grunt-contrib-qunit": "~0.3",
+		"grunt-contrib-uglify": "~0.2",
+		"grunt-contrib-concat": "~0.2",
+		"grunt-contrib-watch": "~0.5",
+		"grunt-contrib-clean": "~0.4"
+	},
+	"engines": {"node": ">= 0.4.7"}
 }

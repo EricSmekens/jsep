@@ -1,26 +1,32 @@
+/*global module: true, exports: true */
+
 (function (root) {
 	"use strict";
 
 	var default_unary_ops = ["-", "!"], // Permissible unary operations
-		default_binary_ops = ["+", "-", "*", "/", "&&", "||", "&", "|", "<<", ">>", "===", "==", ">=", "<=",  "<", ">"], //Permissible binary operations
-		default_keywords = ["true", "false", "this"];
-
-	var extend = function(obj) {
-		var i, len = arguments.length;
-		for(i = 1; i<len; i++) {
-			var source = arguments[i];
-			for (var prop in source) {
-				obj[prop] = source[prop];
+		default_binary_ops = ["+", "-", "*", "/", "%", "&&", "||", "&", "|", "<<", ">>", "===", "==", "!==", "!=", ">=", "<=",  "<", ">"], //Permissible binary operations
+		default_keywords = ["true", "false", "this"],
+		extend = function(base_obj, extension_obj) {
+			for (var prop in extension_obj) {
+				if(extension_obj.hasOwnProperty(prop)) {
+					base_obj[prop] = extension_obj[prop];
+				}
 			}
-		}
-		return obj;
-	};
-
-	//Trim the left hand side of a string
-	var ltrim_regex = /^\s+/,
+			return base_obj;
+		},
+		ltrim_regex = /^\s+/,
 		ltrim = function (str) {
+			//Trim the left hand side of a string
 			return str.replace(ltrim_regex, '');
-		};
+		},
+		COMPOUND = "Compound",
+		IDENTIFIER = "Identifier",
+		MEMBER_EXP = "MemberExpression",
+		LITERAL = "Literal",
+		THIS_EXP = "ThisExpression",
+		CALL_EXP = "CallExpression",
+		UNARY_EXP = "UnaryExpression",
+		BINARY_EXP = "BinaryExpression";
 
 	var Parser = function (expr, options) {
 		this.expr = expr;
@@ -55,8 +61,8 @@
 				rv = rv[0];
 			} else {
 				rv = {
-					type: "compound",
-					statements: rv
+					type: COMPOUND,
+					body: rv
 				};
 			}
 			return rv;
@@ -128,9 +134,8 @@
 				var var_name = match[1];
 				this.buffer = this.buffer.substr(match[0].length);
 				return {
-					type: "var",
-					var_name: var_name,
-					text: match[0]
+					type: IDENTIFIER,
+					name: var_name
 				};
 			}
 			return false;
@@ -144,13 +149,12 @@
 				this.buffer = this.buffer.substr(1);
 				var prop_node = this.parse_variable();
 				if (prop_node) {
-					var node = {
-						type: "prop",
-						subtype: "dot",
-						parent: this.curr_node,
-						child: prop_node
+					return {
+						type: MEMBER_EXP,
+						computed: false,
+						object: this.curr_node,
+						property: prop_node
 					};
-					return node;
 				} else {
 					throw new Error("Unexpected property '" + this.buffer[0] + "'");
 				}
@@ -179,12 +183,10 @@
 						var outer_text = buffers[0].substring(0, buffers[0].length - buffers[3].length);
 						var inner_text = buffers[1].substring(0, buffers[1].length - buffers[2].length);
 						var node = {
-							type: "prop",
-							subtype: "square_brackets",
-							parent: old_curr_node,
-							child: contents,
-							outer_text: outer_text,
-							inner_text: inner_text
+							type: MEMBER_EXP,
+							computed: true,
+							object: old_curr_node,
+							property: contents
 						};
 						return node;
 					} else {
@@ -198,18 +200,24 @@
 		};
 
 		proto.parse_predef = function () {
-			var match;
-			var i, len;
+			var match, i, len;
 			for (i = 0, len = this.options.keywords.length; i<len; i++) {
 				var constant = this.options.keywords[i];
 				var regex = new RegExp("^("+constant+")[^a-zA-Z0-9_\\$]");
 				match = this.buffer.match(regex);
 				if(match) {
 					this.buffer = this.buffer.substr(match[0].length);
-					return {
-						type: "predef",
-						value: match[0]
-					};
+					if(match[0] === "this") {
+						return {
+							type: THIS_EXP
+						};
+					} else {
+						return {
+							type: LITERAL,
+							value: match[0] === "true",
+							raw: match[0]
+						};
+					}
 				}
 			}
 			return false;
@@ -223,9 +231,9 @@
 			if (match) {
 				this.buffer = this.buffer.substr(match[0].length);
 				node = {
-					type: "constant",
-					text: match[0],
-					value: parseFloat(match[1])
+					type: LITERAL,
+					value: parseFloat(match[1]),
+					raw: match[0]
 				};
 				return node;
 			} else {
@@ -237,9 +245,9 @@
 					if (matching_quote_index >= 0) {
 						var content = this.buffer.substring(1, matching_quote_index);
 						node = {
-							type: "constant",
-							text: this.buffer.substring(0, matching_quote_index + 1),
-							value: content
+							type: LITERAL,
+							value: content,
+							raw: this.buffer.substring(0, matching_quote_index + 1)
 						};
 						this.buffer = this.buffer.substr(matching_quote_index + 1);
 						return node;
@@ -278,9 +286,9 @@
 					} while (arg_node);
 					//this.curr_node = old_curr_node;
 					var node = {
-						type: "fn_call",
-						args: args,
-						fn: old_curr_node
+						type: CALL_EXP,
+						"arguments": args,
+						callee: old_curr_node
 					};
 					return node;
 				}
@@ -303,11 +311,7 @@
 				match = this.buffer.match(close_paren_regex);
 				if (match) {
 					this.buffer = this.buffer.substr(match[0].length);
-					var node = {
-						type: "grouping",
-						contents: contents
-					};
-					return node;
+					return contents;
 				} else {
 					throw new Error("Unclosed (");
 				}
@@ -323,10 +327,10 @@
 					var operand = this.gobble_expression();
 
 					var node = {
-						type: "op",
-						subtype: "unary",
-						op: unary_op,
-						operands: [operand]
+						type: UNARY_EXP,
+						operator: unary_op,
+						prefix: true,
+						argument: operand
 					};
 					return node;
 				}
@@ -345,10 +349,10 @@
 						var operand_2 = this.gobble_expression();
 
 						var node = {
-							type: "op",
-							subtype: "binary",
-							op: binary_op,
-							operands: [operand_1, operand_2]
+							type: BINARY_EXP,
+							operator: binary_op,
+							left: operand_1,
+							right: operand_2
 						};
 						return node;
 					}
@@ -363,7 +367,7 @@
 				this.buffer = this.buffer.substr(match[0].length);
 				var node = {
 					type: "separator",
-					separator: match[0],
+					separator: match[0]
 				};
 				return node;
 			}
@@ -375,7 +379,58 @@
 		var parser = new Parser(expr, options);
 		return parser.tokenize();
 	};
-	do_parse.version = "0.1.0";
+	do_parse.version = "<%= version %>";
+
+	function binaryPrecedence(op_val) {
+		var prec = 0;
+		switch (op_val) {
+			case '||':
+				prec = 1; break;
+
+			case '&&':
+				prec = 2; break;
+
+			case '|':
+				prec = 3; break;
+
+			case '^':
+				prec = 4; break;
+
+			case '&':
+				prec = 5; break;
+
+			case '==':
+			case '!=':
+			case '===':
+			case '!==':
+				prec = 6; break;
+
+			case '<':
+			case '>':
+			case '<=':
+			case '>=':
+				prec = 7; break;
+
+			case '<<':
+			case '>>':
+			case '>>>':
+				prec = 8; break;
+
+			case '+':
+			case '-':
+				prec = 9; break;
+
+			case '*':
+			case '/':
+			case '%':
+				prec = 11; break;
+
+			default:
+				break;
+		}
+
+		return prec;
+	}
 
 	if (typeof exports !== 'undefined') {
 		if (typeof module !== 'undefined' && module.exports) {
