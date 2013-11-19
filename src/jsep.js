@@ -1,11 +1,17 @@
-/*global module: true, exports: true */
+/*global module: true, exports: true, console: true */
 
 (function (root) {
 	"use strict";
-
-	var default_unary_ops = ["-", "!"], // Permissible unary operations
-		default_binary_ops = ["+", "-", "*", "/", "%", "&&", "||", "&", "|", "<<", ">>", "===", "==", "!==", "!=", ">=", "<=",  "<", ">"], //Permissible binary operations
-		default_keywords = ["true", "false", "this"],
+	var unary_ops = ['-', '!', '~', '+'],
+		binary_ops = ['+', '-', '*', '/', '%', '&&', '||', '&', '|', '<<', '>>',
+						'===', '==', '!==', '!=', '>=', '<=',  '<', '>'],
+		binary_op_len = binary_ops.length,
+		literals = {
+			'true': true,
+			'false': false,
+			'null': null
+		},
+		this_str = 'this',
 		extend = function(base_obj, extension_obj) {
 			for (var prop in extension_obj) {
 				if(extension_obj.hasOwnProperty(prop)) {
@@ -14,11 +20,39 @@
 			}
 			return base_obj;
 		},
-		ltrim_regex = /^\s+/,
-		ltrim = function (str) {
-			//Trim the left hand side of a string
-			return str.replace(ltrim_regex, '');
+		binaryPrecedence = function(op_val) {
+			// Taken from the esprima parser's function
+			switch (op_val) {
+				case '||': return 1;
+				case '&&': return 2;
+				case '|': return 3;
+				case '^': return 4;
+				case '&': return 5;
+				case '==': case '!=': case '===': case '!==': return 6;
+				case '<': case '>': case '<=': case '>=': return 7;
+				case '<<': case '>>': case '>>>': return 8;
+				case '+': case '-': return 9;
+				case '*': case '/': case '%': return 11;
+			}
+			return 0;
 		},
+		// ch is a character code
+		isDecimalDigit = function(ch) {
+			return (ch >= 48 && ch <= 57);   // 0..9
+		},
+		isIdentifierStart = function(ch) {
+			return (ch === 36) || (ch === 95) ||  // $ (dollar) and _ (underscore)
+					(ch >= 65 && ch <= 90) ||     // A..Z
+					(ch >= 97 && ch <= 122);      // a..z
+		},
+		isIdentifierPart = function(ch) {
+			return (ch === 36) || (ch === 95) ||  // $ (dollar) and _ (underscore)
+				(ch >= 65 && ch <= 90) ||         // A..Z
+				(ch >= 97 && ch <= 122) ||        // a..z
+				(ch >= 48 && ch <= 57);           // 0..9
+		},
+		DONE = {},
+
 		COMPOUND = "Compound",
 		IDENTIFIER = "Identifier",
 		MEMBER_EXP = "MemberExpression",
@@ -26,411 +60,287 @@
 		THIS_EXP = "ThisExpression",
 		CALL_EXP = "CallExpression",
 		UNARY_EXP = "UnaryExpression",
-		BINARY_EXP = "BinaryExpression";
+		BINARY_EXP = "BinaryExpression",
+		LOGICAL_EXP = "LogicalExpression",
 
-	var Parser = function (expr, options) {
-		this.expr = expr;
-		this.options = extend({
-									unary_ops: default_unary_ops,
-									binary_ops: default_binary_ops,
-									keywords: default_keywords
-								}, options);
-		this.buffer = this.expr;
-		this.curr_node = null;
-	};
+		start_str_regex = new RegExp('^[\'"]'),
+		number_regex = new RegExp('^(\\d+(\\.\\d+)?)'),
 
-	(function (my) {
-		var proto = my.prototype;
-		proto.tokenize = function () {
-			var rv = [];
-			var last_buffer = this.buffer;
-			while (this.buffer) {
-				this.gobble_expression();
-				if (this.curr_node === false) {
-					throw new Error("Unexpected " + this.buffer);
-				} else {
-					rv.push(this.curr_node);
-				}
-				if (this.buffer === last_buffer) {
-					throw new Error("Could not parse " + this.buffer);
-				} else {
-					last_buffer = this.buffer;
-				}
-			}
-			if (rv.length === 1) {
-				rv = rv[0];
-			} else {
-				rv = {
-					type: COMPOUND,
-					body: rv
-				};
-			}
-			return rv;
-		};
-
-		proto.gobble_expression = function () {
-			var node;
-			this.curr_node = null;
-
-			do {
-				this.buffer = ltrim(this.buffer);
-				node = false;
-				if (node === false) {
-					node = this.gobble_token();
-				}
-				if (node === false) {
-					node = this.parse_fn_call();
-				}
-				if (node === false) {
-					node = this.parse_parens();
-				}
-				if (node === false) {
-					node = this.parse_binary_op();
-				}
-				if (node === false) {
-					node = this.parse_unary_op();
-				}
-
-				if (node) {
-					this.curr_node = node;
-				} else {
-					var separator_node = this.parse_separator();
-					if (separator_node) {
-						break;
-					}
-				}
-			} while (node);
-
-
-			return this.curr_node;
-		};
-
-		proto.gobble_token = function () {
-			var node = false;
-			if (node === false) {
-				if (this.curr_node === null) {
-					node = this.parse_variable();
-				}
-			}
-			if (node === false) {
-				node = this.parse_dot_property();
-			}
-			if (node === false) {
-				node = this.parse_square_brackets_property();
-			}
-			if (node === false) {
-				node = this.parse_predef();
-			}
-			if (node === false) {
-				node = this.parse_constant();
-			}
-			return node;
-		};
-
-		var var_regex = new RegExp("^([A-Za-z_$][A-Za-z_$0-9]*)");
-		proto.parse_variable = function () {
-			var match = this.buffer.match(var_regex);
-			if (match) { // We're dealing with a variable name
-				var var_name = match[1];
-				this.buffer = this.buffer.substr(match[0].length);
-				return {
-					type: IDENTIFIER,
-					name: var_name
-				};
-			}
-			return false;
-		};
-		proto.parse_dot_property = function () {
-			if (this.buffer[0] === ".") {
-				if (this.curr_node === null) {
-					throw new Error("Unexpected .");
-				}
-
-				this.buffer = this.buffer.substr(1);
-				var prop_node = this.parse_variable();
-				if (prop_node) {
+		do_parse = function(expr) {
+			var stack = [],
+				index = 0,
+				length = expr.length,
+				createBinaryExpression = function (operator, left, right) {
+					var type = (operator === '||' || operator === '&&') ? LOGICAL_EXP : BINARY_EXP;
 					return {
-						type: MEMBER_EXP,
-						computed: false,
-						object: this.curr_node,
-						property: prop_node
+						type: type,
+						operator: operator,
+						left: left,
+						right: right
 					};
-				} else {
-					throw new Error("Unexpected property '" + this.buffer[0] + "'");
-				}
-			}
-			return false;
-		};
-		var open_square_brackets_regex = new RegExp("^\\[");
-		var close_square_brackets_regex = new RegExp("^\\]");
-		proto.parse_square_brackets_property = function () {
-			var buffers = [];
-			var match = this.buffer.match(open_square_brackets_regex);
-			if (match) {// We're dealing with square brackets
-				buffers.push(this.buffer);
-				this.buffer = this.buffer.substr(match[0].length); // Kill the open bracket
-				buffers.push(this.buffer);
-				var old_curr_node = this.curr_node;
-				this.curr_node = null;
-				var contents = this.gobble_expression();
-				if (contents) {
-					match = this.buffer.match(close_square_brackets_regex);
-					if (match) {
-						buffers.push(this.buffer);
-						this.buffer = this.buffer.substr(match[0].length); // Kill the close bracket
-						buffers.push(this.buffer);
-
-						var outer_text = buffers[0].substring(0, buffers[0].length - buffers[3].length);
-						var inner_text = buffers[1].substring(0, buffers[1].length - buffers[2].length);
-						var node = {
-							type: MEMBER_EXP,
-							computed: true,
-							object: old_curr_node,
-							property: contents
-						};
-						return node;
-					} else {
-						throw new Error("Unclosed [");
-					}
-				} else {
-					throw new Error("Unexpected property '" + match[1] + "'");
-				}
-			}
-			return false;
-		};
-
-		proto.parse_predef = function () {
-			var match, i, len;
-			for (i = 0, len = this.options.keywords.length; i<len; i++) {
-				var constant = this.options.keywords[i];
-				var regex = new RegExp("^("+constant+")[^a-zA-Z0-9_\\$]");
-				match = this.buffer.match(regex);
-				if(match) {
-					this.buffer = this.buffer.substr(match[0].length);
-					if(match[0] === "this") {
-						return {
-							type: THIS_EXP
-						};
-					} else {
-						return {
-							type: LITERAL,
-							value: match[0] === "true",
-							raw: match[0]
-						};
-					}
-				}
-			}
-			return false;
-		};
-
-		var start_str_regex = new RegExp("^['\"]");
-		var number_regex = new RegExp("^(\\d+(\\.\\d+)?)");
-		proto.parse_constant = function () {
-			var match, node;
-			match = this.buffer.match(number_regex);
-			if (match) {
-				this.buffer = this.buffer.substr(match[0].length);
-				node = {
-					type: LITERAL,
-					value: parseFloat(match[1]),
-					raw: match[0]
-				};
-				return node;
-			} else {
-				match = this.buffer.match(start_str_regex);
-				if (match) {
-					var quote_type = match[0];
-					var matching_quote_index = this.buffer.indexOf(quote_type, quote_type.length);
-
-					if (matching_quote_index >= 0) {
-						var content = this.buffer.substring(1, matching_quote_index);
-						node = {
-							type: LITERAL,
-							value: content,
-							raw: this.buffer.substring(0, matching_quote_index + 1)
-						};
-						this.buffer = this.buffer.substr(matching_quote_index + 1);
-						return node;
-					} else {
-						throw new Error("Unclosed quote in " + match[0]);
-					}
-				}
-			}
-			return false;
-		};
-		var open_paren_regex = new RegExp("^\\(");
-		var fn_arg_regex = new RegExp("^\\s*,");
-		var close_paren_regex = new RegExp("^\\s*\\)");
-		proto.parse_fn_call = function () {
-			if (this.curr_node && (this.curr_node.type === "prop" || this.curr_node.type === "var" || this.curr_node.type === "fn_call")) {
-				var match = this.buffer.match(open_paren_regex);
-				if (match) {
-					var arg_node = false;
-					this.buffer = this.buffer.substr(match[0].length); // Kill the open paren
-					var args = [];
-					var old_curr_node = this.curr_node;
-					do {
-						this.curr_node = null;
-						arg_node = this.gobble_expression();
-						args.push(arg_node);
-						match = this.buffer.match(fn_arg_regex);
-						if (match) {
-							this.buffer = this.buffer.substr(match[0].length);
-						} else {
-							match = this.buffer.match(close_paren_regex);
-							if (match) {
-								this.buffer = this.buffer.substr(match[0].length);
-								break;
+				},
+				gobbleBinaryOp = function() {
+					var biop, i, j, op_len;
+					outer: for(i = 0; i<binary_op_len; i++) {
+						biop = binary_ops[i];
+						op_len = biop.length;
+						for(j = 0; j<op_len; j++) {
+							if(biop[j] !== expr[index + j]) {
+								continue outer;
 							}
 						}
-					} while (arg_node);
-					//this.curr_node = old_curr_node;
-					var node = {
-						type: CALL_EXP,
-						"arguments": args,
-						callee: old_curr_node
-					};
-					return node;
-				}
-			}
-			return false;
-		};
-
-		var starts_with = function (str, substr) {
-			return str.substr(0, substr.length) === substr;
-		};
-
-		proto.parse_parens = function () {
-			var match = this.buffer.match(open_paren_regex);
-
-			if (match) {
-				this.buffer = this.buffer.substr(match[0].length);
-				var previous_node = this.curr_node;
-				this.curr_node = null;
-				var contents = this.gobble_expression();
-				match = this.buffer.match(close_paren_regex);
-				if (match) {
-					this.buffer = this.buffer.substr(match[0].length);
-					return contents;
-				} else {
-					throw new Error("Unclosed (");
-				}
-			}
-			return false;
-		};
-		proto.parse_unary_op = function () {
-			var i, leni;
-			for (i = 0, leni = this.options.unary_ops.length; i < leni; i += 1) {
-				var unary_op = this.options.unary_ops[i];
-				if (starts_with(this.buffer, unary_op)) {
-					this.buffer = this.buffer.substr(unary_op.length);
-					var operand = this.gobble_expression();
-
-					var node = {
-						type: UNARY_EXP,
-						operator: unary_op,
-						prefix: true,
-						argument: operand
-					};
-					return node;
-				}
-			}
-			return false;
-		};
-		proto.parse_binary_op = function () {
-			if (this.curr_node !== null) {
-				var i, len;
-				for (i = 0, len = this.options.binary_ops.length; i < len; i += 1) {
-					var binary_op = this.options.binary_ops[i];
-					if (starts_with(this.buffer, binary_op)) {
-						this.buffer = this.buffer.substr(binary_op.length);
-						var operand_1 = this.curr_node;
-						this.curr_node = null;
-						var operand_2 = this.gobble_expression();
-
-						var node = {
-							type: BINARY_EXP,
-							operator: binary_op,
-							left: operand_1,
-							right: operand_2
-						};
-						return node;
+						index += op_len;
+						return biop;
 					}
-				}
-			}
-			return false;
-		};
-		var separator_regex = new RegExp("^[;,]");
-		proto.parse_separator = function () {
-			var match = this.buffer.match(separator_regex);
-			if (match) {
-				this.buffer = this.buffer.substr(match[0].length);
-				var node = {
-					type: "separator",
-					separator: match[0]
+					return false;
+				},
+				gobbleExpression = function() {
+					var nodes = [], ch_i, node, biop, prec, stack, biop_info, left, right, i;
+					while(index < length) {
+						gobbleSpaces();
+						ch_i = expr[index];
+						if((biop = gobbleBinaryOp())) {
+							if(node) {
+								prec = binaryPrecedence(biop);
+								biop_info = { value: biop, prec: prec };
+								index++;
+
+								if(prec === 0) {
+									continue;
+								}
+								if(stack) {
+									right = stack.pop();
+									// Reduce: make a binary expression from the three topmost entries.
+									while ((stack.length > 2) && (prec <= stack[stack.length - 2].prec)) {
+										right = stack.pop();
+										biop = stack.pop().value;
+										left = stack.pop();
+										node = createBinaryExpression(biop, left, right);
+										stack.push(node);
+									}
+								} else {
+									left = node;
+									right = gobbleExpression();
+									stack = [left, biop_info, right];
+								}
+							} else if(unary_ops.indexOf(ch_i) >= 0) {
+								node = gobbleToken();
+								nodes.push(node);
+							} else {
+								throw new Error("Unexpected " + ch_i + " at character" + index);
+							}
+						} else if(ch_i === ';' || ch_i ===',') {
+							index++; // ignore seperators
+						} else {
+							if(node) {
+								i = stack.length - 1;
+								node = stack[i];
+								while(i > 1) {
+									node = createBinaryExpression(stack[i - 1].value, stack[i - 2], node); 
+									i -= 2;
+								}
+							}
+
+							node = gobbleToken();
+							nodes.push(node);
+						}
+					}
+					if(nodes.length === 1) {
+						return node[0];
+					} else {
+						return {
+							type: COMPOUND,
+							body: nodes
+						};
+					}
+				},
+				gobbleToken = function() {
+					var ch = expr.charCodeAt(index),
+						curr_node, op_index;
+					
+					gobbleSpaces();
+					if(isDecimalDigit(ch) || ch === 46) {
+						// Char code 46 is a dot (.)
+						return gobbleNumericLiteral();
+					} else if(ch === 39 || ch === 34) {
+						// Single or double quotes (' or ")
+						return gobbleStringLiteral();
+					} else if(isIdentifierPart(ch)) {
+						return gobbleVariable();
+					} else if((op_index = unary_ops.indexOf(ch)) >= 0) {
+						index++;
+						return {
+							type: UNARY_EXP,
+							operator: unary_ops[op_index],
+							"argument": gobbleToken(),
+							prefix: true
+						};
+					} else if(ch === 40) {
+						// Open parentheses
+						index++;
+						return gobbleGroup();
+					} else {
+						return false;
+					}
+				},
+				gobbleSpaces = function() {
+					var ch = expr.charCodeAt(index);
+					// space or tab
+					while(ch === 32 || ch === 9) {
+						ch = expr.charCodeAt(++index);
+					}
+				},
+				gobbleNumericLiteral = function() {
+					var number = '';
+					while(isDecimalDigit(expr.charCodeAt(index))) {
+						number += expr[index++];
+					}
+
+					if(expr[index] === '.') {
+						number += expr[index++];
+
+						while(isDecimalDigit(expr.charCodeAt(index))) {
+							number += expr[index++];
+						}
+					}
+
+					return {
+						type: LITERAL,
+						value: parseFloat(number),
+						raw: number
+					};
+				},
+				gobbleStringLiteral = function() {
+					var str = '', quote = expr[index++], closed = false, ch;
+
+					while(index < length) {
+						ch = expr[index++];
+						if(ch === quote) {
+							closed = true;
+							break;
+						} else if(ch === '\\') {
+							ch = expr[index++];
+							switch(ch) {
+								case 'n': str += '\n'; break;
+								case 'r': str += '\r'; break;
+								case 't': str += '\t'; break;
+								case 'b': str += '\b'; break;
+								case 'f': str += '\f'; break;
+								case 'v': str += '\x0B'; break;
+							}
+						} else {
+							str += ch;
+						}
+					}
+
+					if(!closed) {
+						throw new Error('Unclosed quote after "'+str+'"');
+					}
+
+					return {
+						type: LITERAL,
+						value: str,
+						raw: quote + str + quote
+					};
+				},
+				gobbleIdentifier = function() {
+					var ch, start = index, identifier;
+					while(index < length) {
+						ch = expr.charCodeAt(index);
+						if(isIdentifierPart(ch)) {
+							index++;
+						} else {
+							break;
+						}
+					}
+					identifier = expr.slice(start, index);
+
+					if(literals.hasOwnProperty(identifier)) {
+						return {
+							type: LITERAL,
+							value: literals[identifier],
+							raw: identifier
+						};
+					} else if(identifier === this_str) {
+						return { type: THIS_EXP };
+					} else {
+						return {
+							type: IDENTIFIER,
+							name: identifier
+						};
+					}
+				},
+				gobbleArguments = function() {
+					var ch_i, args = [], node;
+					while(index < length) {
+						gobbleSpaces();
+						ch_i = expr[index];
+						if(ch_i === ')') {
+							index++;
+							break;
+						} else if (ch_i === ',') {
+							index++;
+						} else {
+							node = gobbleExpression();
+							args.push(node);
+							//throw new Error("Expected comma at character " + index);
+						}
+					}
+					return args;
+				},
+				gobbleVariable = function() {
+					var ch_i, node, old_index;
+					node = gobbleIdentifier();
+					ch_i = expr[index];
+					while(ch_i === '.' || ch_i === '[' || ch_i === '(') {
+						if(ch_i === '.') {
+							index++;
+							node = {
+								type: MEMBER_EXP,
+								computed: false,
+								object: node,
+								property: gobbleIdentifier()
+							};
+						} else if(ch_i === '[') {
+							old_index = index;
+							index++;
+							node = {
+								type: MEMBER_EXP,
+								computed: true,
+								object: node,
+								property: gobbleExpression()
+							};
+							gobbleSpaces();
+							ch_i = expr[index];
+							if(ch_i !== ']') {
+								throw new Error("Unclosed [ at character " + index);
+							}
+						} else if(ch_i === '(') {
+							index++;
+							node = {
+								type: CALL_EXP,
+								"arguments": gobbleArguments(),
+								callee: node
+							};
+						}
+						ch_i = expr[index];
+					}
+					return node;
+				},
+				gobbleGroup = function() {
+					var node = gobbleExpression();
+					gobbleSpaces();
+					if(expr[index] === ')') {
+						index++;
+						return node;
+					} else {
+						throw new Error("Unclosed [ at character " + index);
+					}
 				};
-				return node;
-			}
-			return false;
+
+			return gobbleExpression();
 		};
-	}(Parser));
-
-	var do_parse = function (expr, options) {
-		var parser = new Parser(expr, options);
-		return parser.tokenize();
-	};
-	do_parse.version = "<%= version %>";
-
-	function binaryPrecedence(op_val) {
-		var prec = 0;
-		switch (op_val) {
-			case '||':
-				prec = 1; break;
-
-			case '&&':
-				prec = 2; break;
-
-			case '|':
-				prec = 3; break;
-
-			case '^':
-				prec = 4; break;
-
-			case '&':
-				prec = 5; break;
-
-			case '==':
-			case '!=':
-			case '===':
-			case '!==':
-				prec = 6; break;
-
-			case '<':
-			case '>':
-			case '<=':
-			case '>=':
-				prec = 7; break;
-
-			case '<<':
-			case '>>':
-			case '>>>':
-				prec = 8; break;
-
-			case '+':
-			case '-':
-				prec = 9; break;
-
-			case '*':
-			case '/':
-			case '%':
-				prec = 11; break;
-
-			default:
-				break;
-		}
-
-		return prec;
-	}
+	do_parse.version = '<%= version %>';
 
 	if (typeof exports !== 'undefined') {
 		if (typeof module !== 'undefined' && module.exports) {
