@@ -17,8 +17,8 @@ module.exports = function(grunt) {
 				report: 'gzip'
 			},
 			build: {
-				src: "build/jsep.js", // Use concatenated files
-				dest: "build/jsep.min.js"
+				src: "build/jsep-"+package.version+".js", // Use concatenated files
+				dest: "build/jsep-"+package.version+".min.js"
 			}
 		},
 		concat: {
@@ -33,7 +33,7 @@ module.exports = function(grunt) {
 			},
 			js: {
 				src: src_files,
-				dest: "build/jsep.js"
+				dest: "build/jsep-"+package.version+".js"
 			}
 		},
 		qunit: {
