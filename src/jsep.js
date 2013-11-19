@@ -1,7 +1,7 @@
 /*global module: true, exports: true, console: true */
 
 (function (root) {
-	"use strict";
+	'use strict';
 	var unary_ops = ['-', '!', '~', '+'],
 		binary_ops = ['+', '-', '*', '/', '%', '&&', '||', '&', '|', '<<', '>>',
 						'===', '==', '!==', '!=', '>=', '<=',  '<', '>'],
@@ -36,6 +36,15 @@
 			}
 			return 0;
 		},
+		createBinaryExpression = function (operator, left, right) {
+			var type = (operator === '||' || operator === '&&') ? LOGICAL_EXP : BINARY_EXP;
+			return {
+				type: type,
+				operator: operator,
+				left: left,
+				right: right
+			};
+		},
 		// ch is a character code
 		isDecimalDigit = function(ch) {
 			return (ch >= 48 && ch <= 57);   // 0..9
@@ -53,15 +62,15 @@
 		},
 		DONE = {},
 
-		COMPOUND = "Compound",
-		IDENTIFIER = "Identifier",
-		MEMBER_EXP = "MemberExpression",
-		LITERAL = "Literal",
-		THIS_EXP = "ThisExpression",
-		CALL_EXP = "CallExpression",
-		UNARY_EXP = "UnaryExpression",
-		BINARY_EXP = "BinaryExpression",
-		LOGICAL_EXP = "LogicalExpression",
+		COMPOUND = 'Compound',
+		IDENTIFIER = 'Identifier',
+		MEMBER_EXP = 'MemberExpression',
+		LITERAL = 'Literal',
+		THIS_EXP = 'ThisExpression',
+		CALL_EXP = 'CallExpression',
+		UNARY_EXP = 'UnaryExpression',
+		BINARY_EXP = 'BinaryExpression',
+		LOGICAL_EXP = 'LogicalExpression',
 
 		start_str_regex = new RegExp('^[\'"]'),
 		number_regex = new RegExp('^(\\d+(\\.\\d+)?)'),
@@ -70,17 +79,34 @@
 			var stack = [],
 				index = 0,
 				length = expr.length,
-				createBinaryExpression = function (operator, left, right) {
-					var type = (operator === '||' || operator === '&&') ? LOGICAL_EXP : BINARY_EXP;
-					return {
-						type: type,
-						operator: operator,
-						left: left,
-						right: right
-					};
+
+				gobbleExpression = function() {
+					var nodes = [], ch_i, node;
+					while(index < length) {
+						ch_i = expr[index];
+
+						if(ch_i === ';' || ch_i ===',') {
+							index++; // ignore seperators
+						} else {
+							if((node = gobbleBinaryExpression())) {
+								nodes.push(node);
+							}
+						}
+					}
+
+					if(nodes.length === 1) {
+						return nodes[0];
+					} else {
+						return {
+							type: COMPOUND,
+							body: nodes
+						};
+					}
 				},
+
 				gobbleBinaryOp = function() {
 					var biop, i, j, op_len;
+					gobbleSpaces();
 					outer: for(i = 0; i<binary_op_len; i++) {
 						biop = binary_ops[i];
 						op_len = biop.length;
@@ -94,71 +120,61 @@
 					}
 					return false;
 				},
-				gobbleExpression = function() {
-					var nodes = [], ch_i, node, biop, prec, stack, biop_info, left, right, i;
-					while(index < length) {
-						gobbleSpaces();
-						ch_i = expr[index];
-						if((biop = gobbleBinaryOp())) {
-							if(node) {
-								prec = binaryPrecedence(biop);
-								biop_info = { value: biop, prec: prec };
-								index++;
 
-								if(prec === 0) {
-									continue;
-								}
-								if(stack) {
-									right = stack.pop();
-									// Reduce: make a binary expression from the three topmost entries.
-									while ((stack.length > 2) && (prec <= stack[stack.length - 2].prec)) {
-										right = stack.pop();
-										biop = stack.pop().value;
-										left = stack.pop();
-										node = createBinaryExpression(biop, left, right);
-										stack.push(node);
-									}
-								} else {
-									left = node;
-									right = gobbleExpression();
-									stack = [left, biop_info, right];
-								}
-							} else if(unary_ops.indexOf(ch_i) >= 0) {
-								node = gobbleToken();
-								nodes.push(node);
-							} else {
-								throw new Error("Unexpected " + ch_i + " at character" + index);
-							}
-						} else if(ch_i === ';' || ch_i ===',') {
-							index++; // ignore seperators
-						} else {
-							if(node) {
-								i = stack.length - 1;
-								node = stack[i];
-								while(i > 1) {
-									node = createBinaryExpression(stack[i - 1].value, stack[i - 2], node); 
-									i -= 2;
-								}
-							}
 
-							node = gobbleToken();
-							nodes.push(node);
+				gobbleBinaryExpression = function() {
+					var ch_i, node, biop, prec, stack, biop_info, left, right, i;
+
+					left = gobbleToken();
+					biop = gobbleBinaryOp();
+					prec = binaryPrecedence(biop);
+
+					if(prec === 0) {
+						return left;
+					}
+
+					biop_info = { value: biop, prec: prec};
+
+					right = gobbleToken();
+					stack = [left, biop_info, right];
+
+					while((biop = gobbleBinaryOp())) {
+						prec = binaryPrecedence(biop);
+
+						if(prec === 0) {
+							break;
 						}
+						biop_info = { value: biop, prec: prec };
+
+						// Reduce: make a binary expression from the three topmost entries.
+						while ((stack.length > 2) && (prec <= stack[stack.length - 2].prec)) {
+							right = stack.pop();
+							biop = stack.pop().value;
+							left = stack.pop();
+							node = createBinaryExpression(biop, left, right);
+							stack.push(node);
+						}
+
+						node = gobbleToken();
+						stack.push(biop_info);
+						stack.push(node);
 					}
-					if(nodes.length === 1) {
-						return node[0];
-					} else {
-						return {
-							type: COMPOUND,
-							body: nodes
-						};
+
+					i = stack.length - 1;
+					node = stack[i];
+					while(i > 1) {
+						node = createBinaryExpression(stack[i - 1].value, stack[i - 2], node); 
+						i -= 2;
 					}
+
+					return node;
 				},
+
 				gobbleToken = function() {
-					var ch = expr.charCodeAt(index),
-						curr_node, op_index;
+					var ch, curr_node, op_index;
 					
 					gobbleSpaces();
+					ch = expr.charCodeAt(index);
 					if(isDecimalDigit(ch) || ch === 46) {
 						// Char code 46 is a dot (.)
 						return gobbleNumericLiteral();
@@ -172,7 +188,7 @@
 						return {
 							type: UNARY_EXP,
 							operator: unary_ops[op_index],
-							"argument": gobbleToken(),
+							argument: gobbleToken(),
 							prefix: true
 						};
 					} else if(ch === 40) {
@@ -183,6 +199,7 @@
 						return false;
 					}
 				},
+
 				gobbleSpaces = function() {
 					var ch = expr.charCodeAt(index);
 					// space or tab
@@ -190,6 +207,7 @@
 						ch = expr.charCodeAt(++index);
 					}
 				},
+
 				gobbleNumericLiteral = function() {
 					var number = '';
 					while(isDecimalDigit(expr.charCodeAt(index))) {
@@ -210,6 +228,7 @@
 						raw: number
 					};
 				},
+
 				gobbleStringLiteral = function() {
 					var str = '', quote = expr[index++], closed = false, ch;
 
@@ -243,6 +262,7 @@
 						raw: quote + str + quote
 					};
 				},
+				
 				gobbleIdentifier = function() {
 					var ch, start = index, identifier;
 					while(index < length) {
@@ -270,6 +290,7 @@
 						};
 					}
 				},
+
 				gobbleArguments = function() {
 					var ch_i, args = [], node;
 					while(index < length) {
@@ -281,13 +302,16 @@
 						} else if (ch_i === ',') {
 							index++;
 						} else {
-							node = gobbleExpression();
+							node = gobbleBinaryExpression();
+							if(!node || node.type === COMPOUND) {
+								throw new Error('Expected comma at character ' + index);
+							}
 							args.push(node);
-							//throw new Error("Expected comma at character " + index);
 						}
 					}
 					return args;
 				},
+
 				gobbleVariable = function() {
 					var ch_i, node, old_index;
 					node = gobbleIdentifier();
@@ -308,18 +332,19 @@
 								type: MEMBER_EXP,
 								computed: true,
 								object: node,
-								property: gobbleExpression()
+								property: gobbleBinaryExpression()
 							};
 							gobbleSpaces();
 							ch_i = expr[index];
 							if(ch_i !== ']') {
-								throw new Error("Unclosed [ at character " + index);
+								throw new Error('Unclosed [ at character ' + index);
 							}
+							index++;
 						} else if(ch_i === '(') {
 							index++;
 							node = {
 								type: CALL_EXP,
-								"arguments": gobbleArguments(),
+								'arguments': gobbleArguments(),
 								callee: node
 							};
 						}
@@ -327,14 +352,15 @@
 					}
 					return node;
 				},
+
 				gobbleGroup = function() {
-					var node = gobbleExpression();
+					var node = gobbleBinaryExpression();
 					gobbleSpaces();
 					if(expr[index] === ')') {
 						index++;
 						return node;
 					} else {
-						throw new Error("Unclosed [ at character " + index);
+						throw new Error('Unclosed ( at character ' + index);
 					}
 				};
 
