@@ -138,6 +138,9 @@
 					biop_info = { value: biop, prec: prec};
 
 					right = gobbleToken();
+					if(!right) {
+						throw new Error("Expected expression after " + biop + " at character " + index);
+					}
 					stack = [left, biop_info, right];
 
 					while((biop = gobbleBinaryOp())) {
@@ -158,6 +161,9 @@
 						}
 
 						node = gobbleToken();
+						if(!node) {
+							throw new Error("Expected expression after " + biop + " at character " + index);
+						}
 						stack.push(biop_info);
 						stack.push(node);
 					}
