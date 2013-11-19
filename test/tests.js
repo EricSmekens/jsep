@@ -1,4 +1,30 @@
 (function() {
+var binops = {
+	"+" : function(a, b) { return a + b; },
+	"-" : function(a, b) { return a - b; },
+	"*" : function(a, b) { return a * b; },
+	"/" : function(a, b) { return a / b; },
+	"%" : function(a, b) { return a % b; }
+};
+var unops = {
+	"-" : function(a) { return -a; },
+	"+" : function(a) { return -a; }
+};
+
+var do_eval = function(node) {
+	if(node.type === "BinaryExpression") {
+		return binops[node.operator](do_eval(node.left), do_eval(node.right));
+	} else if(node.type === "UnaryExpression") {
+		return unops[node.operator](do_eval(node.argument));
+	} else if(node.type === "Literal") {
+		return node.value;
+	}
+};
+
+var test_op_expession = function(str) {
+	equal(do_eval(jsep(str)), eval(str));
+};
+
 var filter_props = function(larger, smaller) {
 	var rv = {};
 	var prop_val;
@@ -41,6 +67,14 @@ test('Function Calls', function() {
 	//test_parser("a(b, c(d,e), f)", {});
 	test_parser("a b + c", {});
 	test_parser(";", {});
+});
+
+test('Ops', function() {
+	test_op_expession("1");
+	test_op_expession("1+2");
+	test_op_expession("1*2");
+	test_op_expession("1*(2+3)");
+	test_op_expession("(1+2)*3)");
 });
 
 
