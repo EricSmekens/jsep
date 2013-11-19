@@ -90,6 +90,8 @@
 						} else {
 							if((node = gobbleBinaryExpression())) {
 								nodes.push(node);
+							} else if(index < length) {
+								throw new Error("Unexpected '"+expr[index]+"' at character " + index);
 							}
 						}
 					}

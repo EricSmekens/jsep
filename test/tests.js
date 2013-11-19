@@ -74,7 +74,9 @@ test('Ops', function() {
 	test_op_expession("1+2");
 	test_op_expession("1*2");
 	test_op_expession("1*(2+3)");
-	test_op_expession("(1+2)*3)");
+	test_op_expession("(1+2)*3");
+	test_op_expession("(1+2)*3+4-2-5+2/2*3");
+	test_op_expession("1+2-3*4/8");
 });
 
 
