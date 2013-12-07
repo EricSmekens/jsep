@@ -12,19 +12,20 @@ module.exports = function(grunt) {
 		},
 		uglify: {
 			options: {
-				banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - ' +
-						'<%= grunt.template.today("yyyy-mm-dd h:MM:ss TT") %> */\n',
-				report: 'gzip'
+				banner: '/*<%= pkg.name %> - v<%= pkg.version %>*/\n',
+				report: 'gzip',
+				sourceMap: "build/jsep.min.js.map",
+				sourceMappingURL: "jsep.min.js.map",
+				sourceMapPrefix: 1
 			},
 			build: {
-				src: "build/jsep-"+package.version+".js", // Use concatenated files
-				dest: "build/jsep-"+package.version+".min.js"
+				src: "build/jsep.js", // Use built file
+				dest: "build/jsep.min.js"
 			}
 		},
 		concat: {
 			options: {
-				banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - ' +
-						'<%= grunt.template.today("yyyy-mm-dd h:MM:ss TT") %> */\n',
+				banner: '/*<%= pkg.name %> - v<%= pkg.version %>*/\n',
 				process: {
 					data: {
 						version: package.version // the updated version will be added to the concatenated file
@@ -33,7 +34,7 @@ module.exports = function(grunt) {
 			},
 			js: {
 				src: src_files,
-				dest: "build/jsep-"+package.version+".js"
+				dest: "build/jsep.js"
 			}
 		},
 		qunit: {
@@ -45,6 +46,19 @@ module.exports = function(grunt) {
 		watch: {
 			files: src_files.concat(['test/unit_tests.js', 'test/unit_tests/*.js']),
 			tasks: ['concat']
+		},
+		compress: {
+				production: {
+						options: {
+								archive: 'jsep-<%= pkg.version %>.zip'
+						},
+						files: [{
+								expand: true,
+								cwd: 'build/',
+								src: '*',
+								dest: 'jsep-<%= pkg.version %>'
+						}]
+				}
 		}
 	});
 
@@ -55,8 +69,10 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-clean');
 	grunt.loadNpmTasks('grunt-contrib-qunit');
 	grunt.loadNpmTasks('grunt-contrib-watch');
+	grunt.loadNpmTasks('grunt-contrib-compress');
 
 	// Default task(s).
 	grunt.registerTask('default', ['concat', 'uglify']);
 	grunt.registerTask('test', ['concat', 'jshint', 'qunit']); // Skip uglification if just testing
+	grunt.registerTask('package', ['clean', 'concat', 'jshint', 'qunit', 'uglify', 'compress']);
 };

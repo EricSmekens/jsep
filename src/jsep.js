@@ -189,7 +189,7 @@
 					} else if(ch === 39 || ch === 34) {
 						// Single or double quotes (' or ")
 						return gobbleStringLiteral();
-					} else if(isIdentifierPart(ch)) {
+					} else if(isIdentifierStart(ch)) {
 						return gobbleVariable();
 					} else if((op_index = unary_ops.indexOf(ch)) >= 0) {
 						index++;
@@ -272,7 +272,12 @@
 				},
 				
 				gobbleIdentifier = function() {
-					var ch, start = index, identifier;
+					var ch = expr.charCodeAt(index), start = index, identifier;
+
+					if(isIdentifierStart(ch)) {
+						index++;
+					}
+
 					while(index < length) {
 						ch = expr.charCodeAt(index);
 						if(isIdentifierPart(ch)) {
@@ -375,6 +380,7 @@
 			return gobbleExpression();
 		};
 	do_parse.version = '<%= version %>';
+	do_parse.toString = function() { return 'JavaScript Expression Parser (JSEP) v' + do_parse.version; };
 
 	if (typeof exports !== 'undefined') {
 		if (typeof module !== 'undefined' && module.exports) {
