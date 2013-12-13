@@ -59,6 +59,15 @@ module.exports = function(grunt) {
 								dest: 'jsep-<%= pkg.version %>'
 						}]
 				}
+		},
+		docco: {
+			package: {
+				src: ['build/jsep.js'],
+				options: {
+					output: 'docs/',
+					css: "src/docco.css"
+				}
+			}
 		}
 	});
 
@@ -70,9 +79,10 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-qunit');
 	grunt.loadNpmTasks('grunt-contrib-watch');
 	grunt.loadNpmTasks('grunt-contrib-compress');
+	grunt.loadNpmTasks('grunt-docco');
 
 	// Default task(s).
 	grunt.registerTask('default', ['concat', 'uglify']);
 	grunt.registerTask('test', ['concat', 'jshint', 'qunit']); // Skip uglification if just testing
-	grunt.registerTask('package', ['clean', 'concat', 'jshint', 'qunit', 'uglify', 'compress']);
+	grunt.registerTask('package', ['clean', 'concat', 'jshint', 'qunit', 'uglify', 'compress', 'docco']);
 };
