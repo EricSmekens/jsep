@@ -451,7 +451,7 @@
 	} else {
 		// In Node.JS environments
 		if (typeof root.module !== 'undefined' && module.exports) {
-			exports = module.exports = do_parse;
+			module.exports.parse = do_parse;
 		}
 		exports.do_parse = do_parse;
 	}
