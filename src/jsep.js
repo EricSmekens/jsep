@@ -84,7 +84,7 @@
 		// Parsing
 		// -------
 		// `expr` is a string with the passed in expression
-		do_parse = function(expr) {
+		jsep = function(expr) {
 			// `index` stores the character number we are currently at while `length` is a constant
 			// All of the gobbles below will modify `index` as we move along
 			var index = 0,
@@ -434,25 +434,25 @@
 		};
 
 	// To be filled in by the template
-	do_parse.version = '<%= version %>';
-	do_parse.toString = function() { return 'JavaScript Expression Parser (JSEP) v' + do_parse.version; };
+	jsep.version = '<%= version %>';
+	jsep.toString = function() { return 'JavaScript Expression Parser (JSEP) v' + jsep.version; };
 
 	// In desktop environments, have a way to restore the old value for `jsep`
-	if (typeof root['export'] === 'undefined') {
+	if (typeof exports === 'undefined') {
 		var old_jsep = root.jsep;
 		// The star of the show! It's a function!
-		root.jsep = do_parse;
+		root.jsep = jsep;
 		// And a curteous function willing to move out of the way for other similary-namaed objects!
-		do_parse.noConflict = function() {
+		jsep.noConflict = function() {
 			var jsep = root.jsep;
 			root.jsep = old_jsep;
 			return jsep;
 		};
 	} else {
 		// In Node.JS environments
-		if (typeof root.module !== 'undefined' && module.exports) {
-			exports = module.exports = do_parse;
+		if (typeof module !== 'undefined' && module.exports) {
+			exports = module.exports = jsep;
 		}
-		exports.parse = do_parse;
+		exports.parse = jsep;
 	}
 }(this));

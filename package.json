@@ -1,7 +1,7 @@
 {
 	"name": "jsep",
 	"description": "JavaScript Expression Parser",
-	"version": "0.2.3",
+	"version": "0.2.5",
 	"author": "Stephen Oney (Carnegie Mellon)",
 	"maintainers": [{
 		"name": "Stephen Oney",
