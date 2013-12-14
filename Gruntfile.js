@@ -41,7 +41,7 @@ module.exports = function(grunt) {
 			files: ['test/unit_tests.html']
 		},
 		clean: {
-			build: ["build/"]
+			build: ["build/", "annotated_source/"]
 		},
 		watch: {
 			files: src_files.concat(['test/unit_tests.js', 'test/unit_tests/*.js']),
@@ -64,7 +64,7 @@ module.exports = function(grunt) {
 			package: {
 				src: ['build/jsep.js'],
 				options: {
-					output: 'docs/',
+					output: 'annotated_source/',
 					css: "src/docco.css"
 				}
 			}

@@ -12,8 +12,10 @@
 		"type": "MIT",
 		"url": "https://github.com/soney/jsep/blob/master/LICENSE"
 	}],
+	"main": "build/jsep.js",
 	"private": false,
-	"dependencies": {
+	"dependencies": {},
+	"devDependencies": {
 		"grunt": "~0.4.1",
 		"grunt-contrib-jshint": "~0.1",
 		"grunt-contrib-qunit": "~0.3",
