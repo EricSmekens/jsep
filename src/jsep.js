@@ -452,7 +452,8 @@
 		// In Node.JS environments
 		if (typeof module !== 'undefined' && module.exports) {
 			exports = module.exports = jsep;
+		} else {
+			exports.parse = jsep;
 		}
-		exports.parse = jsep;
 	}
 }(this));
