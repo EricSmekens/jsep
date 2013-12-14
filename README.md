@@ -20,7 +20,7 @@ The jsep built files will be in the build/ directory.
     ...
     var parse_tree = jsep("1 + 1");
 ####Node.JS
-First, run `npm install jsep`
+First, run `npm install jsep`. Then, in your source file:
 
     var jsep = require("jsep");
     var parse_tree = jsep("1 + 1");
