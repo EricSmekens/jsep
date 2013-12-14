@@ -444,8 +444,9 @@
 		root.jsep = jsep;
 		// And a curteous function willing to move out of the way for other similary-namaed objects!
 		jsep.noConflict = function() {
-			var jsep = root.jsep;
-			root.jsep = old_jsep;
+			if(root.jsep === jsep) {
+				root.jsep = old_jsep;
+			}
 			return jsep;
 		};
 	} else {
