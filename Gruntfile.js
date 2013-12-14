@@ -12,7 +12,7 @@ module.exports = function(grunt) {
 		},
 		uglify: {
 			options: {
-				banner: '/*<%= pkg.name %> - v<%= pkg.version %>*/\n',
+				banner: '/* <%= pkg.name %> v<%= pkg.version %> (<%= pkg.homepage %>) */',
 				report: 'gzip',
 				sourceMap: "build/jsep.min.js.map",
 				sourceMappingURL: "jsep.min.js.map",
@@ -25,7 +25,6 @@ module.exports = function(grunt) {
 		},
 		concat: {
 			options: {
-				banner: '/*<%= pkg.name %> - v<%= pkg.version %>*/\n',
 				process: {
 					data: {
 						version: package.version // the updated version will be added to the concatenated file
