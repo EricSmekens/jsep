@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>jsep: JavaScript Expression Parser</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">
+		<style type="text/css">
+			body {
+				margin-top: 50px;
+			}
+			a.btn small {
+				opacity: 0.7;
+			}
+			.download-info {
+				text-align: left;
+			}
+			.size-info {
+				margin-top: 5px;
+				font-size: 0.95em;
+				color: #888;
+			}
+			.header-unit {
+				background-color: #F0F0F0;
+				border-radius: 10px;
+				padding-top: 30px;
+				padding-bottom: 40px;
+			}
+			.header-unit h1 {
+				font-size: 60px;
+				letter-spacing: -1px;
+				line-height: 1;
+				margin-bottom: 0;
+				margin-left: 30px;
+				margin-right: 30px;
+			}
+			.header-unit p {
+				font-size: 18px;
+				font-weight: 200;
+				line-height: 27px;
+				margin-left: 30px;
+				margin-right: 30px;
+			}
+			.header-unit div {
+				margin-left: 30px;
+				margin-right: 30px;
+			}
+			textarea#demo_expr {
+				width: 100%;
+				font-family: Menlo,Monaco,Consolas,"Courier New",monospace;
+			}
+			textarea#demo_expr.error {
+				color: #B94A48;
+				border-color:#B94A48;
+			}
+			textarea#demo_expr.error:focus {
+				border-color: #953b39;
+				-webkit-box-shadow: 0 0 6px #d59392;
+				-moz-box-shadow: 0 0 6px #d59392;
+				box-shadow: 0 0 6px #d59392;
+			}
+
+			#demo_out {
+				font-family: Menlo,Monaco,Consolas,"Courier New",monospace;
+			}
+			#demo_out.error {
+				color: #B94A48;
+			}
+			footer {
+				margin-top: 20px;
+			}
+		</style>
+	</head>
+	<body>
+	<div class="container">
+		<div class="inner">
+			<div class="row">
+				<div class="header-unit col-md-6">
+					<h1>jsep</h1>
+					<p>a simple JavaScript expression parser</p>
+					<div class="download-info">
+						<div>
+							<a href="jsep-0.2.5.zip" class="btn btn-primary btn-lg">Download <small>v0.2.5</small></a>
+							<span class="size-info">&lt; 1kb minified &amp; gzipped</span>
+						</div>
+						<div>
+							<a href="https://github.com/soney/jsep" class="btn">Source on GitHub</a>
+							<a href="annotated_source/jsep.html" class="btn">Annotated Source</a>
+						</div>
+					</div>
+				</div>
+				<div class="col-md-6">
+					<div class="page-header">
+						<h1>About</h1>
+					</div>
+					<p>jsep is a parser for JavaScript expressions written in JavaScript. jsep is able to parse expressions like <code>x * (1 + 2)</code> or <code>foo(bar.baz[0])</code> and convert them into an AST. jsep works in both server-side and client-side JavaScript.</p>
+					<p>jsep <strong>does not</strong> parse JavaScript operations (e.g. <code>var a = b;</code>) nor blocks of code (e.g. <code>if (...) {...}</code>.) Think of jsep as a tool to parse the kinds of expressions that would be written in individual Excel cells.</p>
+					<p>jsep was originally written as part of <a href="http://cjs.from.so/">ConstraintJS</a> and was extracted as a useful module for cases where full parsers like <a href="http://esprima.org/">Esprima</a> are too heavyweight.</p>
+				</div>
+			</div>
+			
+			<div class="row">
+				<div class="col-md-6">
+					<div class="page-header">
+						<h1>Usage Examples</h1>
+					</div>
+					<h3>Including jsep:</h3>
+					<h4 style="text-align: right">Client-side</h4>
+<pre>
+&lt;script src="PATH/TO/jsep.min.js"&gt;&lt;/script&gt;
+</pre>
+					<h4 style="text-align: right">Node.js</h4>
+					First, run <code>npm install jsep</code>. Then in your source file:
+<pre>
+var jsep = require("jsep");
+</pre>
+					<h3>Parsing:</h3>
+<pre>
+var parse_tree = jsep("1 + 1");
+</pre>
+<h3>Ninja Mode:</h3>
+<pre>
+var ninja_jsep = jsep.noConflict();
+// The previous value of window.jsep restored
+ninja_jsep("'hello'")
+</pre>
+				</div>
+				<div class="col-md-6">
+					<div class="page-header">
+						<h1>Build from source</h1>
+					</div>
+					The easiest way to use jsep is to use the download link above. To build the latest version from code, you'll first need <a href="http://nodejs.org/">node.js</a>, <a href="http://npmjs.org/">npm</a>, <a href="http://git-scm.com/">git</a>, and <a href="http://gruntjs.com/">grunt</a>. Then, run the following command in your terminal:
+<pre>
+git clone git@github.com:soney/jsep.git;
+cd jsep;
+npm install .;
+grunt
+</pre>
+					The output will be in the build/ directory.
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-12">
+					<div class="page-header">
+						<h1>Demo</h1>
+					</div>
+					<div class="row">
+						<div class="col-md-6">
+							<h3>Expression:</h3>
+							<textarea id='demo_expr'>1+1</textarea>
+						</div>
+						<div class="col-md-6">
+							<h3>Output:</h3>
+							<div id='demo_out'></div>
+						</div>
+					</div>
+				</div>
+
+			</div>
+
+			<footer class="footer col-md-12">
+				<p class="pull-right">&copy; 2013 <a href="http://from.so">Stephen Oney</a></p>
+				<p>Code licensed under the <a target="license" href="https://github.com/soney/jsep/blob/master/LICENSE">MIT License</a>.</p>
+			</footer>
+		</div>
+	</div>
+	<script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+	<script type="text/javascript" src="jsep.min.js"></script>
+	<script type="text/javascript">
+		var demo_inp = $("#demo_expr");
+		var demo_out = $("#demo_out");
+		function get_html_obj(obj) {
+			var rv = $("<ul />");
+			for(var prop in obj) {
+				if(obj.hasOwnProperty(prop)) {
+					var value = obj[prop];
+					
+					var li = $("<li />").appendTo(rv);
+					var prop_name = $("<span />")	.addClass("prop_name")
+													.appendTo(li)
+													.text(prop+": ")
+													;
+					var prop_val = $("<span />")	.addClass("prop_val")
+													.appendTo(li);
+													
+					if(typeof value === "string") {
+						prop_val.addClass("string").text("'" + value + "'");	
+					} else if(typeof value === "number") {
+						prop_val.addClass("number").text(value);
+					} else {
+						var child = get_html_obj(value);
+						prop_val.addClass("objectd").append(child);
+					}
+				}
+			}
+			return rv;
+		};
+		function htmlize(obj) {
+			var html_obj = get_html_obj(obj);
+			return html_obj.html();
+		};
+		function reeval_demo() {
+			var expr = demo_inp.val();
+			var tree = false;
+			try {
+				tree = jsep(expr);
+				demo_inp.removeClass("error");
+				demo_out.removeClass("error");
+				demo_out.html(htmlize(tree));
+			} catch(e) {
+				demo_inp.addClass("error");
+				demo_out.addClass("error");
+				demo_out.text(e.message);
+			}
+		};
+		$(function() {
+			var queued_call = false;
+			var queue_call = function() {
+				if(queued_call === false) {
+					queued_call = true;
+					window.setTimeout(function() {
+						reeval_demo();
+						queued_call = false;				
+					}, 1);
+				}
+			};
+			queue_call();
+			demo_inp.on("input paste propertychange", function() {
+				queue_call();
+			});
+		});
+	</script>
+
+	<!-- Google Analytics -->
+	<script type="text/javascript">	
+		var _gaq = _gaq || [];
+		_gaq.push(['_setAccount', 'UA-30897901-1']);
+		_gaq.push(['_trackPageview']);
+		
+		(function() {
+		var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		})();
+	</script>
+	</body>
+</html>

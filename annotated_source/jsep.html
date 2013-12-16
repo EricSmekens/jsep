@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>jsep.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+    <ul class="sections">
+        
+          <li id="title">
+              <div class="annotation">
+                  <h1>jsep.js</h1>
+              </div>
+          </li>
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="comment">/*jsep - v0.2.5*/</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <pre><code>JavaScript Expression Parser (JSEP) 0.2.5
+JSEP may be freely distributed under the MIT License</code></pre>
+<p><a href="http://jsep.from.so/">http://jsep.from.so/</a></p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="comment">/*global module: true, exports: true, console: true */</span>
+(<span class="function"><span class="keyword">function</span> <span class="params">(root)</span> {</span>
+	<span class="string">'use strict'</span>;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <h2 id="node-types">Node Types</h2>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <p>This is the full set of types that any JSEP node can be.
+Store them here to save space when minified</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>	<span class="keyword">var</span> COMPOUND = <span class="string">'Compound'</span>,
+		IDENTIFIER = <span class="string">'Identifier'</span>,
+		MEMBER_EXP = <span class="string">'MemberExpression'</span>,
+		LITERAL = <span class="string">'Literal'</span>,
+		THIS_EXP = <span class="string">'ThisExpression'</span>,
+		CALL_EXP = <span class="string">'CallExpression'</span>,
+		UNARY_EXP = <span class="string">'UnaryExpression'</span>,
+		BINARY_EXP = <span class="string">'BinaryExpression'</span>,
+		LOGICAL_EXP = <span class="string">'LogicalExpression'</span>,</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-6">&#182;</a>
+              </div>
+              <h2 id="operations">Operations</h2>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-7">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-7">&#182;</a>
+              </div>
+              
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-8">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-8">&#182;</a>
+              </div>
+              <p>Set <code>t</code> to <code>true</code> to save space (when minified, not gzipped)</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>		t = <span class="literal">true</span>,</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-9">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-9">&#182;</a>
+              </div>
+              <p>Use a quickly-accessible map to store all of the unary operators
+Values are set to <code>true</code> (it really doesn&#39;t matter)</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>		unary_ops = {<span class="string">'-'</span>: t, <span class="string">'!'</span>: t, <span class="string">'~'</span>: t, <span class="string">'+'</span>: t},</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-10">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-10">&#182;</a>
+              </div>
+              <p>Also use a map for the binary operations but set their values to their
+binary precedence for quick reference:
+see <a href="http://en.wikipedia.org/wiki/Order_of_operations#Programming_language">Order of operations</a></p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>		binary_ops = {
+			<span class="string">'||'</span>: <span class="number">1</span>, <span class="string">'&amp;&amp;'</span>: <span class="number">2</span>, <span class="string">'|'</span>: <span class="number">3</span>,  <span class="string">'^'</span>: <span class="number">4</span>,  <span class="string">'&amp;'</span>: <span class="number">5</span>,
+			<span class="string">'=='</span>: <span class="number">6</span>, <span class="string">'!='</span>: <span class="number">6</span>, <span class="string">'==='</span>: <span class="number">6</span>, <span class="string">'!=='</span>: <span class="number">6</span>,
+			<span class="string">'&lt;'</span>: <span class="number">7</span>,  <span class="string">'&gt;'</span>: <span class="number">7</span>,  <span class="string">'&lt;='</span>: <span class="number">7</span>,  <span class="string">'&gt;='</span>: <span class="number">7</span>, 
+			<span class="string">'&lt;&lt;'</span>:<span class="number">8</span>,  <span class="string">'&gt;&gt;'</span>: <span class="number">8</span>, <span class="string">'&gt;&gt;&gt;'</span>: <span class="number">8</span>,
+			<span class="string">'+'</span>: <span class="number">9</span>, <span class="string">'-'</span>: <span class="number">9</span>,
+			<span class="string">'*'</span>: <span class="number">10</span>, <span class="string">'/'</span>: <span class="number">10</span>, <span class="string">'%'</span>: <span class="number">10</span>
+		},</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-11">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-11">&#182;</a>
+              </div>
+              <h2 id="literals">Literals</h2>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-12">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-12">&#182;</a>
+              </div>
+              <p>Store the values to return for the various literals we may encounter</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>		literals = {
+			<span class="string">'true'</span>: <span class="literal">true</span>,
+			<span class="string">'false'</span>: <span class="literal">false</span>,
+			<span class="string">'null'</span>: <span class="literal">null</span>
+		},</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-13">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-13">&#182;</a>
+              </div>
+              <p>Except for <code>this</code>, which is special. This could be changed to something like <code>&#39;self&#39;</code> as well</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>		this_str = <span class="string">'this'</span>,</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-14">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-14">&#182;</a>
+              </div>
+              <p>Returns the precedence of a binary operator or <code>0</code> if it isn&#39;t a binary operator</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>		binaryPrecedence = <span class="function"><span class="keyword">function</span><span class="params">(op_val)</span> {</span>
+			<span class="keyword">return</span> binary_ops[op_val] || <span class="number">0</span>;
+		},</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-15">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-15">&#182;</a>
+              </div>
+              <p>Utility function (gets called from multiple places)
+Also note that <code>a &amp;&amp; b</code> and <code>a || b</code> are <em>logical</em> expressions, not binary expressions</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>		createBinaryExpression = <span class="function"><span class="keyword">function</span> <span class="params">(operator, left, right)</span> {</span>
+			<span class="keyword">var</span> type = (operator === <span class="string">'||'</span> || operator === <span class="string">'&amp;&amp;'</span>) ? LOGICAL_EXP : BINARY_EXP;
+			<span class="keyword">return</span> {
+				type: type,
+				operator: operator,
+				left: left,
+				right: right
+			};
+		},</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-16">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-16">&#182;</a>
+              </div>
+              <p><code>ch</code> is a character code in the next three functions</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>		isDecimalDigit = <span class="function"><span class="keyword">function</span><span class="params">(ch)</span> {</span>
+			<span class="keyword">return</span> (ch &gt;= <span class="number">48</span> &amp;&amp; ch &lt;= <span class="number">57</span>); <span class="comment">// 0...9</span>
+		},
+		isIdentifierStart = <span class="function"><span class="keyword">function</span><span class="params">(ch)</span> {</span>
+			<span class="keyword">return</span> (ch === <span class="number">36</span>) || (ch === <span class="number">95</span>) || <span class="comment">// `$` and `_`</span>
+					(ch &gt;= <span class="number">65</span> &amp;&amp; ch &lt;= <span class="number">90</span>) || <span class="comment">// A...Z</span>
+					(ch &gt;= <span class="number">97</span> &amp;&amp; ch &lt;= <span class="number">122</span>); <span class="comment">// a...z</span>
+		},
+		isIdentifierPart = <span class="function"><span class="keyword">function</span><span class="params">(ch)</span> {</span>
+			<span class="keyword">return</span> (ch === <span class="number">36</span>) || (ch === <span class="number">95</span>) || <span class="comment">// `$` and `_`</span>
+					(ch &gt;= <span class="number">65</span> &amp;&amp; ch &lt;= <span class="number">90</span>) || <span class="comment">// A...Z</span>
+					(ch &gt;= <span class="number">97</span> &amp;&amp; ch &lt;= <span class="number">122</span>) || <span class="comment">// a...z</span>
+					(ch &gt;= <span class="number">48</span> &amp;&amp; ch &lt;= <span class="number">57</span>); <span class="comment">// 0...9</span>
+		},</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-17">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-17">&#182;</a>
+              </div>
+              <h2 id="parsing">Parsing</h2>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-18">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-18">&#182;</a>
+              </div>
+              <p><code>expr</code> is a string with the passed in expression</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>		jsep = <span class="function"><span class="keyword">function</span><span class="params">(expr)</span> {</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-19">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-19">&#182;</a>
+              </div>
+              <p><code>index</code> stores the character number we are currently at while <code>length</code> is a constant
+All of the gobbles below will modify <code>index</code> as we move along</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>			<span class="keyword">var</span> index = <span class="number">0</span>,
+				length = expr.length,</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-20">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-20">&#182;</a>
+              </div>
+              <p>Push <code>index</code> up to the next non-space character</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>				gobbleSpaces = <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
+					<span class="keyword">var</span> ch = expr.charCodeAt(index);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-21">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-21">&#182;</a>
+              </div>
+              <p>space or tab</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>					<span class="keyword">while</span>(ch === <span class="number">32</span> || ch === <span class="number">9</span>) {
+						ch = expr.charCodeAt(++index);
+					}
+				},</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-22">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-22">&#182;</a>
+              </div>
+              <p>Search for the operation portion of the string (e.g. <code>+</code>, <code>===</code>)
+Start by taking the longest possible binary operations (3 characters: <code>===</code>, <code>!==</code>, <code>&gt;&gt;&gt;</code>)
+and move down from 3 to 2 to 1 character until a matching binary operation is found
+then, return that binary operation</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>				gobbleBinaryOp = <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
+					<span class="keyword">var</span> biop, to_check = expr.substr(index, <span class="number">3</span>), tc_len = to_check.length;
+					gobbleSpaces();
+					<span class="keyword">while</span>(tc_len &gt; <span class="number">0</span>) {
+						<span class="keyword">if</span>(binary_ops.hasOwnProperty(to_check)) {
+							index += tc_len;
+							<span class="keyword">return</span> to_check;
+						}
+						to_check = to_check.substr(<span class="number">0</span>, --tc_len);
+					}
+					<span class="keyword">return</span> <span class="literal">false</span>;
+				},</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-23">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-23">&#182;</a>
+              </div>
+              <p>This function is responsible for gobbling an individual expression,
+e.g. <code>1</code>, <code>1+2</code>, <code>a+(b*2)-Math.sqrt(2)</code></p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>				gobbleExpression = <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
+					<span class="keyword">var</span> ch_i, node, biop, prec, stack, biop_info, left, right, i;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-24">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-24">&#182;</a>
+              </div>
+              <p>First, try to get the leftmost thing
+Then, check to see if there&#39;s a binary operator operating on that leftmost thing</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>					left = gobbleToken();
+					biop = gobbleBinaryOp();</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-25">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-25">&#182;</a>
+              </div>
+              <p>If there wasn&#39;t a binary operator, just return the leftmost node</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>					<span class="keyword">if</span>(!biop) {
+						<span class="keyword">return</span> left;
+					}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-26">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-26">&#182;</a>
+              </div>
+              <p>Otherwise, we need to start a stack to properly place the binary operations in their
+precedence structure</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>					biop_info = { value: biop, prec: binaryPrecedence(biop)};
+
+					right = gobbleToken();
+					<span class="keyword">if</span>(!right) {
+						<span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">"Expected expression after "</span> + biop + <span class="string">" at character "</span> + index);
+					}
+					stack = [left, biop_info, right];</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-27">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-27">&#182;</a>
+              </div>
+              <p>Properly deal with precedence using <a href="http://www.engr.mun.ca/~theo/Misc/exp_parsing.htm">recursive descent</a></p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>					<span class="keyword">while</span>((biop = gobbleBinaryOp())) {
+						prec = binaryPrecedence(biop);
+
+						<span class="keyword">if</span>(prec === <span class="number">0</span>) {
+							<span class="keyword">break</span>;
+						}
+						biop_info = { value: biop, prec: prec };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-28">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-28">&#182;</a>
+              </div>
+              <p>Reduce: make a binary expression from the three topmost entries.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>						<span class="keyword">while</span> ((stack.length &gt; <span class="number">2</span>) &amp;&amp; (prec &lt;= stack[stack.length - <span class="number">2</span>].prec)) {
+							right = stack.pop();
+							biop = stack.pop().value;
+							left = stack.pop();
+							node = createBinaryExpression(biop, left, right);
+							stack.push(node);
+						}
+
+						node = gobbleToken();
+						<span class="keyword">if</span>(!node) {
+							<span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">"Expected expression after "</span> + biop + <span class="string">" at character "</span> + index);
+						}
+						stack.push(biop_info);
+						stack.push(node);
+					}
+
+					i = stack.length - <span class="number">1</span>;
+					node = stack[i];
+					<span class="keyword">while</span>(i &gt; <span class="number">1</span>) {
+						node = createBinaryExpression(stack[i - <span class="number">1</span>].value, stack[i - <span class="number">2</span>], node); 
+						i -= <span class="number">2</span>;
+					}
+
+					<span class="keyword">return</span> node;
+				},</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-29">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-29">&#182;</a>
+              </div>
+              <p>An individual part of a binary expression:
+e.g. <code>foo.bar(baz)</code>, <code>1</code>, <code>&quot;abc&quot;</code>, <code>(a % 2)</code> (because it&#39;s in parenthesis)</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>				gobbleToken = <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
+					<span class="keyword">var</span> ch, curr_node, char;
+					
+					gobbleSpaces();
+					char = expr[index];
+					ch = expr.charCodeAt(index);
+
+					<span class="keyword">if</span>(isDecimalDigit(ch) || ch === <span class="number">46</span>) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-30">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-30">&#182;</a>
+              </div>
+              <p>Char code 46 is a dot <code>.</code> which can start off a numeric literal</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>						<span class="keyword">return</span> gobbleNumericLiteral();
+					} <span class="keyword">else</span> <span class="keyword">if</span>(ch === <span class="number">39</span> || ch === <span class="number">34</span>) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-31">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-31">&#182;</a>
+              </div>
+              <p>Single or double quotes</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>						<span class="keyword">return</span> gobbleStringLiteral();
+					} <span class="keyword">else</span> <span class="keyword">if</span>(isIdentifierStart(ch)) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-32">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-32">&#182;</a>
+              </div>
+              <p><code>foo</code>, <code>bar.baz</code></p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>						<span class="keyword">return</span> gobbleVariable();
+					} <span class="keyword">else</span> <span class="keyword">if</span>(unary_ops.hasOwnProperty(char)) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-33">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-33">&#182;</a>
+              </div>
+              <p><code>-1</code>, <code>!false</code>
+Just gobble the first character</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>						index++;
+						<span class="keyword">return</span> {
+							type: UNARY_EXP,
+							operator: char,
+							argument: gobbleToken(),
+							prefix: <span class="literal">true</span>
+						};
+					} <span class="keyword">else</span> <span class="keyword">if</span>(ch === <span class="number">40</span>) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-34">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-34">&#182;</a>
+              </div>
+              <p>Open parentheses</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>						<span class="keyword">return</span> gobbleGroup();
+					} <span class="keyword">else</span> {
+						<span class="keyword">return</span> <span class="literal">false</span>;
+					}
+				},</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-35">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-35">&#182;</a>
+              </div>
+              <p>Parse simple numeric literals: <code>12</code>, <code>3.4</code>, <code>.5</code>. Do this by using a string to
+keep track of everything in the numeric literal and then calling <code>parseFloat</code> on that string</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>				gobbleNumericLiteral = <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
+					<span class="keyword">var</span> number = <span class="string">''</span>;
+					<span class="keyword">while</span>(isDecimalDigit(expr.charCodeAt(index))) {
+						number += expr[index++];
+					}
+
+					<span class="keyword">if</span>(expr[index] === <span class="string">'.'</span>) { <span class="comment">// can start with a decimal marker</span>
+						number += expr[index++];
+
+						<span class="keyword">while</span>(isDecimalDigit(expr.charCodeAt(index))) {
+							number += expr[index++];
+						}
+					}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-36">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-36">&#182;</a>
+              </div>
+              <p>Check to make sure this isn&#39;t a varible name that start with a number (123abc)</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>					<span class="keyword">if</span>(isIdentifierStart(expr.charCodeAt(index))) {
+						<span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">'Variable names cannot start with a number ('</span> +
+									number + expr[index] + <span class="string">') at character '</span> + index);
+					}
+
+					<span class="keyword">return</span> {
+						type: LITERAL,
+						value: parseFloat(number),
+						raw: number
+					};
+				},</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-37">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-37">&#182;</a>
+              </div>
+              <p>Parses a string literal, staring with single or double quotes with basic support for escape codes
+e.g. <code>&quot;hello world&quot;</code>, <code>&#39;this is\nJSEP&#39;</code></p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>				gobbleStringLiteral = <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
+					<span class="keyword">var</span> str = <span class="string">''</span>, quote = expr[index++], closed = <span class="literal">false</span>, ch;
+
+					<span class="keyword">while</span>(index &lt; length) {
+						ch = expr[index++];
+						<span class="keyword">if</span>(ch === quote) {
+							closed = <span class="literal">true</span>;
+							<span class="keyword">break</span>;
+						} <span class="keyword">else</span> <span class="keyword">if</span>(ch === <span class="string">'\\'</span>) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-38">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-38">&#182;</a>
+              </div>
+              <p>Check for all of the common escape codes</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>							ch = expr[index++];
+							<span class="keyword">switch</span>(ch) {
+								<span class="keyword">case</span> <span class="string">'n'</span>: str += <span class="string">'\n'</span>; <span class="keyword">break</span>;
+								<span class="keyword">case</span> <span class="string">'r'</span>: str += <span class="string">'\r'</span>; <span class="keyword">break</span>;
+								<span class="keyword">case</span> <span class="string">'t'</span>: str += <span class="string">'\t'</span>; <span class="keyword">break</span>;
+								<span class="keyword">case</span> <span class="string">'b'</span>: str += <span class="string">'\b'</span>; <span class="keyword">break</span>;
+								<span class="keyword">case</span> <span class="string">'f'</span>: str += <span class="string">'\f'</span>; <span class="keyword">break</span>;
+								<span class="keyword">case</span> <span class="string">'v'</span>: str += <span class="string">'\x0B'</span>; <span class="keyword">break</span>;
+							}
+						} <span class="keyword">else</span> {
+							str += ch;
+						}
+					}
+
+					<span class="keyword">if</span>(!closed) {
+						<span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">'Unclosed quote after "'</span>+str+<span class="string">'"'</span>);
+					}
+
+					<span class="keyword">return</span> {
+						type: LITERAL,
+						value: str,
+						raw: quote + str + quote
+					};
+				},</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-39">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-39">&#182;</a>
+              </div>
+              <p>Gobbles only identifiers
+e.g.: <code>foo</code>, <code>_value</code>, <code>$x1</code>
+Also, this function checs if that identifier is a literal:
+(e.g. <code>true</code>, <code>false</code>, <code>null</code>) or <code>this</code></p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>				gobbleIdentifier = <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
+					<span class="keyword">var</span> ch = expr.charCodeAt(index), start = index, identifier;
+
+					<span class="keyword">if</span>(isIdentifierStart(ch)) {
+						index++;
+					}
+
+					<span class="keyword">while</span>(index &lt; length) {
+						ch = expr.charCodeAt(index);
+						<span class="keyword">if</span>(isIdentifierPart(ch)) {
+							index++;
+						} <span class="keyword">else</span> {
+							<span class="keyword">break</span>;
+						}
+					}
+					identifier = expr.slice(start, index);
+
+					<span class="keyword">if</span>(literals.hasOwnProperty(identifier)) {
+						<span class="keyword">return</span> {
+							type: LITERAL,
+							value: literals[identifier],
+							raw: identifier
+						};
+					} <span class="keyword">else</span> <span class="keyword">if</span>(identifier === this_str) {
+						<span class="keyword">return</span> { type: THIS_EXP };
+					} <span class="keyword">else</span> {
+						<span class="keyword">return</span> {
+							type: IDENTIFIER,
+							name: identifier
+						};
+					}
+				},</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-40">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-40">&#182;</a>
+              </div>
+              <p>Gobbles a list of arguments within the context of a function call. This function
+also assumes that the <code>(</code> has already been gobbled.
+e.g. <code>foo(bar, baz)</code> or <code>my_func()</code></p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>				gobbleArguments = <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
+					<span class="keyword">var</span> ch_i, args = [], node;
+					<span class="keyword">while</span>(index &lt; length) {
+						gobbleSpaces();
+						ch_i = expr[index];
+						<span class="keyword">if</span>(ch_i === <span class="string">')'</span>) { <span class="comment">// done parsing</span>
+							index++;
+							<span class="keyword">break</span>;
+						} <span class="keyword">else</span> <span class="keyword">if</span> (ch_i === <span class="string">','</span>) { <span class="comment">// between expressions</span>
+							index++;
+						} <span class="keyword">else</span> {
+							node = gobbleExpression();
+							<span class="keyword">if</span>(!node || node.type === COMPOUND) {
+								<span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">'Expected comma at character '</span> + index);
+							}
+							args.push(node);
+						}
+					}
+					<span class="keyword">return</span> args;
+				},</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-41">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-41">&#182;</a>
+              </div>
+              <p>Gobble a non-literal variable name. This variable name may include properties
+e.g. <code>foo</code>, <code>bar.baz</code>, <code>foo[&#39;bar&#39;].baz</code>
+It also gobbles function calls:
+e.g. <code>Math.acos(obj.angle)</code></p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>				gobbleVariable = <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
+					<span class="keyword">var</span> ch_i, node, old_index;
+					node = gobbleIdentifier();
+					ch_i = expr[index];
+					<span class="keyword">while</span>(ch_i === <span class="string">'.'</span> || ch_i === <span class="string">'['</span> || ch_i === <span class="string">'('</span>) {
+						<span class="keyword">if</span>(ch_i === <span class="string">'.'</span>) {
+							index++;
+							node = {
+								type: MEMBER_EXP,
+								computed: <span class="literal">false</span>,
+								object: node,
+								property: gobbleIdentifier()
+							};
+						} <span class="keyword">else</span> <span class="keyword">if</span>(ch_i === <span class="string">'['</span>) {
+							old_index = index;
+							index++;
+							node = {
+								type: MEMBER_EXP,
+								computed: <span class="literal">true</span>,
+								object: node,
+								property: gobbleExpression()
+							};
+							gobbleSpaces();
+							ch_i = expr[index];
+							<span class="keyword">if</span>(ch_i !== <span class="string">']'</span>) {
+								<span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">'Unclosed [ at character '</span> + index);
+							}
+							index++;
+						} <span class="keyword">else</span> <span class="keyword">if</span>(ch_i === <span class="string">'('</span>) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-42">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-42">&#182;</a>
+              </div>
+              <p>A function call is being made; gobble all the araguments</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>							index++;
+							node = {
+								type: CALL_EXP,
+								<span class="string">'arguments'</span>: gobbleArguments(),
+								callee: node
+							};
+						}
+						ch_i = expr[index];
+					}
+					<span class="keyword">return</span> node;
+				},</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-43">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-43">&#182;</a>
+              </div>
+              <p>Responsible for parsing a group of things within paraenteses <code>()</code>
+This function assumes that it needs to gobble the opening parenthesis
+and then tries to gobble everything within that parenthesis, asusming
+that the next thing it should see is the close parenthesis. If not,
+then the expression probably doesn&#39;t have a <code>)</code></p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>				gobbleGroup = <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
+					index++;
+					<span class="keyword">var</span> node = gobbleExpression();
+					gobbleSpaces();
+					<span class="keyword">if</span>(expr[index] === <span class="string">')'</span>) {
+						index++;
+						<span class="keyword">return</span> node;
+					} <span class="keyword">else</span> {
+						<span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">'Unclosed ( at character '</span> + index);
+					}
+				},
+				nodes = [], ch_i, node;
+				
+			<span class="keyword">while</span>(index &lt; length) {
+				ch_i = expr[index];</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-44">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-44">&#182;</a>
+              </div>
+              <p>Expressions can be separated by semicolons, commas, or just inferred without any
+separators</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>				<span class="keyword">if</span>(ch_i === <span class="string">';'</span> || ch_i ===<span class="string">','</span>) {
+					index++; <span class="comment">// ignore separators</span>
+				} <span class="keyword">else</span> {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-45">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-45">&#182;</a>
+              </div>
+              <p>Try to gobble each expression individually</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>					<span class="keyword">if</span>((node = gobbleExpression())) {
+						nodes.push(node);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-46">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-46">&#182;</a>
+              </div>
+              <p>If we weren&#39;t able to find a binary expression and are out of room, then
+the expression passed in probably has too much</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>					} <span class="keyword">else</span> <span class="keyword">if</span>(index &lt; length) {
+						<span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">"Unexpected '"</span>+expr[index]+<span class="string">"' at character "</span> + index);
+					}
+				}
+			}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-47">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-47">&#182;</a>
+              </div>
+              <p>If there&#39;s only one expression just try returning the expression</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>			<span class="keyword">if</span>(nodes.length === <span class="number">1</span>) {
+				<span class="keyword">return</span> nodes[<span class="number">0</span>];
+			} <span class="keyword">else</span> {
+				<span class="keyword">return</span> {
+					type: COMPOUND,
+					body: nodes
+				};
+			}
+		};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-48">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-48">&#182;</a>
+              </div>
+              <p>To be filled in by the template</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>	jsep.version = <span class="string">'0.2.5'</span>;
+	jsep.toString = <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span> <span class="keyword">return</span> <span class="string">'JavaScript Expression Parser (JSEP) v'</span> + jsep.version; };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-49">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-49">&#182;</a>
+              </div>
+              <p>In desktop environments, have a way to restore the old value for <code>jsep</code></p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>	<span class="keyword">if</span> (<span class="keyword">typeof</span> exports === <span class="string">'undefined'</span>) {
+		<span class="keyword">var</span> old_jsep = root.jsep;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-50">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-50">&#182;</a>
+              </div>
+              <p>The star of the show! It&#39;s a function!</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>		root.jsep = jsep;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-51">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-51">&#182;</a>
+              </div>
+              <p>And a curteous function willing to move out of the way for other similary-namaed objects!</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>		jsep.noConflict = <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
+			<span class="keyword">var</span> jsep = root.jsep;
+			root.jsep = old_jsep;
+			<span class="keyword">return</span> jsep;
+		};
+	} <span class="keyword">else</span> {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-52">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-52">&#182;</a>
+              </div>
+              <p>In Node.JS environments</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>		<span class="keyword">if</span> (<span class="keyword">typeof</span> module !== <span class="string">'undefined'</span> &amp;&amp; module.exports) {
+			exports = module.exports = jsep;
+		} <span class="keyword">else</span> {
+			exports.parse = jsep;
+		}
+	}
+}(<span class="keyword">this</span>));</pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>
