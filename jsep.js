@@ -1,8 +1,6 @@
-/*jsep - v0.2.5*/
-
-//     JavaScript Expression Parser (JSEP) 0.2.5
+//     JavaScript Expression Parser (JSEP) 0.2.6
 //     JSEP may be freely distributed under the MIT License
-// http://jsep.from.so/
+//     http://jsep.from.so/
 
 /*global module: true, exports: true, console: true */
 (function (root) {
@@ -105,8 +103,8 @@
 				// and move down from 3 to 2 to 1 character until a matching binary operation is found
 				// then, return that binary operation
 				gobbleBinaryOp = function() {
-					var biop, to_check = expr.substr(index, 3), tc_len = to_check.length;
 					gobbleSpaces();
+					var biop, to_check = expr.substr(index, 3), tc_len = to_check.length;
 					while(tc_len > 0) {
 						if(binary_ops.hasOwnProperty(to_check)) {
 							index += tc_len;
@@ -435,7 +433,7 @@
 		};
 
 	// To be filled in by the template
-	jsep.version = '0.2.5';
+	jsep.version = '0.2.6';
 	jsep.toString = function() { return 'JavaScript Expression Parser (JSEP) v' + jsep.version; };
 
 	// In desktop environments, have a way to restore the old value for `jsep`
@@ -445,8 +443,9 @@
 		root.jsep = jsep;
 		// And a curteous function willing to move out of the way for other similary-namaed objects!
 		jsep.noConflict = function() {
-			var jsep = root.jsep;
-			root.jsep = old_jsep;
+			if(root.jsep === jsep) {
+				root.jsep = old_jsep;
+			}
 			return jsep;
 		};
 	} else {
