@@ -103,8 +103,8 @@
 				// and move down from 3 to 2 to 1 character until a matching binary operation is found
 				// then, return that binary operation
 				gobbleBinaryOp = function() {
-					var biop, to_check = expr.substr(index, 3), tc_len = to_check.length;
 					gobbleSpaces();
+					var biop, to_check = expr.substr(index, 3), tc_len = to_check.length;
 					while(tc_len > 0) {
 						if(binary_ops.hasOwnProperty(to_check)) {
 							index += tc_len;
