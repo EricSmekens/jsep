@@ -39,6 +39,16 @@
 			'+': 9, '-': 9,
 			'*': 10, '/': 10, '%': 10
 		},
+		getMaxBinopLength = function() {
+			var max_len = 0;
+			for(var key in binary_ops) {
+				if(binary_ops.hasOwnProperty(key)) {
+					max_len = Math.max(max_len, key.length);
+				}
+			}
+			return max_len;
+		},
+		max_binop_len = getMaxBinopLength(),
 	// Literals
 	// ----------
 	// Store the values to return for the various literals we may encounter
@@ -104,7 +114,7 @@
 				// then, return that binary operation
 				gobbleBinaryOp = function() {
 					gobbleSpaces();
-					var biop, to_check = expr.substr(index, 3), tc_len = to_check.length;
+					var biop, to_check = expr.substr(index, max_binop_len), tc_len = to_check.length;
 					while(tc_len > 0) {
 						if(binary_ops.hasOwnProperty(to_check)) {
 							index += tc_len;
@@ -435,6 +445,23 @@
 	// To be filled in by the template
 	jsep.version = '<%= version %>';
 	jsep.toString = function() { return 'JavaScript Expression Parser (JSEP) v' + jsep.version; };
+
+	jsep.addUnaryOp = function(op_name) {
+		unary_ops[op_name] = t;
+	};
+	jsep.addBinaryOp = function(op_name, precedence) {
+		max_binop_len = Math.max(op_name.length, max_binop_len);
+		binary_ops[op_name] = precedence;
+	};
+	jsep.removeUnaryOp = function(op_name) {
+		delete unary_ops[op_name];
+	};
+	jsep.removeBinaryOp = function(op_name) {
+		delete binary_ops[op_name];
+		if(op_name.length === max_binop_len) {
+			max_binop_len = getMaxBinopLength();
+		}
+	};
 
 	// In desktop environments, have a way to restore the old value for `jsep`
 	if (typeof exports === 'undefined') {
