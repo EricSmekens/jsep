@@ -44,6 +44,11 @@ var test_parser = function(inp, out) {
 	var parse_val = parse(inp);
 	return deepEqual(filter_props(parse_val, out), out);
 };
+var esprima_comparison_test = function(str) {
+	var jsep_val = jsep(str),
+		esprima_val = esprima.parse(str);
+	return deepEqual(jsep_val, esprima_val.body[0].expression);
+};
 
 module("Expression Parser");
 
@@ -76,7 +81,30 @@ test('Ops', function() {
 	test_op_expession("1*(2+3)");
 	test_op_expession("(1+2)*3");
 	test_op_expession("(1+2)*3+4-2-5+2/2*3");
-	test_op_expession("1+2-3*4/8");
+	test_op_expession("1 + 2-   3*	4 /8");
+});
+
+test('Custom ops', function() {
+	jsep.addBinaryOp("^", 10);
+	test_parser("a^b", {});
+});
+
+test('Esprima Comparison', function() {
+	([
+		" true",
+		"false ",
+		" 1.2 ",
+		" .2 ",
+		"a",
+		"a .b",
+		"a.b. c",
+		"a [b]",
+		"a.b  [ c ] ",
+		"$foo[ bar][ baz].other12 ['lawl'][12]",
+		"$foo     [ 12	] [ baz[z]    ].other12*4 + 1 ",
+		"$foo[ bar][ baz]    (a, bb ,   c  )   .other12 ['lawl'][12]",
+		"(a(b(c[!d]).e).f+'hi'==2) === true"
+	]).map(esprima_comparison_test);
 });
 
 
