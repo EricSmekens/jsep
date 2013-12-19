@@ -25,6 +25,19 @@ First, run `npm install jsep`. Then, in your source file:
     var jsep = require("jsep");
     var parse_tree = jsep("1 + 1");
 
+####Custom Operators
+    // Add a custom ^ binary operator with precedence 10
+    jsep.addBinaryOp("^", 10);
+    
+    // Add a custom @ unary operator with precedence 10
+    jsep.addUnaryOp('@');
+    
+    // Remove a binary operator
+    jsep.removeBinaryOp(">>>");
+    
+    // Remove a unary operator
+    jsep.removeUnaryOp("~");
+
 ###License
 jsep is under the MIT license. See LICENSE file.
 
