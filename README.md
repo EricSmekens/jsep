@@ -1,4 +1,4 @@
-##jsep: A JavaScript Expression Parser
+##jsep: A Tiny JavaScript Expression Parser
 [jsep](http://jsep.from.so/) is a simple expression parser written in JavaScript. It can parse JavaScript expressions but not operations. The difference between expressions and operations is akin to the difference between a cell in an Excel spreadsheet vs. a proper JavaScript program.
 
 ###Why jsep?
