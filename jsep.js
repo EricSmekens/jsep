@@ -1,4 +1,4 @@
-//     JavaScript Expression Parser (JSEP) 0.2.6
+//     JavaScript Expression Parser (JSEP) 0.2.7
 //     JSEP may be freely distributed under the MIT License
 //     http://jsep.from.so/
 
@@ -39,6 +39,18 @@
 			'+': 9, '-': 9,
 			'*': 10, '/': 10, '%': 10
 		},
+	// Get return the longest key length of any object
+		getMaxKeyLen = function(obj) {
+			var max_len = 0, len;
+			for(var key in obj) {
+				if((len = key.length) > max_len && obj.hasOwnProperty(key)) {
+					max_len = len;
+				}
+			}
+			return max_len;
+		},
+		max_unop_len = getMaxKeyLen(unary_ops),
+		max_binop_len = getMaxKeyLen(binary_ops),
 	// Literals
 	// ----------
 	// Store the values to return for the various literals we may encounter
@@ -104,7 +116,7 @@
 				// then, return that binary operation
 				gobbleBinaryOp = function() {
 					gobbleSpaces();
-					var biop, to_check = expr.substr(index, 3), tc_len = to_check.length;
+					var biop, to_check = expr.substr(index, max_binop_len), tc_len = to_check.length;
 					while(tc_len > 0) {
 						if(binary_ops.hasOwnProperty(to_check)) {
 							index += tc_len;
@@ -179,10 +191,9 @@
 				// An individual part of a binary expression:
 				// e.g. `foo.bar(baz)`, `1`, `"abc"`, `(a % 2)` (because it's in parenthesis)
 				gobbleToken = function() {
-					var ch, curr_node, char;
+					var ch, curr_node, char, unop, to_check, tc_len;
 					
 					gobbleSpaces();
-					char = expr[index];
 					ch = expr.charCodeAt(index);
 
 					if(isDecimalDigit(ch) || ch === 46) {
@@ -194,20 +205,25 @@
 					} else if(isIdentifierStart(ch)) {
 						// `foo`, `bar.baz`
 						return gobbleVariable();
-					} else if(unary_ops.hasOwnProperty(char)) {
-						// `-1`, `!false`
-						// Just gobble the first character
-						index++;
-						return {
-							type: UNARY_EXP,
-							operator: char,
-							argument: gobbleToken(),
-							prefix: true
-						};
 					} else if(ch === 40) {
 						// Open parentheses
 						return gobbleGroup();
 					} else {
+						to_check = expr.substr(index, max_unop_len);
+						tc_len = to_check.length;
+						while(tc_len > 0) {
+							if(unary_ops.hasOwnProperty(to_check)) {
+								index += tc_len;
+								return {
+									type: UNARY_EXP,
+									operator: to_check,
+									argument: gobbleToken(),
+									prefix: true
+								};
+							}
+							to_check = to_check.substr(0, --tc_len);
+						}
+						
 						return false;
 					}
 				},
@@ -345,10 +361,12 @@
 				gobbleVariable = function() {
 					var ch_i, node, old_index;
 					node = gobbleIdentifier();
+					gobbleSpaces();
 					ch_i = expr[index];
 					while(ch_i === '.' || ch_i === '[' || ch_i === '(') {
 						if(ch_i === '.') {
 							index++;
+							gobbleSpaces();
 							node = {
 								type: MEMBER_EXP,
 								computed: false,
@@ -370,6 +388,7 @@
 								throw new Error('Unclosed [ at character ' + index);
 							}
 							index++;
+							gobbleSpaces();
 						} else if(ch_i === '(') {
 							// A function call is being made; gobble all the araguments
 							index++;
@@ -379,6 +398,7 @@
 								callee: node
 							};
 						}
+						gobbleSpaces();
 						ch_i = expr[index];
 					}
 					return node;
@@ -433,8 +453,55 @@
 		};
 
 	// To be filled in by the template
-	jsep.version = '0.2.6';
+	jsep.version = '0.2.7';
 	jsep.toString = function() { return 'JavaScript Expression Parser (JSEP) v' + jsep.version; };
+
+	/**
+	 * @method jsep.addUnaryOp
+	 * @param {string} op_name The name of the unary op to add
+	 * @return jsep
+	 */
+	jsep.addUnaryOp = function(op_name) {
+		unary_ops[op_name] = t; return this;
+	};
+
+	/**
+	 * @method jsep.addBinaryOp
+	 * @param {string} op_name The name of the binary op to add
+	 * @param {number} precedence The precedence of the binary op (can be a float)
+	 * @return jsep
+	 */
+	jsep.addBinaryOp = function(op_name, precedence) {
+		max_binop_len = Math.max(op_name.length, max_binop_len);
+		binary_ops[op_name] = precedence;
+		return this;
+	};
+
+	/**
+	 * @method jsep.removeUnaryOp
+	 * @param {string} op_name The name of the unary op to remove
+	 * @return jsep
+	 */
+	jsep.removeUnaryOp = function(op_name) {
+		delete unary_ops[op_name];
+		if(op_name.length === max_unop_len) {
+			max_unop_len = getMaxKeyLen(unary_ops);
+		}
+		return this;
+	};
+
+	/**
+	 * @method jsep.removeBinaryOp
+	 * @param {string} op_name The name of the binary op to remove
+	 * @return jsep
+	 */
+	jsep.removeBinaryOp = function(op_name) {
+		delete binary_ops[op_name];
+		if(op_name.length === max_binop_len) {
+			max_binop_len = getMaxKeyLen(binary_ops);
+		}
+		return this;
+	};
 
 	// In desktop environments, have a way to restore the old value for `jsep`
 	if (typeof exports === 'undefined') {

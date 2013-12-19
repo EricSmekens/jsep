@@ -74,12 +74,12 @@
 	<div class="container">
 		<div class="inner">
 			<div class="row">
-				<div class="header-unit col-md-6">
-					<h1>jsep</h1>
-					<p>a simple JavaScript expression parser</p>
-					<div class="download-info">
+				<div class="col-md-6">
+					<div class="header-unit download-info">
+						<h1>jsep</h1>
+						<p>a tiny JavaScript expression parser</p>
 						<div>
-							<a href="jsep-0.2.6.zip" class="btn btn-primary btn-lg">Download <small>v0.2.6</small></a>
+							<a href="jsep-0.2.7.zip" class="btn btn-primary btn-lg">Download <small>v0.2.7</small></a>
 							<span class="size-info">&lt; 1kb minified &amp; gzipped</span>
 						</div>
 						<div>
@@ -87,46 +87,14 @@
 							<a href="annotated_source/jsep.html" class="btn">Annotated Source</a>
 						</div>
 					</div>
-				</div>
-				<div class="col-md-6">
 					<div class="page-header">
-						<h1>About</h1>
+						<h2>About</h2>
 					</div>
 					<p>jsep is a parser for JavaScript expressions written in JavaScript. jsep is able to parse expressions like <code>x * (1 + 2)</code> or <code>foo(bar.baz[0])</code> and convert them into an AST. jsep works in both server-side and client-side JavaScript.</p>
 					<p>jsep <strong>does not</strong> parse JavaScript operations (e.g. <code>var a = b;</code>) nor blocks of code (e.g. <code>if (...) {...}</code>.) Think of jsep as a tool to parse the kinds of expressions that would be written in individual Excel cells.</p>
 					<p>jsep was originally written as part of <a href="http://cjs.from.so/">ConstraintJS</a> and was extracted as a useful module for cases where full parsers like <a href="http://esprima.org/">Esprima</a> are too heavyweight.</p>
-				</div>
-			</div>
-			
-			<div class="row">
-				<div class="col-md-6">
 					<div class="page-header">
-						<h1>Usage Examples</h1>
-					</div>
-					<h3>Including jsep:</h3>
-					<h4 style="text-align: right">Client-side</h4>
-<pre>
-&lt;script src="PATH/TO/jsep.min.js"&gt;&lt;/script&gt;
-</pre>
-					<h4 style="text-align: right">Node.js</h4>
-					First, run <code>npm install jsep</code>. Then in your source file:
-<pre>
-var jsep = require("jsep");
-</pre>
-					<h3>Parsing:</h3>
-<pre>
-var parse_tree = jsep("1 + 1");
-</pre>
-<h3>Ninja Mode:</h3>
-<pre>
-var ninja_jsep = jsep.noConflict();
-// The previous value of window.jsep restored
-ninja_jsep("'hello'")
-</pre>
-				</div>
-				<div class="col-md-6">
-					<div class="page-header">
-						<h1>Build from source</h1>
+						<h2>Build from source</h2>
 					</div>
 					The easiest way to use jsep is to use the download link above. To build the latest version from code, you'll first need <a href="http://nodejs.org/">node.js</a>, <a href="http://npmjs.org/">npm</a>, <a href="http://git-scm.com/">git</a>, and <a href="http://gruntjs.com/">grunt</a>. Then, run the following command in your terminal:
 <pre>
@@ -136,6 +104,55 @@ npm install .;
 grunt
 </pre>
 					The output will be in the build/ directory.
+				</div>
+				<div class="col-md-6">
+					<div class="page-header">
+						<h2>Usage Examples</h2>
+					</div>
+					<h4>Including jsep:</h4>
+					<h5 style="text-align: right">Client-side</h5>
+<pre>
+&lt;script src="PATH/TO/jsep.min.js"&gt;&lt;/script&gt;
+</pre>
+					<h5 style="text-align: right">Node.js</h5>
+<pre>
+// After running npm install jsep
+var jsep = require("jsep");
+</pre>
+					<h4>Parsing:</h4>
+<pre>
+var parse_tree = jsep("1 + 1");
+</pre>
+<h4>Ninja Mode:</h4>
+<pre>
+var ninja_jsep = jsep.noConflict();
+// The previous value of window.jsep restored
+ninja_jsep("'hello'")
+</pre>
+<h4>Custom Operators:</h4>
+<p>JSEP also allows user-defined operators to be created.</p>
+<pre>
+// Add a custom ^ binary operator with precedence 10
+jsep.addBinaryOp("^", 10);
+
+// Add a custom @ unary operator with precedence 10
+jsep.addUnaryOp('@');
+
+// Remove a binary operator
+jsep.removeBinaryOp(">>>");
+
+// Remove a unary operator
+jsep.removeUnaryOp("~");
+</pre>
+				</div>
+			</div>
+			
+			<div class="row">
+				<div class="col-md-6">
+					
+				</div>		
+				<div class="col-md-6">
+
 				</div>
 			</div>
 			<div class="row">
@@ -163,7 +180,7 @@ grunt
 			</footer>
 		</div>
 	</div>
-	<script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+	<script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
 	<script type="text/javascript" src="jsep.min.js"></script>
 	<script type="text/javascript">
 		var demo_inp = $("#demo_expr");
