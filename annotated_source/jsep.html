@@ -27,23 +27,9 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-1">&#182;</a>
               </div>
-              
-            </div>
-            
-            <div class="content"><div class='highlight'><pre><span class="comment">/*jsep - v0.2.5*/</span></pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-2">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-2">&#182;</a>
-              </div>
-              <pre><code>JavaScript Expression Parser (JSEP) 0.2.5
-JSEP may be freely distributed under the MIT License</code></pre>
-<p><a href="http://jsep.from.so/">http://jsep.from.so/</a></p>
+              <pre><code>JavaScript Expression Parser (JSEP) 0.2.7
+JSEP may be freely distributed under the MIT License
+http://jsep.from.so/</code></pre>
 
             </div>
             
@@ -54,14 +40,26 @@ JSEP may be freely distributed under the MIT License</code></pre>
         </li>
         
         
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <h2 id="node-types">Node Types</h2>
+
+            </div>
+            
+        </li>
+        
+        
         <li id="section-3">
             <div class="annotation">
               
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-3">&#182;</a>
               </div>
-              <h2 id="node-types">Node Types</h2>
-
+              
             </div>
             
         </li>
@@ -72,18 +70,6 @@ JSEP may be freely distributed under the MIT License</code></pre>
               
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-4">&#182;</a>
-              </div>
-              
-            </div>
-            
-        </li>
-        
-        
-        <li id="section-5">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-5">&#182;</a>
               </div>
               <p>This is the full set of types that any JSEP node can be.
 Store them here to save space when minified</p>
@@ -103,14 +89,26 @@ Store them here to save space when minified</p>
         </li>
         
         
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <h2 id="operations">Operations</h2>
+
+            </div>
+            
+        </li>
+        
+        
         <li id="section-6">
             <div class="annotation">
               
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-6">&#182;</a>
               </div>
-              <h2 id="operations">Operations</h2>
-
+              
             </div>
             
         </li>
@@ -122,18 +120,6 @@ Store them here to save space when minified</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-7">&#182;</a>
               </div>
-              
-            </div>
-            
-        </li>
-        
-        
-        <li id="section-8">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-8">&#182;</a>
-              </div>
               <p>Set <code>t</code> to <code>true</code> to save space (when minified, not gzipped)</p>
 
             </div>
@@ -143,11 +129,11 @@ Store them here to save space when minified</p>
         </li>
         
         
-        <li id="section-9">
+        <li id="section-8">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-9">&#182;</a>
+                <a class="pilcrow" href="#section-8">&#182;</a>
               </div>
               <p>Use a quickly-accessible map to store all of the unary operators
 Values are set to <code>true</code> (it really doesn&#39;t matter)</p>
@@ -159,11 +145,11 @@ Values are set to <code>true</code> (it really doesn&#39;t matter)</p>
         </li>
         
         
-        <li id="section-10">
+        <li id="section-9">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-10">&#182;</a>
+                <a class="pilcrow" href="#section-9">&#182;</a>
               </div>
               <p>Also use a map for the binary operations but set their values to their
 binary precedence for quick reference:
@@ -179,6 +165,31 @@ see <a href="http://en.wikipedia.org/wiki/Order_of_operations#Programming_langua
 			<span class="string">'+'</span>: <span class="number">9</span>, <span class="string">'-'</span>: <span class="number">9</span>,
 			<span class="string">'*'</span>: <span class="number">10</span>, <span class="string">'/'</span>: <span class="number">10</span>, <span class="string">'%'</span>: <span class="number">10</span>
 		},</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-10">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-10">&#182;</a>
+              </div>
+              <p>Get return the longest key length of any object</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>		getMaxKeyLen = <span class="function"><span class="keyword">function</span><span class="params">(obj)</span> {</span>
+			<span class="keyword">var</span> max_len = <span class="number">0</span>, len;
+			<span class="keyword">for</span>(<span class="keyword">var</span> key <span class="keyword">in</span> obj) {
+				<span class="keyword">if</span>((len = key.length) &gt; max_len &amp;&amp; obj.hasOwnProperty(key)) {
+					max_len = len;
+				}
+			}
+			<span class="keyword">return</span> max_len;
+		},
+		max_unop_len = getMaxKeyLen(unary_ops),
+		max_binop_len = getMaxKeyLen(binary_ops),</pre></div></div>
             
         </li>
         
@@ -392,8 +403,8 @@ then, return that binary operation</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>				gobbleBinaryOp = <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
-					<span class="keyword">var</span> biop, to_check = expr.substr(index, <span class="number">3</span>), tc_len = to_check.length;
 					gobbleSpaces();
+					<span class="keyword">var</span> biop, to_check = expr.substr(index, max_binop_len), tc_len = to_check.length;
 					<span class="keyword">while</span>(tc_len &gt; <span class="number">0</span>) {
 						<span class="keyword">if</span>(binary_ops.hasOwnProperty(to_check)) {
 							index += tc_len;
@@ -552,10 +563,9 @@ e.g. <code>foo.bar(baz)</code>, <code>1</code>, <code>&quot;abc&quot;</code>, <c
             </div>
             
             <div class="content"><div class='highlight'><pre>				gobbleToken = <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
-					<span class="keyword">var</span> ch, curr_node, char;
+					<span class="keyword">var</span> ch, curr_node, char, unop, to_check, tc_len;
 					
 					gobbleSpaces();
-					char = expr[index];
 					ch = expr.charCodeAt(index);
 
 					<span class="keyword">if</span>(isDecimalDigit(ch) || ch === <span class="number">46</span>) {</pre></div></div>
@@ -606,7 +616,7 @@ e.g. <code>foo.bar(baz)</code>, <code>1</code>, <code>&quot;abc&quot;</code>, <c
             </div>
             
             <div class="content"><div class='highlight'><pre>						<span class="keyword">return</span> gobbleVariable();
-					} <span class="keyword">else</span> <span class="keyword">if</span>(unary_ops.hasOwnProperty(char)) {</pre></div></div>
+					} <span class="keyword">else</span> <span class="keyword">if</span>(ch === <span class="number">40</span>) {</pre></div></div>
             
         </li>
         
@@ -617,19 +627,30 @@ e.g. <code>foo.bar(baz)</code>, <code>1</code>, <code>&quot;abc&quot;</code>, <c
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-33">&#182;</a>
               </div>
-              <p><code>-1</code>, <code>!false</code>
-Just gobble the first character</p>
+              <p>Open parentheses</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>						index++;
-						<span class="keyword">return</span> {
-							type: UNARY_EXP,
-							operator: char,
-							argument: gobbleToken(),
-							prefix: <span class="literal">true</span>
-						};
-					} <span class="keyword">else</span> <span class="keyword">if</span>(ch === <span class="number">40</span>) {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>						<span class="keyword">return</span> gobbleGroup();
+					} <span class="keyword">else</span> {
+						to_check = expr.substr(index, max_unop_len);
+						tc_len = to_check.length;
+						<span class="keyword">while</span>(tc_len &gt; <span class="number">0</span>) {
+							<span class="keyword">if</span>(unary_ops.hasOwnProperty(to_check)) {
+								index += tc_len;
+								<span class="keyword">return</span> {
+									type: UNARY_EXP,
+									operator: to_check,
+									argument: gobbleToken(),
+									prefix: <span class="literal">true</span>
+								};
+							}
+							to_check = to_check.substr(<span class="number">0</span>, --tc_len);
+						}
+						
+						<span class="keyword">return</span> <span class="literal">false</span>;
+					}
+				},</pre></div></div>
             
         </li>
         
@@ -639,25 +660,6 @@ Just gobble the first character</p>
               
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-34">&#182;</a>
-              </div>
-              <p>Open parentheses</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>						<span class="keyword">return</span> gobbleGroup();
-					} <span class="keyword">else</span> {
-						<span class="keyword">return</span> <span class="literal">false</span>;
-					}
-				},</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-35">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-35">&#182;</a>
               </div>
               <p>Parse simple numeric literals: <code>12</code>, <code>3.4</code>, <code>.5</code>. Do this by using a string to
 keep track of everything in the numeric literal and then calling <code>parseFloat</code> on that string</p>
@@ -681,11 +683,11 @@ keep track of everything in the numeric literal and then calling <code>parseFloa
         </li>
         
         
-        <li id="section-36">
+        <li id="section-35">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-36">&#182;</a>
+                <a class="pilcrow" href="#section-35">&#182;</a>
               </div>
               <p>Check to make sure this isn&#39;t a varible name that start with a number (123abc)</p>
 
@@ -706,11 +708,11 @@ keep track of everything in the numeric literal and then calling <code>parseFloa
         </li>
         
         
-        <li id="section-37">
+        <li id="section-36">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-37">&#182;</a>
+                <a class="pilcrow" href="#section-36">&#182;</a>
               </div>
               <p>Parses a string literal, staring with single or double quotes with basic support for escape codes
 e.g. <code>&quot;hello world&quot;</code>, <code>&#39;this is\nJSEP&#39;</code></p>
@@ -730,11 +732,11 @@ e.g. <code>&quot;hello world&quot;</code>, <code>&#39;this is\nJSEP&#39;</code><
         </li>
         
         
-        <li id="section-38">
+        <li id="section-37">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-38">&#182;</a>
+                <a class="pilcrow" href="#section-37">&#182;</a>
               </div>
               <p>Check for all of the common escape codes</p>
 
@@ -768,11 +770,11 @@ e.g. <code>&quot;hello world&quot;</code>, <code>&#39;this is\nJSEP&#39;</code><
         </li>
         
         
-        <li id="section-39">
+        <li id="section-38">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-39">&#182;</a>
+                <a class="pilcrow" href="#section-38">&#182;</a>
               </div>
               <p>Gobbles only identifiers
 e.g.: <code>foo</code>, <code>_value</code>, <code>$x1</code>
@@ -817,11 +819,11 @@ Also, this function checs if that identifier is a literal:
         </li>
         
         
-        <li id="section-40">
+        <li id="section-39">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-40">&#182;</a>
+                <a class="pilcrow" href="#section-39">&#182;</a>
               </div>
               <p>Gobbles a list of arguments within the context of a function call. This function
 also assumes that the <code>(</code> has already been gobbled.
@@ -853,11 +855,11 @@ e.g. <code>foo(bar, baz)</code> or <code>my_func()</code></p>
         </li>
         
         
-        <li id="section-41">
+        <li id="section-40">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-41">&#182;</a>
+                <a class="pilcrow" href="#section-40">&#182;</a>
               </div>
               <p>Gobble a non-literal variable name. This variable name may include properties
 e.g. <code>foo</code>, <code>bar.baz</code>, <code>foo[&#39;bar&#39;].baz</code>
@@ -869,10 +871,12 @@ e.g. <code>Math.acos(obj.angle)</code></p>
             <div class="content"><div class='highlight'><pre>				gobbleVariable = <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
 					<span class="keyword">var</span> ch_i, node, old_index;
 					node = gobbleIdentifier();
+					gobbleSpaces();
 					ch_i = expr[index];
 					<span class="keyword">while</span>(ch_i === <span class="string">'.'</span> || ch_i === <span class="string">'['</span> || ch_i === <span class="string">'('</span>) {
 						<span class="keyword">if</span>(ch_i === <span class="string">'.'</span>) {
 							index++;
+							gobbleSpaces();
 							node = {
 								type: MEMBER_EXP,
 								computed: <span class="literal">false</span>,
@@ -894,16 +898,17 @@ e.g. <code>Math.acos(obj.angle)</code></p>
 								<span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">'Unclosed [ at character '</span> + index);
 							}
 							index++;
+							gobbleSpaces();
 						} <span class="keyword">else</span> <span class="keyword">if</span>(ch_i === <span class="string">'('</span>) {</pre></div></div>
             
         </li>
         
         
-        <li id="section-42">
+        <li id="section-41">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-42">&#182;</a>
+                <a class="pilcrow" href="#section-41">&#182;</a>
               </div>
               <p>A function call is being made; gobble all the araguments</p>
 
@@ -916,6 +921,7 @@ e.g. <code>Math.acos(obj.angle)</code></p>
 								callee: node
 							};
 						}
+						gobbleSpaces();
 						ch_i = expr[index];
 					}
 					<span class="keyword">return</span> node;
@@ -924,11 +930,11 @@ e.g. <code>Math.acos(obj.angle)</code></p>
         </li>
         
         
-        <li id="section-43">
+        <li id="section-42">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-43">&#182;</a>
+                <a class="pilcrow" href="#section-42">&#182;</a>
               </div>
               <p>Responsible for parsing a group of things within paraenteses <code>()</code>
 This function assumes that it needs to gobble the opening parenthesis
@@ -957,11 +963,11 @@ then the expression probably doesn&#39;t have a <code>)</code></p>
         </li>
         
         
-        <li id="section-44">
+        <li id="section-43">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-44">&#182;</a>
+                <a class="pilcrow" href="#section-43">&#182;</a>
               </div>
               <p>Expressions can be separated by semicolons, commas, or just inferred without any
 separators</p>
@@ -975,11 +981,11 @@ separators</p>
         </li>
         
         
-        <li id="section-45">
+        <li id="section-44">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-45">&#182;</a>
+                <a class="pilcrow" href="#section-44">&#182;</a>
               </div>
               <p>Try to gobble each expression individually</p>
 
@@ -991,11 +997,11 @@ separators</p>
         </li>
         
         
-        <li id="section-46">
+        <li id="section-45">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-46">&#182;</a>
+                <a class="pilcrow" href="#section-45">&#182;</a>
               </div>
               <p>If we weren&#39;t able to find a binary expression and are out of room, then
 the expression passed in probably has too much</p>
@@ -1011,11 +1017,11 @@ the expression passed in probably has too much</p>
         </li>
         
         
-        <li id="section-47">
+        <li id="section-46">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-47">&#182;</a>
+                <a class="pilcrow" href="#section-46">&#182;</a>
               </div>
               <p>If there&#39;s only one expression just try returning the expression</p>
 
@@ -1034,27 +1040,74 @@ the expression passed in probably has too much</p>
         </li>
         
         
-        <li id="section-48">
+        <li id="section-47">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-48">&#182;</a>
+                <a class="pilcrow" href="#section-47">&#182;</a>
               </div>
               <p>To be filled in by the template</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>	jsep.version = <span class="string">'0.2.5'</span>;
-	jsep.toString = <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span> <span class="keyword">return</span> <span class="string">'JavaScript Expression Parser (JSEP) v'</span> + jsep.version; };</pre></div></div>
+            <div class="content"><div class='highlight'><pre>	jsep.version = <span class="string">'0.2.7'</span>;
+	jsep.toString = <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span> <span class="keyword">return</span> <span class="string">'JavaScript Expression Parser (JSEP) v'</span> + jsep.version; };
+
+	<span class="comment">/**
+	 * @method jsep.addUnaryOp
+	 * @param {string} op_name The name of the unary op to add
+	 * @return jsep
+	 */</span>
+	jsep.addUnaryOp = <span class="function"><span class="keyword">function</span><span class="params">(op_name)</span> {</span>
+		unary_ops[op_name] = t; <span class="keyword">return</span> <span class="keyword">this</span>;
+	};
+
+	<span class="comment">/**
+	 * @method jsep.addBinaryOp
+	 * @param {string} op_name The name of the binary op to add
+	 * @param {number} precedence The precedence of the binary op (can be a float)
+	 * @return jsep
+	 */</span>
+	jsep.addBinaryOp = <span class="function"><span class="keyword">function</span><span class="params">(op_name, precedence)</span> {</span>
+		max_binop_len = Math.max(op_name.length, max_binop_len);
+		binary_ops[op_name] = precedence;
+		<span class="keyword">return</span> <span class="keyword">this</span>;
+	};
+
+	<span class="comment">/**
+	 * @method jsep.removeUnaryOp
+	 * @param {string} op_name The name of the unary op to remove
+	 * @return jsep
+	 */</span>
+	jsep.removeUnaryOp = <span class="function"><span class="keyword">function</span><span class="params">(op_name)</span> {</span>
+		<span class="keyword">delete</span> unary_ops[op_name];
+		<span class="keyword">if</span>(op_name.length === max_unop_len) {
+			max_unop_len = getMaxKeyLen(unary_ops);
+		}
+		<span class="keyword">return</span> <span class="keyword">this</span>;
+	};
+
+	<span class="comment">/**
+	 * @method jsep.removeBinaryOp
+	 * @param {string} op_name The name of the binary op to remove
+	 * @return jsep
+	 */</span>
+	jsep.removeBinaryOp = <span class="function"><span class="keyword">function</span><span class="params">(op_name)</span> {</span>
+		<span class="keyword">delete</span> binary_ops[op_name];
+		<span class="keyword">if</span>(op_name.length === max_binop_len) {
+			max_binop_len = getMaxKeyLen(binary_ops);
+		}
+		<span class="keyword">return</span> <span class="keyword">this</span>;
+	};</pre></div></div>
             
         </li>
         
         
-        <li id="section-49">
+        <li id="section-48">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-49">&#182;</a>
+                <a class="pilcrow" href="#section-48">&#182;</a>
               </div>
               <p>In desktop environments, have a way to restore the old value for <code>jsep</code></p>
 
@@ -1066,11 +1119,11 @@ the expression passed in probably has too much</p>
         </li>
         
         
-        <li id="section-50">
+        <li id="section-49">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-50">&#182;</a>
+                <a class="pilcrow" href="#section-49">&#182;</a>
               </div>
               <p>The star of the show! It&#39;s a function!</p>
 
@@ -1081,19 +1134,20 @@ the expression passed in probably has too much</p>
         </li>
         
         
-        <li id="section-51">
+        <li id="section-50">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-51">&#182;</a>
+                <a class="pilcrow" href="#section-50">&#182;</a>
               </div>
               <p>And a curteous function willing to move out of the way for other similary-namaed objects!</p>
 
             </div>
             
             <div class="content"><div class='highlight'><pre>		jsep.noConflict = <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
-			<span class="keyword">var</span> jsep = root.jsep;
-			root.jsep = old_jsep;
+			<span class="keyword">if</span>(root.jsep === jsep) {
+				root.jsep = old_jsep;
+			}
 			<span class="keyword">return</span> jsep;
 		};
 	} <span class="keyword">else</span> {</pre></div></div>
@@ -1101,11 +1155,11 @@ the expression passed in probably has too much</p>
         </li>
         
         
-        <li id="section-52">
+        <li id="section-51">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-52">&#182;</a>
+                <a class="pilcrow" href="#section-51">&#182;</a>
               </div>
               <p>In Node.JS environments</p>
 
