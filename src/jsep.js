@@ -195,7 +195,7 @@
 				// An individual part of a binary expression:
 				// e.g. `foo.bar(baz)`, `1`, `"abc"`, `(a % 2)` (because it's in parenthesis)
 				gobbleToken = function() {
-					var ch, curr_node, char, unop, to_check, tc_len;
+					var ch, curr_node, unop, to_check, tc_len;
 					
 					gobbleSpaces();
 					ch = exprICode(index);
