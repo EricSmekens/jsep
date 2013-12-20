@@ -251,8 +251,7 @@
 						while(isDecimalDigit(expr.charCodeAt(index))) { //exponent itself
 							number += expr.charAt(index++);
 						}
-						if(!isDecimalDigit(expr.charCodeAt(index-1)) )
-						{
+						if(!isDecimalDigit(expr.charCodeAt(index-1)) ) {
 							throw new Error('Expected exponent (' +
 									number + expr.charAt(index) + ') at character ' + index);
 						}
@@ -278,7 +277,7 @@
 					var str = '', quote = expr.charAt(index++), closed = false, ch;
 
 					while(index < length) {
-						ch = expr(index++);
+						ch = expr.charAt(index++);
 						if(ch === quote) {
 							closed = true;
 							break;
@@ -469,7 +468,7 @@
 		};
 
 	// To be filled in by the template
-	jsep.version = '<%= version %>;
+	jsep.version = '<%= version %>';
 	jsep.toString = function() { return 'JavaScript Expression Parser (JSEP) v' + jsep.version; };
 
 	/**
