@@ -232,27 +232,29 @@
 				gobbleNumericLiteral = function() {
 					var number = '';
 					while(isDecimalDigit(expr.charCodeAt(index))) {
-						number += expr[index++];
+						number += expr.charAt(index++);
 					}
 
-					if(expr[index] === '.') { // can start with a decimal marker
-						number += expr[index++];
+					if(expr.charAt(index) === '.') { // can start with a decimal marker
+						number += expr.charAt(index++);
 
 						while(isDecimalDigit(expr.charCodeAt(index))) {
-							number += expr[index++];
+							number += expr.charAt(index++);
 						}
 					}
-					if( expr[index] === 'e' || expr[index] === 'E' ) { // exponent marker
-						number += expr[index++];
-						if( expr[index] === '+' || expr[index] === '-' ) { // exponent sign
-							number += expr[index++];
+					
+					if(expr.charAt(index) === 'e' || expr.charAt(index) === 'E') { // exponent marker
+						number += expr.charAt(index++);
+						if(expr.charAt(index) === '+' || expr.charAt(index) === '-') { // exponent sign
+							number += expr.charAt(index++);
 						}
 						while(isDecimalDigit(expr.charCodeAt(index))) { //exponent itself
-							number += expr[index++];
+							number += expr.charAt(index++);
 						}
-						if( !isDecimalDigit(expr.charCodeAt(index-1)) ) {
+						if(!isDecimalDigit(expr.charCodeAt(index-1)) )
+						{
 							throw new Error('Expected exponent (' +
-									number + expr[index] + ') at character ' + index);
+									number + expr.charAt(index) + ') at character ' + index);
 						}
 					}
 					
@@ -260,7 +262,7 @@
 					// Check to make sure this isn't a varible name that start with a number (123abc)
 					if(isIdentifierStart(expr.charCodeAt(index))) {
 						throw new Error('Variable names cannot start with a number (' +
-									number + expr[index] + ') at character ' + index);
+									number + expr.charAt(index) + ') at character ' + index);
 					}
 
 					return {
@@ -273,16 +275,16 @@
 				// Parses a string literal, staring with single or double quotes with basic support for escape codes
 				// e.g. `"hello world"`, `'this is\nJSEP'`
 				gobbleStringLiteral = function() {
-					var str = '', quote = expr[index++], closed = false, ch;
+					var str = '', quote = expr.charAt(index++), closed = false, ch;
 
 					while(index < length) {
-						ch = expr[index++];
+						ch = expr(index++);
 						if(ch === quote) {
 							closed = true;
 							break;
 						} else if(ch === '\\') {
 							// Check for all of the common escape codes
-							ch = expr[index++];
+							ch = expr.charAt(index++);
 							switch(ch) {
 								case 'n': str += '\n'; break;
 								case 'r': str += '\r'; break;
@@ -351,7 +353,7 @@
 					var ch_i, args = [], node;
 					while(index < length) {
 						gobbleSpaces();
-						ch_i = expr[index];
+						ch_i = expr.charAt(index);
 						if(ch_i === ')') { // done parsing
 							index++;
 							break;
@@ -376,7 +378,7 @@
 					var ch_i, node, old_index;
 					node = gobbleIdentifier();
 					gobbleSpaces();
-					ch_i = expr[index];
+					ch_i = expr.charAt(index);
 					while(ch_i === '.' || ch_i === '[' || ch_i === '(') {
 						if(ch_i === '.') {
 							index++;
@@ -397,7 +399,7 @@
 								property: gobbleExpression()
 							};
 							gobbleSpaces();
-							ch_i = expr[index];
+							ch_i = expr.charAt(index);
 							if(ch_i !== ']') {
 								throw new Error('Unclosed [ at character ' + index);
 							}
@@ -413,7 +415,7 @@
 							};
 						}
 						gobbleSpaces();
-						ch_i = expr[index];
+						ch_i = expr.charAt(index);
 					}
 					return node;
 				},
@@ -427,7 +429,7 @@
 					index++;
 					var node = gobbleExpression();
 					gobbleSpaces();
-					if(expr[index] === ')') {
+					if(expr.charAt(index) === ')') {
 						index++;
 						return node;
 					} else {
@@ -437,7 +439,7 @@
 				nodes = [], ch_i, node;
 				
 			while(index < length) {
-				ch_i = expr[index];
+				ch_i = expr.charAt(index);
 
 				// Expressions can be separated by semicolons, commas, or just inferred without any
 				// separators
@@ -450,7 +452,7 @@
 					// If we weren't able to find a binary expression and are out of room, then
 					// the expression passed in probably has too much
 					} else if(index < length) {
-						throw new Error("Unexpected '"+expr[index]+"' at character " + index);
+						throw new Error("Unexpected '"+expr.charAt(index)+"' at character " + index);
 					}
 				}
 			}
@@ -467,7 +469,7 @@
 		};
 
 	// To be filled in by the template
-	jsep.version = '<%= version %>';
+	jsep.version = '<%= version %>;
 	jsep.toString = function() { return 'JavaScript Expression Parser (JSEP) v' + jsep.version; };
 
 	/**
