@@ -99,14 +99,18 @@
 			// `index` stores the character number we are currently at while `length` is a constant
 			// All of the gobbles below will modify `index` as we move along
 			var index = 0,
+				charAtFunc = expr.charAt,
+				charCodeAtFunc = expr.charCodeAt,
+				charI = function(i) { return charAt.call(expr, i); },
+				codeI = function(i) { return charCodeAtFunc.call(expr, i); },
 				length = expr.length,
 
 				// Push `index` up to the next non-space character
 				gobbleSpaces = function() {
-					var ch = expr.charCodeAt(index);
+					var ch = codeI(index);
 					// space or tab
 					while(ch === 32 || ch === 9) {
-						ch = expr.charCodeAt(++index);
+						ch = codeI(++index);
 					}
 				},
 
@@ -194,7 +198,7 @@
 					var ch, curr_node, char, unop, to_check, tc_len;
 					
 					gobbleSpaces();
-					ch = expr.charCodeAt(index);
+					ch = codeI(index);
 
 					if(isDecimalDigit(ch) || ch === 46) {
 						// Char code 46 is a dot `.` which can start off a numeric literal
@@ -231,37 +235,37 @@
 				// keep track of everything in the numeric literal and then calling `parseFloat` on that string
 				gobbleNumericLiteral = function() {
 					var number = '';
-					while(isDecimalDigit(expr.charCodeAt(index))) {
-						number += expr.charAt(index++);
+					while(isDecimalDigit(codeI(index))) {
+						number += charI(index++);
 					}
 
-					if(expr.charAt(index) === '.') { // can start with a decimal marker
-						number += expr.charAt(index++);
+					if(charI(index) === '.') { // can start with a decimal marker
+						number += charI(index++);
 
-						while(isDecimalDigit(expr.charCodeAt(index))) {
-							number += expr.charAt(index++);
+						while(isDecimalDigit(codeI(index))) {
+							number += charI(index++);
 						}
 					}
 					
-					if(expr.charAt(index) === 'e' || expr.charAt(index) === 'E') { // exponent marker
-						number += expr.charAt(index++);
-						if(expr.charAt(index) === '+' || expr.charAt(index) === '-') { // exponent sign
-							number += expr.charAt(index++);
+					if(charI(index) === 'e' || charI(index) === 'E') { // exponent marker
+						number += charI(index++);
+						if(charI(index) === '+' || charI(index) === '-') { // exponent sign
+							number += charI(index++);
 						}
-						while(isDecimalDigit(expr.charCodeAt(index))) { //exponent itself
-							number += expr.charAt(index++);
+						while(isDecimalDigit(codeI(index))) { //exponent itself
+							number += charI(index++);
 						}
-						if(!isDecimalDigit(expr.charCodeAt(index-1)) ) {
+						if(!isDecimalDigit(codeI(index-1)) ) {
 							throw new Error('Expected exponent (' +
-									number + expr.charAt(index) + ') at character ' + index);
+									number + charI(index) + ') at character ' + index);
 						}
 					}
 					
 
 					// Check to make sure this isn't a varible name that start with a number (123abc)
-					if(isIdentifierStart(expr.charCodeAt(index))) {
+					if(isIdentifierStart(codeI(index))) {
 						throw new Error('Variable names cannot start with a number (' +
-									number + expr.charAt(index) + ') at character ' + index);
+									number + charI(index) + ') at character ' + index);
 					}
 
 					return {
@@ -274,16 +278,16 @@
 				// Parses a string literal, staring with single or double quotes with basic support for escape codes
 				// e.g. `"hello world"`, `'this is\nJSEP'`
 				gobbleStringLiteral = function() {
-					var str = '', quote = expr.charAt(index++), closed = false, ch;
+					var str = '', quote = charI(index++), closed = false, ch;
 
 					while(index < length) {
-						ch = expr.charAt(index++);
+						ch = charI(index++);
 						if(ch === quote) {
 							closed = true;
 							break;
 						} else if(ch === '\\') {
 							// Check for all of the common escape codes
-							ch = expr.charAt(index++);
+							ch = charI(index++);
 							switch(ch) {
 								case 'n': str += '\n'; break;
 								case 'r': str += '\r'; break;
@@ -313,14 +317,14 @@
 				// Also, this function checs if that identifier is a literal:
 				// (e.g. `true`, `false`, `null`) or `this`
 				gobbleIdentifier = function() {
-					var ch = expr.charCodeAt(index), start = index, identifier;
+					var ch = codeI(index), start = index, identifier;
 
 					if(isIdentifierStart(ch)) {
 						index++;
 					}
 
 					while(index < length) {
-						ch = expr.charCodeAt(index);
+						ch = codeI(index);
 						if(isIdentifierPart(ch)) {
 							index++;
 						} else {
@@ -352,7 +356,7 @@
 					var ch_i, args = [], node;
 					while(index < length) {
 						gobbleSpaces();
-						ch_i = expr.charAt(index);
+						ch_i = charI(index);
 						if(ch_i === ')') { // done parsing
 							index++;
 							break;
@@ -377,7 +381,7 @@
 					var ch_i, node, old_index;
 					node = gobbleIdentifier();
 					gobbleSpaces();
-					ch_i = expr.charAt(index);
+					ch_i = charI(index);
 					while(ch_i === '.' || ch_i === '[' || ch_i === '(') {
 						if(ch_i === '.') {
 							index++;
@@ -398,7 +402,7 @@
 								property: gobbleExpression()
 							};
 							gobbleSpaces();
-							ch_i = expr.charAt(index);
+							ch_i = charI(index);
 							if(ch_i !== ']') {
 								throw new Error('Unclosed [ at character ' + index);
 							}
@@ -414,7 +418,7 @@
 							};
 						}
 						gobbleSpaces();
-						ch_i = expr.charAt(index);
+						ch_i = charI(index);
 					}
 					return node;
 				},
@@ -428,7 +432,7 @@
 					index++;
 					var node = gobbleExpression();
 					gobbleSpaces();
-					if(expr.charAt(index) === ')') {
+					if(charI(index) === ')') {
 						index++;
 						return node;
 					} else {
@@ -438,7 +442,7 @@
 				nodes = [], ch_i, node;
 				
 			while(index < length) {
-				ch_i = expr.charAt(index);
+				ch_i = charI(index);
 
 				// Expressions can be separated by semicolons, commas, or just inferred without any
 				// separators
@@ -451,7 +455,7 @@
 					// If we weren't able to find a binary expression and are out of room, then
 					// the expression passed in probably has too much
 					} else if(index < length) {
-						throw new Error("Unexpected '"+expr.charAt(index)+"' at character " + index);
+						throw new Error("Unexpected '"+charI(index)+"' at character " + index);
 					}
 				}
 			}
