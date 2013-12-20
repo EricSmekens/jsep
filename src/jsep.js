@@ -242,6 +242,20 @@
 							number += expr[index++];
 						}
 					}
+					if( expr[index] === 'e' || expr[index] === 'E' ) { // exponent marker
+						number += expr[index++];
+						if( expr[index] === '+' || expr[index] === '-' ) { // exponent sign
+							number += expr[index++];
+						}
+						while(isDecimalDigit(expr.charCodeAt(index))) { //exponent itself
+							number += expr[index++];
+						}
+						if( !isDecimalDigit(expr.charCodeAt(index-1)) ) {
+							throw new Error('Expected exponent (' +
+									number + expr[index] + ') at character ' + index);
+						}
+					}
+					
 
 					// Check to make sure this isn't a varible name that start with a number (123abc)
 					if(isIdentifierStart(expr.charCodeAt(index))) {
