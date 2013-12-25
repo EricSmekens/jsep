@@ -262,7 +262,7 @@
 					}
 					
 
-					// Check to make sure this isn't a varible name that start with a number (123abc)
+					// Check to make sure this isn't a variable name that start with a number (123abc)
 					if(isIdentifierStart(exprICode(index))) {
 						throw new Error('Variable names cannot start with a number (' +
 									number + exprI(index) + ') at character ' + index);
@@ -314,7 +314,7 @@
 				
 				// Gobbles only identifiers
 				// e.g.: `foo`, `_value`, `$x1`
-				// Also, this function checs if that identifier is a literal:
+				// Also, this function checks if that identifier is a literal:
 				// (e.g. `true`, `false`, `null`) or `this`
 				gobbleIdentifier = function() {
 					var ch = exprICode(index), start = index, identifier;
@@ -409,7 +409,7 @@
 							index++;
 							gobbleSpaces();
 						} else if(ch_i === '(') {
-							// A function call is being made; gobble all the araguments
+							// A function call is being made; gobble all the arguments
 							index++;
 							node = {
 								type: CALL_EXP,
@@ -423,9 +423,9 @@
 					return node;
 				},
 
-				// Responsible for parsing a group of things within paraenteses `()`
+				// Responsible for parsing a group of things within parentheses `()`
 				// This function assumes that it needs to gobble the opening parenthesis
-				// and then tries to gobble everything within that parenthesis, asusming
+				// and then tries to gobble everything within that parenthesis, assuming
 				// that the next thing it should see is the close parenthesis. If not,
 				// then the expression probably doesn't have a `)`
 				gobbleGroup = function() {
@@ -527,7 +527,7 @@
 		var old_jsep = root.jsep;
 		// The star of the show! It's a function!
 		root.jsep = jsep;
-		// And a curteous function willing to move out of the way for other similary-namaed objects!
+		// And a courteous function willing to move out of the way for other similarly-named objects!
 		jsep.noConflict = function() {
 			if(root.jsep === jsep) {
 				root.jsep = old_jsep;
