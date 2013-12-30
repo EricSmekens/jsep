@@ -212,6 +212,8 @@ jsep.removeUnaryOp("~");
 						prop_val.addClass("string").text("'" + value + "'");	
 					} else if(typeof value === "number") {
 						prop_val.addClass("number").text(value);
+					} else if(typeof value === "boolean") {
+						prop_val.addClass("boolean").text(value+"");
 					} else {
 						var child = get_html_obj(value);
 						prop_val.addClass("objectd").append(child);
