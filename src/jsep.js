@@ -321,6 +321,8 @@
 
 					if(isIdentifierStart(ch)) {
 						index++;
+					} else {
+						throw new Error('Unexpected ' + exprI(index) + 'at character ' + index);
 					}
 
 					while(index < length) {
