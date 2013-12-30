@@ -1,4 +1,4 @@
-//     JavaScript Expression Parser (JSEP) 0.2.7
+//     JavaScript Expression Parser (JSEP) 0.2.8
 //     JSEP may be freely distributed under the MIT License
 //     http://jsep.from.so/
 
@@ -99,14 +99,18 @@
 			// `index` stores the character number we are currently at while `length` is a constant
 			// All of the gobbles below will modify `index` as we move along
 			var index = 0,
+				charAtFunc = expr.charAt,
+				charCodeAtFunc = expr.charCodeAt,
+				exprI = function(i) { return charAtFunc.call(expr, i); },
+				exprICode = function(i) { return charCodeAtFunc.call(expr, i); },
 				length = expr.length,
 
 				// Push `index` up to the next non-space character
 				gobbleSpaces = function() {
-					var ch = expr.charCodeAt(index);
+					var ch = exprICode(index);
 					// space or tab
 					while(ch === 32 || ch === 9) {
-						ch = expr.charCodeAt(++index);
+						ch = exprICode(++index);
 					}
 				},
 
@@ -191,10 +195,10 @@
 				// An individual part of a binary expression:
 				// e.g. `foo.bar(baz)`, `1`, `"abc"`, `(a % 2)` (because it's in parenthesis)
 				gobbleToken = function() {
-					var ch, curr_node, char, unop, to_check, tc_len;
+					var ch, curr_node, unop, to_check, tc_len;
 					
 					gobbleSpaces();
-					ch = expr.charCodeAt(index);
+					ch = exprICode(index);
 
 					if(isDecimalDigit(ch) || ch === 46) {
 						// Char code 46 is a dot `.` which can start off a numeric literal
@@ -231,22 +235,37 @@
 				// keep track of everything in the numeric literal and then calling `parseFloat` on that string
 				gobbleNumericLiteral = function() {
 					var number = '';
-					while(isDecimalDigit(expr.charCodeAt(index))) {
-						number += expr[index++];
+					while(isDecimalDigit(exprICode(index))) {
+						number += exprI(index++);
 					}
 
-					if(expr[index] === '.') { // can start with a decimal marker
-						number += expr[index++];
+					if(exprI(index) === '.') { // can start with a decimal marker
+						number += exprI(index++);
 
-						while(isDecimalDigit(expr.charCodeAt(index))) {
-							number += expr[index++];
+						while(isDecimalDigit(exprICode(index))) {
+							number += exprI(index++);
 						}
 					}
+					
+					if(exprI(index) === 'e' || exprI(index) === 'E') { // exponent marker
+						number += exprI(index++);
+						if(exprI(index) === '+' || exprI(index) === '-') { // exponent sign
+							number += exprI(index++);
+						}
+						while(isDecimalDigit(exprICode(index))) { //exponent itself
+							number += exprI(index++);
+						}
+						if(!isDecimalDigit(exprICode(index-1)) ) {
+							throw new Error('Expected exponent (' +
+									number + exprI(index) + ') at character ' + index);
+						}
+					}
+					
 
-					// Check to make sure this isn't a varible name that start with a number (123abc)
-					if(isIdentifierStart(expr.charCodeAt(index))) {
+					// Check to make sure this isn't a variable name that start with a number (123abc)
+					if(isIdentifierStart(exprICode(index))) {
 						throw new Error('Variable names cannot start with a number (' +
-									number + expr[index] + ') at character ' + index);
+									number + exprI(index) + ') at character ' + index);
 					}
 
 					return {
@@ -259,16 +278,16 @@
 				// Parses a string literal, staring with single or double quotes with basic support for escape codes
 				// e.g. `"hello world"`, `'this is\nJSEP'`
 				gobbleStringLiteral = function() {
-					var str = '', quote = expr[index++], closed = false, ch;
+					var str = '', quote = exprI(index++), closed = false, ch;
 
 					while(index < length) {
-						ch = expr[index++];
+						ch = exprI(index++);
 						if(ch === quote) {
 							closed = true;
 							break;
 						} else if(ch === '\\') {
 							// Check for all of the common escape codes
-							ch = expr[index++];
+							ch = exprI(index++);
 							switch(ch) {
 								case 'n': str += '\n'; break;
 								case 'r': str += '\r'; break;
@@ -295,17 +314,19 @@
 				
 				// Gobbles only identifiers
 				// e.g.: `foo`, `_value`, `$x1`
-				// Also, this function checs if that identifier is a literal:
+				// Also, this function checks if that identifier is a literal:
 				// (e.g. `true`, `false`, `null`) or `this`
 				gobbleIdentifier = function() {
-					var ch = expr.charCodeAt(index), start = index, identifier;
+					var ch = exprICode(index), start = index, identifier;
 
 					if(isIdentifierStart(ch)) {
 						index++;
+					} else {
+						throw new Error('Unexpected ' + exprI(index) + 'at character ' + index);
 					}
 
 					while(index < length) {
-						ch = expr.charCodeAt(index);
+						ch = exprICode(index);
 						if(isIdentifierPart(ch)) {
 							index++;
 						} else {
@@ -337,7 +358,7 @@
 					var ch_i, args = [], node;
 					while(index < length) {
 						gobbleSpaces();
-						ch_i = expr[index];
+						ch_i = exprI(index);
 						if(ch_i === ')') { // done parsing
 							index++;
 							break;
@@ -362,7 +383,7 @@
 					var ch_i, node, old_index;
 					node = gobbleIdentifier();
 					gobbleSpaces();
-					ch_i = expr[index];
+					ch_i = exprI(index);
 					while(ch_i === '.' || ch_i === '[' || ch_i === '(') {
 						if(ch_i === '.') {
 							index++;
@@ -383,14 +404,14 @@
 								property: gobbleExpression()
 							};
 							gobbleSpaces();
-							ch_i = expr[index];
+							ch_i = exprI(index);
 							if(ch_i !== ']') {
 								throw new Error('Unclosed [ at character ' + index);
 							}
 							index++;
 							gobbleSpaces();
 						} else if(ch_i === '(') {
-							// A function call is being made; gobble all the araguments
+							// A function call is being made; gobble all the arguments
 							index++;
 							node = {
 								type: CALL_EXP,
@@ -399,21 +420,21 @@
 							};
 						}
 						gobbleSpaces();
-						ch_i = expr[index];
+						ch_i = exprI(index);
 					}
 					return node;
 				},
 
-				// Responsible for parsing a group of things within paraenteses `()`
+				// Responsible for parsing a group of things within parentheses `()`
 				// This function assumes that it needs to gobble the opening parenthesis
-				// and then tries to gobble everything within that parenthesis, asusming
+				// and then tries to gobble everything within that parenthesis, assuming
 				// that the next thing it should see is the close parenthesis. If not,
 				// then the expression probably doesn't have a `)`
 				gobbleGroup = function() {
 					index++;
 					var node = gobbleExpression();
 					gobbleSpaces();
-					if(expr[index] === ')') {
+					if(exprI(index) === ')') {
 						index++;
 						return node;
 					} else {
@@ -423,7 +444,7 @@
 				nodes = [], ch_i, node;
 				
 			while(index < length) {
-				ch_i = expr[index];
+				ch_i = exprI(index);
 
 				// Expressions can be separated by semicolons, commas, or just inferred without any
 				// separators
@@ -436,7 +457,7 @@
 					// If we weren't able to find a binary expression and are out of room, then
 					// the expression passed in probably has too much
 					} else if(index < length) {
-						throw new Error("Unexpected '"+expr[index]+"' at character " + index);
+						throw new Error("Unexpected '"+exprI(index)+"' at character " + index);
 					}
 				}
 			}
@@ -453,7 +474,7 @@
 		};
 
 	// To be filled in by the template
-	jsep.version = '0.2.7';
+	jsep.version = '0.2.8';
 	jsep.toString = function() { return 'JavaScript Expression Parser (JSEP) v' + jsep.version; };
 
 	/**
@@ -508,7 +529,7 @@
 		var old_jsep = root.jsep;
 		// The star of the show! It's a function!
 		root.jsep = jsep;
-		// And a curteous function willing to move out of the way for other similary-namaed objects!
+		// And a courteous function willing to move out of the way for other similarly-named objects!
 		jsep.noConflict = function() {
 			if(root.jsep === jsep) {
 				root.jsep = old_jsep;
