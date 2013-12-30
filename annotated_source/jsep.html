@@ -27,7 +27,7 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-1">&#182;</a>
               </div>
-              <pre><code>JavaScript Expression Parser (JSEP) 0.2.7
+              <pre><code>JavaScript Expression Parser (JSEP) 0.2.8
 JSEP may be freely distributed under the MIT License
 http://jsep.from.so/</code></pre>
 
@@ -350,6 +350,10 @@ All of the gobbles below will modify <code>index</code> as we move along</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>			<span class="keyword">var</span> index = <span class="number">0</span>,
+				charAtFunc = expr.charAt,
+				charCodeAtFunc = expr.charCodeAt,
+				exprI = <span class="function"><span class="keyword">function</span><span class="params">(i)</span> {</span> <span class="keyword">return</span> charAtFunc.call(expr, i); },
+				exprICode = <span class="function"><span class="keyword">function</span><span class="params">(i)</span> {</span> <span class="keyword">return</span> charCodeAtFunc.call(expr, i); },
 				length = expr.length,</pre></div></div>
             
         </li>
@@ -366,7 +370,7 @@ All of the gobbles below will modify <code>index</code> as we move along</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>				gobbleSpaces = <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
-					<span class="keyword">var</span> ch = expr.charCodeAt(index);</pre></div></div>
+					<span class="keyword">var</span> ch = exprICode(index);</pre></div></div>
             
         </li>
         
@@ -382,7 +386,7 @@ All of the gobbles below will modify <code>index</code> as we move along</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>					<span class="keyword">while</span>(ch === <span class="number">32</span> || ch === <span class="number">9</span>) {
-						ch = expr.charCodeAt(++index);
+						ch = exprICode(++index);
 					}
 				},</pre></div></div>
             
@@ -563,10 +567,10 @@ e.g. <code>foo.bar(baz)</code>, <code>1</code>, <code>&quot;abc&quot;</code>, <c
             </div>
             
             <div class="content"><div class='highlight'><pre>				gobbleToken = <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
-					<span class="keyword">var</span> ch, curr_node, char, unop, to_check, tc_len;
+					<span class="keyword">var</span> ch, curr_node, unop, to_check, tc_len;
 					
 					gobbleSpaces();
-					ch = expr.charCodeAt(index);
+					ch = exprICode(index);
 
 					<span class="keyword">if</span>(isDecimalDigit(ch) || ch === <span class="number">46</span>) {</pre></div></div>
             
@@ -668,15 +672,29 @@ keep track of everything in the numeric literal and then calling <code>parseFloa
             
             <div class="content"><div class='highlight'><pre>				gobbleNumericLiteral = <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
 					<span class="keyword">var</span> number = <span class="string">''</span>;
-					<span class="keyword">while</span>(isDecimalDigit(expr.charCodeAt(index))) {
-						number += expr[index++];
+					<span class="keyword">while</span>(isDecimalDigit(exprICode(index))) {
+						number += exprI(index++);
 					}
 
-					<span class="keyword">if</span>(expr[index] === <span class="string">'.'</span>) { <span class="comment">// can start with a decimal marker</span>
-						number += expr[index++];
+					<span class="keyword">if</span>(exprI(index) === <span class="string">'.'</span>) { <span class="comment">// can start with a decimal marker</span>
+						number += exprI(index++);
 
-						<span class="keyword">while</span>(isDecimalDigit(expr.charCodeAt(index))) {
-							number += expr[index++];
+						<span class="keyword">while</span>(isDecimalDigit(exprICode(index))) {
+							number += exprI(index++);
+						}
+					}
+					
+					<span class="keyword">if</span>(exprI(index) === <span class="string">'e'</span> || exprI(index) === <span class="string">'E'</span>) { <span class="comment">// exponent marker</span>
+						number += exprI(index++);
+						<span class="keyword">if</span>(exprI(index) === <span class="string">'+'</span> || exprI(index) === <span class="string">'-'</span>) { <span class="comment">// exponent sign</span>
+							number += exprI(index++);
+						}
+						<span class="keyword">while</span>(isDecimalDigit(exprICode(index))) { <span class="comment">//exponent itself</span>
+							number += exprI(index++);
+						}
+						<span class="keyword">if</span>(!isDecimalDigit(exprICode(index-<span class="number">1</span>)) ) {
+							<span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">'Expected exponent ('</span> +
+									number + exprI(index) + <span class="string">') at character '</span> + index);
 						}
 					}</pre></div></div>
             
@@ -689,13 +707,13 @@ keep track of everything in the numeric literal and then calling <code>parseFloa
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-35">&#182;</a>
               </div>
-              <p>Check to make sure this isn&#39;t a varible name that start with a number (123abc)</p>
+              <p>Check to make sure this isn&#39;t a variable name that start with a number (123abc)</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>					<span class="keyword">if</span>(isIdentifierStart(expr.charCodeAt(index))) {
+            <div class="content"><div class='highlight'><pre>					<span class="keyword">if</span>(isIdentifierStart(exprICode(index))) {
 						<span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">'Variable names cannot start with a number ('</span> +
-									number + expr[index] + <span class="string">') at character '</span> + index);
+									number + exprI(index) + <span class="string">') at character '</span> + index);
 					}
 
 					<span class="keyword">return</span> {
@@ -720,10 +738,10 @@ e.g. <code>&quot;hello world&quot;</code>, <code>&#39;this is\nJSEP&#39;</code><
             </div>
             
             <div class="content"><div class='highlight'><pre>				gobbleStringLiteral = <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
-					<span class="keyword">var</span> str = <span class="string">''</span>, quote = expr[index++], closed = <span class="literal">false</span>, ch;
+					<span class="keyword">var</span> str = <span class="string">''</span>, quote = exprI(index++), closed = <span class="literal">false</span>, ch;
 
 					<span class="keyword">while</span>(index &lt; length) {
-						ch = expr[index++];
+						ch = exprI(index++);
 						<span class="keyword">if</span>(ch === quote) {
 							closed = <span class="literal">true</span>;
 							<span class="keyword">break</span>;
@@ -742,7 +760,7 @@ e.g. <code>&quot;hello world&quot;</code>, <code>&#39;this is\nJSEP&#39;</code><
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>							ch = expr[index++];
+            <div class="content"><div class='highlight'><pre>							ch = exprI(index++);
 							<span class="keyword">switch</span>(ch) {
 								<span class="keyword">case</span> <span class="string">'n'</span>: str += <span class="string">'\n'</span>; <span class="keyword">break</span>;
 								<span class="keyword">case</span> <span class="string">'r'</span>: str += <span class="string">'\r'</span>; <span class="keyword">break</span>;
@@ -778,20 +796,22 @@ e.g. <code>&quot;hello world&quot;</code>, <code>&#39;this is\nJSEP&#39;</code><
               </div>
               <p>Gobbles only identifiers
 e.g.: <code>foo</code>, <code>_value</code>, <code>$x1</code>
-Also, this function checs if that identifier is a literal:
+Also, this function checks if that identifier is a literal:
 (e.g. <code>true</code>, <code>false</code>, <code>null</code>) or <code>this</code></p>
 
             </div>
             
             <div class="content"><div class='highlight'><pre>				gobbleIdentifier = <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
-					<span class="keyword">var</span> ch = expr.charCodeAt(index), start = index, identifier;
+					<span class="keyword">var</span> ch = exprICode(index), start = index, identifier;
 
 					<span class="keyword">if</span>(isIdentifierStart(ch)) {
 						index++;
+					} <span class="keyword">else</span> {
+						<span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">'Unexpected '</span> + exprI(index) + <span class="string">'at character '</span> + index);
 					}
 
 					<span class="keyword">while</span>(index &lt; length) {
-						ch = expr.charCodeAt(index);
+						ch = exprICode(index);
 						<span class="keyword">if</span>(isIdentifierPart(ch)) {
 							index++;
 						} <span class="keyword">else</span> {
@@ -835,7 +855,7 @@ e.g. <code>foo(bar, baz)</code> or <code>my_func()</code></p>
 					<span class="keyword">var</span> ch_i, args = [], node;
 					<span class="keyword">while</span>(index &lt; length) {
 						gobbleSpaces();
-						ch_i = expr[index];
+						ch_i = exprI(index);
 						<span class="keyword">if</span>(ch_i === <span class="string">')'</span>) { <span class="comment">// done parsing</span>
 							index++;
 							<span class="keyword">break</span>;
@@ -872,7 +892,7 @@ e.g. <code>Math.acos(obj.angle)</code></p>
 					<span class="keyword">var</span> ch_i, node, old_index;
 					node = gobbleIdentifier();
 					gobbleSpaces();
-					ch_i = expr[index];
+					ch_i = exprI(index);
 					<span class="keyword">while</span>(ch_i === <span class="string">'.'</span> || ch_i === <span class="string">'['</span> || ch_i === <span class="string">'('</span>) {
 						<span class="keyword">if</span>(ch_i === <span class="string">'.'</span>) {
 							index++;
@@ -893,7 +913,7 @@ e.g. <code>Math.acos(obj.angle)</code></p>
 								property: gobbleExpression()
 							};
 							gobbleSpaces();
-							ch_i = expr[index];
+							ch_i = exprI(index);
 							<span class="keyword">if</span>(ch_i !== <span class="string">']'</span>) {
 								<span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">'Unclosed [ at character '</span> + index);
 							}
@@ -910,7 +930,7 @@ e.g. <code>Math.acos(obj.angle)</code></p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-41">&#182;</a>
               </div>
-              <p>A function call is being made; gobble all the araguments</p>
+              <p>A function call is being made; gobble all the arguments</p>
 
             </div>
             
@@ -922,7 +942,7 @@ e.g. <code>Math.acos(obj.angle)</code></p>
 							};
 						}
 						gobbleSpaces();
-						ch_i = expr[index];
+						ch_i = exprI(index);
 					}
 					<span class="keyword">return</span> node;
 				},</pre></div></div>
@@ -936,9 +956,9 @@ e.g. <code>Math.acos(obj.angle)</code></p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-42">&#182;</a>
               </div>
-              <p>Responsible for parsing a group of things within paraenteses <code>()</code>
+              <p>Responsible for parsing a group of things within parentheses <code>()</code>
 This function assumes that it needs to gobble the opening parenthesis
-and then tries to gobble everything within that parenthesis, asusming
+and then tries to gobble everything within that parenthesis, assuming
 that the next thing it should see is the close parenthesis. If not,
 then the expression probably doesn&#39;t have a <code>)</code></p>
 
@@ -948,7 +968,7 @@ then the expression probably doesn&#39;t have a <code>)</code></p>
 					index++;
 					<span class="keyword">var</span> node = gobbleExpression();
 					gobbleSpaces();
-					<span class="keyword">if</span>(expr[index] === <span class="string">')'</span>) {
+					<span class="keyword">if</span>(exprI(index) === <span class="string">')'</span>) {
 						index++;
 						<span class="keyword">return</span> node;
 					} <span class="keyword">else</span> {
@@ -958,7 +978,7 @@ then the expression probably doesn&#39;t have a <code>)</code></p>
 				nodes = [], ch_i, node;
 				
 			<span class="keyword">while</span>(index &lt; length) {
-				ch_i = expr[index];</pre></div></div>
+				ch_i = exprI(index);</pre></div></div>
             
         </li>
         
@@ -1009,7 +1029,7 @@ the expression passed in probably has too much</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>					} <span class="keyword">else</span> <span class="keyword">if</span>(index &lt; length) {
-						<span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">"Unexpected '"</span>+expr[index]+<span class="string">"' at character "</span> + index);
+						<span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">"Unexpected '"</span>+exprI(index)+<span class="string">"' at character "</span> + index);
 					}
 				}
 			}</pre></div></div>
@@ -1050,7 +1070,7 @@ the expression passed in probably has too much</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>	jsep.version = <span class="string">'0.2.7'</span>;
+            <div class="content"><div class='highlight'><pre>	jsep.version = <span class="string">'0.2.8'</span>;
 	jsep.toString = <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span> <span class="keyword">return</span> <span class="string">'JavaScript Expression Parser (JSEP) v'</span> + jsep.version; };
 
 	<span class="comment">/**
@@ -1140,7 +1160,7 @@ the expression passed in probably has too much</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-50">&#182;</a>
               </div>
-              <p>And a curteous function willing to move out of the way for other similary-namaed objects!</p>
+              <p>And a courteous function willing to move out of the way for other similarly-named objects!</p>
 
             </div>
             
