@@ -79,8 +79,8 @@
 						<h1>jsep</h1>
 						<p>a tiny JavaScript expression parser</p>
 						<div>
-							<a href="jsep-0.2.7.zip" class="btn btn-primary btn-lg">Download <small>v0.2.7</small></a>
-							<span class="size-info">&lt; 1kb minified &amp; gzipped</span>
+							<a href="jsep-0.2.8.zip" class="btn btn-primary btn-lg">Download <small>v0.2.8</small></a>
+							<span class="size-info">1kb minified &amp; gzipped</span>
 						</div>
 						<div>
 							<a href="https://github.com/soney/jsep" class="btn">Source on GitHub</a>
@@ -171,12 +171,21 @@ jsep.removeUnaryOp("~");
 						</div>
 					</div>
 				</div>
-
 			</div>
 
-			<footer class="footer col-md-12">
-				<p class="pull-right">&copy; 2013 <a href="http://from.so">Stephen Oney</a></p>
-				<p>Code licensed under the <a target="license" href="https://github.com/soney/jsep/blob/master/LICENSE">MIT License</a>.</p>
+			<footer class="row">
+				<div class="col-md-4">
+					<p class="pull-left">Code licensed under the <a target="license" href="https://github.com/soney/jsep/blob/master/LICENSE">MIT License</a>.</p>
+				</div>
+				<div class="col-md-4">
+					<center>
+						<iframe src="http://ghbtns.com/github-btn.html?user=soney&repo=jsep&type=watch" allowtransparency="true" frameborder="0" scrolling="0" width="62" height="20"></iframe>
+						<iframe src="http://ghbtns.com/github-btn.html?user=soney&repo=jsep&type=fork" allowtransparency="true" frameborder="0" scrolling="0" width="53" height="20"></iframe>
+					</center>
+				</div>
+				<div class="col-md-4">
+					<p class="pull-right">&copy; 2013 <a href="http://from.so">Stephen Oney</a></p>
+				</div>
 			</footer>
 		</div>
 	</div>
@@ -203,6 +212,8 @@ jsep.removeUnaryOp("~");
 						prop_val.addClass("string").text("'" + value + "'");	
 					} else if(typeof value === "number") {
 						prop_val.addClass("number").text(value);
+					} else if(typeof value === "boolean") {
+						prop_val.addClass("boolean").text(value+"");
 					} else {
 						var child = get_html_obj(value);
 						prop_val.addClass("objectd").append(child);
