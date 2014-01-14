@@ -90,7 +90,7 @@
 					<div class="page-header">
 						<h2>About</h2>
 					</div>
-					<p>jsep is a parser for JavaScript expressions written in JavaScript. jsep is able to parse expressions like <code>x * (1 + 2)</code> or <code>foo(bar.baz[0])</code> and convert them into an AST. jsep works in both server-side and client-side JavaScript.</p>
+					<p><strong>jsep</strong> is a JavaScript parser for JavaScript expressions. jsep is able to parse expressions like <code>x * (1 + 2)</code> or <code>foo(bar.baz[0])</code> and convert them into an AST. jsep works in both server-side and client-side JavaScript.</p>
 					<p>jsep <strong>does not</strong> parse JavaScript operations (e.g. <code>var a = b;</code>) nor blocks of code (e.g. <code>if (...) {...}</code>.) Think of jsep as a tool to parse the kinds of expressions that would be written in individual Excel cells.</p>
 					<p>jsep was originally written as part of <a href="http://cjs.from.so/">ConstraintJS</a> and was extracted as a useful module for cases where full parsers like <a href="http://esprima.org/">Esprima</a> are too heavyweight.</p>
 					<div class="page-header">
@@ -130,7 +130,7 @@ var ninja_jsep = jsep.noConflict();
 ninja_jsep("'hello'")
 </pre>
 <h4>Custom Operators:</h4>
-<p>JSEP also allows user-defined operators to be created.</p>
+<p>jsep also allows user-defined operators to be created.</p>
 <pre>
 // Add a custom ^ binary operator with precedence 10
 jsep.addBinaryOp("^", 10);
