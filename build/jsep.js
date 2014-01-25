@@ -21,6 +21,13 @@
 		LOGICAL_EXP = 'LogicalExpression',
         CONDITIONAL_EXP = 'ConditionalExpression',
 
+		throwError = function(message, index) {
+			var error = new Error(message + ' at character ' + index);
+			error.index = index;
+			error.dedscription = message;
+			throw error;
+		},
+
 	// Operations
 	// ----------
 	
@@ -151,7 +158,7 @@
 
 						right = gobbleToken();
 						if(!right) {
-							throw new Error("Expected expression after " + biop + " at character " + index);
+							throwError("Expected expression after " + biop, index);
 						}
 						stack = [left, biop_info, right];
 
@@ -175,7 +182,7 @@
 
 							node = gobbleToken();
 							if(!node) {
-								throw new Error("Expected expression after " + biop + " at character " + index);
+								throwError("Expected expression after " + biop, index);
 							}
 							stack.push(biop_info);
 							stack.push(node);
@@ -261,16 +268,15 @@
 							number += exprI(index++);
 						}
 						if(!isDecimalDigit(exprICode(index-1)) ) {
-							throw new Error('Expected exponent (' +
-									number + exprI(index) + ') at character ' + index);
+							throwError('Expected exponent (' + number + exprI(index) + ')', index);
 						}
 					}
 					
 
 					// Check to make sure this isn't a variable name that start with a number (123abc)
 					if(isIdentifierStart(exprICode(index))) {
-						throw new Error('Variable names cannot start with a number (' +
-									number + exprI(index) + ') at character ' + index);
+						throwError( 'Variable names cannot start with a number (' +
+									number + exprI(index) + ')', index);
 					}
 
 					return {
@@ -307,7 +313,7 @@
 					}
 
 					if(!closed) {
-						throw new Error('Unclosed quote after "'+str+'"');
+						throwError('Unclosed quote after "'+str+'"', index);
 					}
 
 					return {
@@ -327,7 +333,7 @@
 					if(isIdentifierStart(ch)) {
 						index++;
 					} else {
-						throw new Error('Unexpected ' + exprI(index) + 'at character ' + index);
+						throwError('Unexpected ' + exprI(index), index);
 					}
 
 					while(index < length) {
@@ -372,7 +378,7 @@
 						} else {
 							node = gobbleExpression();
 							if(!node || node.type === COMPOUND) {
-								throw new Error('Expected comma at character ' + index);
+								throwError('Expected comma', index);
 							}
 							args.push(node);
 						}
@@ -411,7 +417,7 @@
 							gobbleSpaces();
 							ch_i = exprI(index);
 							if(ch_i !== ']') {
-								throw new Error('Unclosed [ at character ' + index);
+								throwError('Unclosed [', index);
 							}
 							index++;
 							gobbleSpaces();
@@ -443,7 +449,7 @@
 						index++;
 						return node;
 					} else {
-						throw new Error('Unclosed ( at character ' + index);
+						throwError('Unclosed (', index);
 					}
 				},
 				gobbleConditional = function(test) {
@@ -451,14 +457,14 @@
 					index++;
 					consequent = gobbleExpression();
 					if(!consequent) {
-						throw new Error('Expected expression at character ' + index);
+						throwError('Expected expression', index);
 					}
 					gobbleSpaces();
 					if(exprI(index) === ':') {
 						index++;
 						alternate = gobbleExpression();
 						if(!alternate) {
-							throw new Error('Expected expression at character ' + index);
+							throwError('Expected expression', index);
 						}
 						return {
 							type: CONDITIONAL_EXP,
@@ -467,7 +473,7 @@
 							alternate: alternate
 						};
 					} else {
-						throw new Error('Expected : at character ' + index);
+						throwError('Expected :', index);
 					}
 				},
 				nodes = [], ch_i, node;
@@ -486,7 +492,7 @@
 					// If we weren't able to find a binary expression and are out of room, then
 					// the expression passed in probably has too much
 					} else if(index < length) {
-						throw new Error("Unexpected '"+exprI(index)+"' at character " + index);
+						throwError('Unexpected "' + exprI(index) + '"', index);
 					}
 				}
 			}
