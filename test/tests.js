@@ -107,5 +107,9 @@ test('Esprima Comparison', function() {
 	]).map(esprima_comparison_test);
 });
 
+test('Ternary', function() {
+	var val = jsep('a ? b : c');
+	equal(val.type, 'ConditionalExpression');
+});
 
 }());
