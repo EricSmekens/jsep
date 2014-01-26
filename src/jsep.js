@@ -121,12 +121,14 @@
 						ch = exprICode(++index);
 					}
 				},
-
+				
+				// The main parsing function. Much of this code is dedicated to ternary expressions
 				gobbleExpression = function() {
 					var test = gobbleBinaryExpression(),
 						consequent, alternate;
-
+					
 					gobbleSpaces();
+					// Ternary expression: test ? consequent : alternate
 					if(exprI(index) === '?') {
 						index++;
 						consequent = gobbleExpression();
