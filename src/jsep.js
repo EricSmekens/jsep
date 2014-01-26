@@ -122,6 +122,38 @@
 					}
 				},
 
+				gobbleExpression = function() {
+					var test = gobbleBinaryExpression(),
+						consequent, alternate;
+
+					gobbleSpaces();
+					if(exprI(index) === '?') {
+						index++;
+						consequent = gobbleExpression();
+						if(!consequent) {
+							throwError('Expected expression', index);
+						}
+						gobbleSpaces();
+						if(exprI(index) === ':') {
+							index++;
+							alternate = gobbleExpression();
+							if(!alternate) {
+								throwError('Expected expression', index);
+							}
+							return {
+								type: CONDITIONAL_EXP,
+								test: test,
+								consequent: consequent,
+								alternate: alternate
+							};
+						} else {
+							throwError('Expected :', index);
+						}
+					} else {
+						return test;
+					}
+				},
+
 				// Search for the operation portion of the string (e.g. `+`, `===`)
 				// Start by taking the longest possible binary operations (3 characters: `===`, `!==`, `>>>`)
 				// and move down from 3 to 2 to 1 character until a matching binary operation is found
@@ -141,7 +173,7 @@
 
 				// This function is responsible for gobbling an individual expression,
 				// e.g. `1`, `1+2`, `a+(b*2)-Math.sqrt(2)`
-				gobbleExpression = function() {
+				gobbleBinaryExpression = function() {
 					var ch_i, node, biop, prec, stack, biop_info, left, right, i;
 
 					// First, try to get the leftmost thing
@@ -149,59 +181,54 @@
 					left = gobbleToken();
 					biop = gobbleBinaryOp();
 
-					if(biop) {
-						// If there wasn't a binary operator, just return the leftmost node
+					// If there wasn't a binary operator, just return the leftmost node
+					if(!biop) {
+						return left;
+					}
 
-						// Otherwise, we need to start a stack to properly place the binary operations in their
-						// precedence structure
-						biop_info = { value: biop, prec: binaryPrecedence(biop)};
+					// Otherwise, we need to start a stack to properly place the binary operations in their
+					// precedence structure
+					biop_info = { value: biop, prec: binaryPrecedence(biop)};
 
-						right = gobbleToken();
-						if(!right) {
-							throwError("Expected expression after " + biop, index);
+					right = gobbleToken();
+					if(!right) {
+						throwError("Expected expression after " + biop, index);
+					}
+					stack = [left, biop_info, right];
+
+					// Properly deal with precedence using [recursive descent](http://www.engr.mun.ca/~theo/Misc/exp_parsing.htm)
+					while((biop = gobbleBinaryOp())) {
+						prec = binaryPrecedence(biop);
+
+						if(prec === 0) {
+							break;
 						}
-						stack = [left, biop_info, right];
+						biop_info = { value: biop, prec: prec };
 
-						// Properly deal with precedence using [recursive descent](http://www.engr.mun.ca/~theo/Misc/exp_parsing.htm)
-						while((biop = gobbleBinaryOp())) {
-							prec = binaryPrecedence(biop);
-
-							if(prec === 0) {
-								break;
-							}
-							biop_info = { value: biop, prec: prec };
-
-							// Reduce: make a binary expression from the three topmost entries.
-							while ((stack.length > 2) && (prec <= stack[stack.length - 2].prec)) {
-								right = stack.pop();
-								biop = stack.pop().value;
-								left = stack.pop();
-								node = createBinaryExpression(biop, left, right);
-								stack.push(node);
-							}
-
-							node = gobbleToken();
-							if(!node) {
-								throwError("Expected expression after " + biop, index);
-							}
-							stack.push(biop_info);
+						// Reduce: make a binary expression from the three topmost entries.
+						while ((stack.length > 2) && (prec <= stack[stack.length - 2].prec)) {
+							right = stack.pop();
+							biop = stack.pop().value;
+							left = stack.pop();
+							node = createBinaryExpression(biop, left, right);
 							stack.push(node);
 						}
 
-						i = stack.length - 1;
-						node = stack[i];
-						while(i > 1) {
-							node = createBinaryExpression(stack[i - 1].value, stack[i - 2], node); 
-							i -= 2;
+						node = gobbleToken();
+						if(!node) {
+							throwError("Expected expression after " + biop, index);
 						}
-						return node;
-					} else { // if(!biop)
-						gobbleSpaces();
-						if(exprI(index) === '?') { // Conditional
-							return gobbleConditional(left);
-						}
-						return left;
+						stack.push(biop_info);
+						stack.push(node);
 					}
+
+					i = stack.length - 1;
+					node = stack[i];
+					while(i > 1) {
+						node = createBinaryExpression(stack[i - 1].value, stack[i - 2], node); 
+						i -= 2;
+					}
+					return node;
 				},
 
 				// An individual part of a binary expression:
@@ -450,30 +477,6 @@
 						return node;
 					} else {
 						throwError('Unclosed (', index);
-					}
-				},
-				gobbleConditional = function(test) {
-					var consequent, alternate;
-					index++;
-					consequent = gobbleExpression();
-					if(!consequent) {
-						throwError('Expected expression', index);
-					}
-					gobbleSpaces();
-					if(exprI(index) === ':') {
-						index++;
-						alternate = gobbleExpression();
-						if(!alternate) {
-							throwError('Expected expression', index);
-						}
-						return {
-							type: CONDITIONAL_EXP,
-							test: test,
-							consequent: consequent,
-							alternate: alternate
-						};
-					} else {
-						throwError('Expected :', index);
 					}
 				},
 				nodes = [], ch_i, node;

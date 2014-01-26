@@ -110,6 +110,8 @@ test('Esprima Comparison', function() {
 test('Ternary', function() {
 	var val = jsep('a ? b : c');
 	equal(val.type, 'ConditionalExpression');
+	val = jsep('a||b ? c : d');
+	equal(val.type, 'ConditionalExpression');
 });
 
 }());
