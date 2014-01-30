@@ -26,7 +26,7 @@ var test_op_expession = function(str) {
 };
 
 var filter_props = function(larger, smaller) {
-	var rv = {};
+	var rv = (typeof larger.length === 'number') ? [] : {};
 	var prop_val;
 	for(var prop_name in smaller) {
 		prop_val  = smaller[prop_name];
@@ -72,6 +72,15 @@ test('Function Calls', function() {
 	//test_parser("a(b, c(d,e), f)", {});
 	test_parser("a b + c", {});
 	test_parser(";", {});
+});
+
+test('Arrays', function() {
+	test_parser("[]", {type: 'Array', body: []});
+
+	test_parser("[a]", {
+		type: 'Array',
+		body: [{type: 'Identifier', name: 'a'}]
+	});
 });
 
 test('Ops', function() {
