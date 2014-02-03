@@ -19,7 +19,8 @@
 		UNARY_EXP = 'UnaryExpression',
 		BINARY_EXP = 'BinaryExpression',
 		LOGICAL_EXP = 'LogicalExpression',
-        CONDITIONAL_EXP = 'ConditionalExpression',
+    CONDITIONAL_EXP = 'ConditionalExpression',
+    ARRAY_EXP = 'Array',
 
 		throwError = function(message, index) {
 			var error = new Error(message + ' at character ' + index);
@@ -391,15 +392,17 @@
 					}
 				},
 
-				// Gobbles a list of arguments within the context of a function call. This function
-				// also assumes that the `(` has already been gobbled.
-				// e.g. `foo(bar, baz)` or `my_func()`
-				gobbleArguments = function() {
+				// Gobbles a list of arguments within the context of a function call
+				// or array literal. This function also assumes that the opening character
+				// `(` or `[` has already been gobbled, and gobbles expressions and commas
+				// until the terminator character `)` or `]` is encountered.
+				// e.g. `foo(bar, baz)`, `my_func()`, or `[bar, baz]`
+				gobbleArguments = function(termination) {
 					var ch_i, args = [], node;
 					while(index < length) {
 						gobbleSpaces();
 						ch_i = exprI(index);
-						if(ch_i === ')') { // done parsing
+						if(ch_i === termination) { // done parsing
 							index++;
 							break;
 						} else if (ch_i === ',') { // between expressions
@@ -455,7 +458,7 @@
 							index++;
 							node = {
 								type: CALL_EXP,
-								'arguments': gobbleArguments(),
+								'arguments': gobbleArguments(')'),
 								callee: node
 							};
 						}
@@ -481,6 +484,18 @@
 						throwError('Unclosed (', index);
 					}
 				},
+
+				// Responsible for parsing Array literals `[1, 2, 3]`
+				// This function assumes that it needs to gobble the opening bracket
+				// and then tries to gobble the expressions as arguments.
+				gobbleArray = function() {
+					index++;
+					return {
+						type: ARRAY_EXP,
+						body: gobbleArguments(']')
+					};
+				},
+
 				nodes = [], ch_i, node;
 				
 			while(index < length) {
@@ -490,6 +505,8 @@
 				// separators
 				if(ch_i === ';' || ch_i ===',') {
 					index++; // ignore separators
+				} else if (ch_i === '[' && (node = gobbleArray())) {
+					nodes.push(node);
 				} else {
 					// Try to gobble each expression individually
 					if((node = gobbleExpression())) {
