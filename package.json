@@ -26,5 +26,7 @@
 		"grunt-contrib-clean": "~0.4",
 		"grunt-docco": "~0.3"
 	},
-	"engines": {"node": ">= 0.4.7"}
+	"engines": {"node": ">= 0.4.7"},
+	"directories": {"test": "test"},
+	"scripts": {"test": "grunt test"}
 }
