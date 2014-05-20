@@ -27,7 +27,7 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-1">&#182;</a>
               </div>
-              <pre><code>JavaScript Expression Parser (JSEP) 0.2.8
+              <pre><code>JavaScript Expression Parser (JSEP) 0.2.9
 JSEP may be freely distributed under the MIT License
 http://jsep.from.so/</code></pre>
 
@@ -84,7 +84,28 @@ Store them here to save space when minified</p>
 		CALL_EXP = <span class="string">'CallExpression'</span>,
 		UNARY_EXP = <span class="string">'UnaryExpression'</span>,
 		BINARY_EXP = <span class="string">'BinaryExpression'</span>,
-		LOGICAL_EXP = <span class="string">'LogicalExpression'</span>,</pre></div></div>
+		LOGICAL_EXP = <span class="string">'LogicalExpression'</span>,
+		CONDITIONAL_EXP = <span class="string">'ConditionalExpression'</span>,
+		ARRAY_EXP = <span class="string">'Array'</span>,
+
+		PERIOD_CODE = <span class="number">46</span>, <span class="comment">// '.'</span>
+		COMMA_CODE  = <span class="number">44</span>, <span class="comment">// ','</span>
+		SQUOTE_CODE = <span class="number">39</span>, <span class="comment">// single quote</span>
+		DQUOTE_CODE = <span class="number">34</span>, <span class="comment">// double quotes</span>
+		OPAREN_CODE = <span class="number">40</span>, <span class="comment">// (</span>
+		CPAREN_CODE = <span class="number">41</span>, <span class="comment">// )</span>
+		OBRACK_CODE = <span class="number">91</span>, <span class="comment">// [</span>
+		CBRACK_CODE = <span class="number">93</span>, <span class="comment">// ]</span>
+		QUMARK_CODE = <span class="number">63</span>, <span class="comment">// ?</span>
+		SEMCOL_CODE = <span class="number">59</span>, <span class="comment">// ;</span>
+		COLON_CODE  = <span class="number">58</span>, <span class="comment">// :</span>
+
+		throwError = <span class="function"><span class="keyword">function</span><span class="params">(message, index)</span> {</span>
+			<span class="keyword">var</span> error = <span class="keyword">new</span> Error(message + <span class="string">' at character '</span> + index);
+			error.index = index;
+			error.dedscription = message;
+			<span class="keyword">throw</span> error;
+		},</pre></div></div>
             
         </li>
         
@@ -399,6 +420,65 @@ All of the gobbles below will modify <code>index</code> as we move along</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-22">&#182;</a>
               </div>
+              <p>The main parsing function. Much of this code is dedicated to ternary expressions</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>				gobbleExpression = <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
+					<span class="keyword">var</span> test = gobbleBinaryExpression(),
+						consequent, alternate;
+					
+					gobbleSpaces();</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-23">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-23">&#182;</a>
+              </div>
+              <p>Ternary expression: test ? consequent : alternate</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>					<span class="keyword">if</span>(exprICode(index) === QUMARK_CODE) {
+						index++;
+						consequent = gobbleExpression();
+						<span class="keyword">if</span>(!consequent) {
+							throwError(<span class="string">'Expected expression'</span>, index);
+						}
+						gobbleSpaces();
+						<span class="keyword">if</span>(exprICode(index) === COLON_CODE) {
+							index++;
+							alternate = gobbleExpression();
+							<span class="keyword">if</span>(!alternate) {
+								throwError(<span class="string">'Expected expression'</span>, index);
+							}
+							<span class="keyword">return</span> {
+								type: CONDITIONAL_EXP,
+								test: test,
+								consequent: consequent,
+								alternate: alternate
+							};
+						} <span class="keyword">else</span> {
+							throwError(<span class="string">'Expected :'</span>, index);
+						}
+					} <span class="keyword">else</span> {
+						<span class="keyword">return</span> test;
+					}
+				},</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-24">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-24">&#182;</a>
+              </div>
               <p>Search for the operation portion of the string (e.g. <code>+</code>, <code>===</code>)
 Start by taking the longest possible binary operations (3 characters: <code>===</code>, <code>!==</code>, <code>&gt;&gt;&gt;</code>)
 and move down from 3 to 2 to 1 character until a matching binary operation is found
@@ -422,28 +502,28 @@ then, return that binary operation</p>
         </li>
         
         
-        <li id="section-23">
+        <li id="section-25">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-23">&#182;</a>
+                <a class="pilcrow" href="#section-25">&#182;</a>
               </div>
               <p>This function is responsible for gobbling an individual expression,
 e.g. <code>1</code>, <code>1+2</code>, <code>a+(b*2)-Math.sqrt(2)</code></p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>				gobbleExpression = <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
+            <div class="content"><div class='highlight'><pre>				gobbleBinaryExpression = <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
 					<span class="keyword">var</span> ch_i, node, biop, prec, stack, biop_info, left, right, i;</pre></div></div>
             
         </li>
         
         
-        <li id="section-24">
+        <li id="section-26">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-24">&#182;</a>
+                <a class="pilcrow" href="#section-26">&#182;</a>
               </div>
               <p>First, try to get the leftmost thing
 Then, check to see if there&#39;s a binary operator operating on that leftmost thing</p>
@@ -456,11 +536,11 @@ Then, check to see if there&#39;s a binary operator operating on that leftmost t
         </li>
         
         
-        <li id="section-25">
+        <li id="section-27">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-25">&#182;</a>
+                <a class="pilcrow" href="#section-27">&#182;</a>
               </div>
               <p>If there wasn&#39;t a binary operator, just return the leftmost node</p>
 
@@ -473,11 +553,11 @@ Then, check to see if there&#39;s a binary operator operating on that leftmost t
         </li>
         
         
-        <li id="section-26">
+        <li id="section-28">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-26">&#182;</a>
+                <a class="pilcrow" href="#section-28">&#182;</a>
               </div>
               <p>Otherwise, we need to start a stack to properly place the binary operations in their
 precedence structure</p>
@@ -488,18 +568,18 @@ precedence structure</p>
 
 					right = gobbleToken();
 					<span class="keyword">if</span>(!right) {
-						<span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">"Expected expression after "</span> + biop + <span class="string">" at character "</span> + index);
+						throwError(<span class="string">"Expected expression after "</span> + biop, index);
 					}
 					stack = [left, biop_info, right];</pre></div></div>
             
         </li>
         
         
-        <li id="section-27">
+        <li id="section-29">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-27">&#182;</a>
+                <a class="pilcrow" href="#section-29">&#182;</a>
               </div>
               <p>Properly deal with precedence using <a href="http://www.engr.mun.ca/~theo/Misc/exp_parsing.htm">recursive descent</a></p>
 
@@ -516,11 +596,11 @@ precedence structure</p>
         </li>
         
         
-        <li id="section-28">
+        <li id="section-30">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-28">&#182;</a>
+                <a class="pilcrow" href="#section-30">&#182;</a>
               </div>
               <p>Reduce: make a binary expression from the three topmost entries.</p>
 
@@ -536,10 +616,9 @@ precedence structure</p>
 
 						node = gobbleToken();
 						<span class="keyword">if</span>(!node) {
-							<span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">"Expected expression after "</span> + biop + <span class="string">" at character "</span> + index);
+							throwError(<span class="string">"Expected expression after "</span> + biop, index);
 						}
-						stack.push(biop_info);
-						stack.push(node);
+						stack.push(biop_info, node);
 					}
 
 					i = stack.length - <span class="number">1</span>;
@@ -548,18 +627,17 @@ precedence structure</p>
 						node = createBinaryExpression(stack[i - <span class="number">1</span>].value, stack[i - <span class="number">2</span>], node); 
 						i -= <span class="number">2</span>;
 					}
-
 					<span class="keyword">return</span> node;
 				},</pre></div></div>
             
         </li>
         
         
-        <li id="section-29">
+        <li id="section-31">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-29">&#182;</a>
+                <a class="pilcrow" href="#section-31">&#182;</a>
               </div>
               <p>An individual part of a binary expression:
 e.g. <code>foo.bar(baz)</code>, <code>1</code>, <code>&quot;abc&quot;</code>, <code>(a % 2)</code> (because it&#39;s in parenthesis)</p>
@@ -572,39 +650,7 @@ e.g. <code>foo.bar(baz)</code>, <code>1</code>, <code>&quot;abc&quot;</code>, <c
 					gobbleSpaces();
 					ch = exprICode(index);
 
-					<span class="keyword">if</span>(isDecimalDigit(ch) || ch === <span class="number">46</span>) {</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-30">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-30">&#182;</a>
-              </div>
-              <p>Char code 46 is a dot <code>.</code> which can start off a numeric literal</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>						<span class="keyword">return</span> gobbleNumericLiteral();
-					} <span class="keyword">else</span> <span class="keyword">if</span>(ch === <span class="number">39</span> || ch === <span class="number">34</span>) {</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-31">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-31">&#182;</a>
-              </div>
-              <p>Single or double quotes</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>						<span class="keyword">return</span> gobbleStringLiteral();
-					} <span class="keyword">else</span> <span class="keyword">if</span>(isIdentifierStart(ch)) {</pre></div></div>
+					<span class="keyword">if</span>(isDecimalDigit(ch) || ch === PERIOD_CODE) {</pre></div></div>
             
         </li>
         
@@ -615,12 +661,12 @@ e.g. <code>foo.bar(baz)</code>, <code>1</code>, <code>&quot;abc&quot;</code>, <c
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-32">&#182;</a>
               </div>
-              <p><code>foo</code>, <code>bar.baz</code></p>
+              <p>Char code 46 is a dot <code>.</code> which can start off a numeric literal</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>						<span class="keyword">return</span> gobbleVariable();
-					} <span class="keyword">else</span> <span class="keyword">if</span>(ch === <span class="number">40</span>) {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>						<span class="keyword">return</span> gobbleNumericLiteral();
+					} <span class="keyword">else</span> <span class="keyword">if</span>(ch === SQUOTE_CODE || ch === DQUOTE_CODE) {</pre></div></div>
             
         </li>
         
@@ -631,11 +677,27 @@ e.g. <code>foo.bar(baz)</code>, <code>1</code>, <code>&quot;abc&quot;</code>, <c
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-33">&#182;</a>
               </div>
-              <p>Open parentheses</p>
+              <p>Single or double quotes</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>						<span class="keyword">return</span> gobbleGroup();
+            <div class="content"><div class='highlight'><pre>						<span class="keyword">return</span> gobbleStringLiteral();
+					} <span class="keyword">else</span> <span class="keyword">if</span>(isIdentifierStart(ch) || ch === OPAREN_CODE) { <span class="comment">// open parenthesis</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-34">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-34">&#182;</a>
+              </div>
+              <p><code>foo</code>, <code>bar.baz</code></p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>						<span class="keyword">return</span> gobbleVariable();
 					} <span class="keyword">else</span> {
 						to_check = expr.substr(index, max_unop_len);
 						tc_len = to_check.length;
@@ -659,11 +721,11 @@ e.g. <code>foo.bar(baz)</code>, <code>1</code>, <code>&quot;abc&quot;</code>, <c
         </li>
         
         
-        <li id="section-34">
+        <li id="section-35">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-34">&#182;</a>
+                <a class="pilcrow" href="#section-35">&#182;</a>
               </div>
               <p>Parse simple numeric literals: <code>12</code>, <code>3.4</code>, <code>.5</code>. Do this by using a string to
 keep track of everything in the numeric literal and then calling <code>parseFloat</code> on that string</p>
@@ -671,12 +733,12 @@ keep track of everything in the numeric literal and then calling <code>parseFloa
             </div>
             
             <div class="content"><div class='highlight'><pre>				gobbleNumericLiteral = <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
-					<span class="keyword">var</span> number = <span class="string">''</span>;
+					<span class="keyword">var</span> number = <span class="string">''</span>, ch;
 					<span class="keyword">while</span>(isDecimalDigit(exprICode(index))) {
 						number += exprI(index++);
 					}
 
-					<span class="keyword">if</span>(exprI(index) === <span class="string">'.'</span>) { <span class="comment">// can start with a decimal marker</span>
+					<span class="keyword">if</span>(exprICode(index) === PERIOD_CODE) { <span class="comment">// can start with a decimal marker</span>
 						number += exprI(index++);
 
 						<span class="keyword">while</span>(isDecimalDigit(exprICode(index))) {
@@ -684,36 +746,37 @@ keep track of everything in the numeric literal and then calling <code>parseFloa
 						}
 					}
 					
-					<span class="keyword">if</span>(exprI(index) === <span class="string">'e'</span> || exprI(index) === <span class="string">'E'</span>) { <span class="comment">// exponent marker</span>
+					ch = exprI(index);
+					<span class="keyword">if</span>(ch === <span class="string">'e'</span> || ch === <span class="string">'E'</span>) { <span class="comment">// exponent marker</span>
 						number += exprI(index++);
-						<span class="keyword">if</span>(exprI(index) === <span class="string">'+'</span> || exprI(index) === <span class="string">'-'</span>) { <span class="comment">// exponent sign</span>
+						ch = exprI(index);
+						<span class="keyword">if</span>(ch === <span class="string">'+'</span> || ch === <span class="string">'-'</span>) { <span class="comment">// exponent sign</span>
 							number += exprI(index++);
 						}
 						<span class="keyword">while</span>(isDecimalDigit(exprICode(index))) { <span class="comment">//exponent itself</span>
 							number += exprI(index++);
 						}
 						<span class="keyword">if</span>(!isDecimalDigit(exprICode(index-<span class="number">1</span>)) ) {
-							<span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">'Expected exponent ('</span> +
-									number + exprI(index) + <span class="string">') at character '</span> + index);
+							throwError(<span class="string">'Expected exponent ('</span> + number + exprI(index) + <span class="string">')'</span>, index);
 						}
 					}</pre></div></div>
             
         </li>
         
         
-        <li id="section-35">
+        <li id="section-36">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-35">&#182;</a>
+                <a class="pilcrow" href="#section-36">&#182;</a>
               </div>
               <p>Check to make sure this isn&#39;t a variable name that start with a number (123abc)</p>
 
             </div>
             
             <div class="content"><div class='highlight'><pre>					<span class="keyword">if</span>(isIdentifierStart(exprICode(index))) {
-						<span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">'Variable names cannot start with a number ('</span> +
-									number + exprI(index) + <span class="string">') at character '</span> + index);
+						throwError( <span class="string">'Variable names cannot start with a number ('</span> +
+									number + exprI(index) + <span class="string">')'</span>, index);
 					}
 
 					<span class="keyword">return</span> {
@@ -726,11 +789,11 @@ keep track of everything in the numeric literal and then calling <code>parseFloa
         </li>
         
         
-        <li id="section-36">
+        <li id="section-37">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-36">&#182;</a>
+                <a class="pilcrow" href="#section-37">&#182;</a>
               </div>
               <p>Parses a string literal, staring with single or double quotes with basic support for escape codes
 e.g. <code>&quot;hello world&quot;</code>, <code>&#39;this is\nJSEP&#39;</code></p>
@@ -750,11 +813,11 @@ e.g. <code>&quot;hello world&quot;</code>, <code>&#39;this is\nJSEP&#39;</code><
         </li>
         
         
-        <li id="section-37">
+        <li id="section-38">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-37">&#182;</a>
+                <a class="pilcrow" href="#section-38">&#182;</a>
               </div>
               <p>Check for all of the common escape codes</p>
 
@@ -775,7 +838,7 @@ e.g. <code>&quot;hello world&quot;</code>, <code>&#39;this is\nJSEP&#39;</code><
 					}
 
 					<span class="keyword">if</span>(!closed) {
-						<span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">'Unclosed quote after "'</span>+str+<span class="string">'"'</span>);
+						throwError(<span class="string">'Unclosed quote after "'</span>+str+<span class="string">'"'</span>, index);
 					}
 
 					<span class="keyword">return</span> {
@@ -788,11 +851,11 @@ e.g. <code>&quot;hello world&quot;</code>, <code>&#39;this is\nJSEP&#39;</code><
         </li>
         
         
-        <li id="section-38">
+        <li id="section-39">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-38">&#182;</a>
+                <a class="pilcrow" href="#section-39">&#182;</a>
               </div>
               <p>Gobbles only identifiers
 e.g.: <code>foo</code>, <code>_value</code>, <code>$x1</code>
@@ -807,7 +870,7 @@ Also, this function checks if that identifier is a literal:
 					<span class="keyword">if</span>(isIdentifierStart(ch)) {
 						index++;
 					} <span class="keyword">else</span> {
-						<span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">'Unexpected '</span> + exprI(index) + <span class="string">'at character '</span> + index);
+						throwError(<span class="string">'Unexpected '</span> + exprI(index), index);
 					}
 
 					<span class="keyword">while</span>(index &lt; length) {
@@ -839,32 +902,34 @@ Also, this function checks if that identifier is a literal:
         </li>
         
         
-        <li id="section-39">
+        <li id="section-40">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-39">&#182;</a>
+                <a class="pilcrow" href="#section-40">&#182;</a>
               </div>
-              <p>Gobbles a list of arguments within the context of a function call. This function
-also assumes that the <code>(</code> has already been gobbled.
-e.g. <code>foo(bar, baz)</code> or <code>my_func()</code></p>
+              <p>Gobbles a list of arguments within the context of a function call
+or array literal. This function also assumes that the opening character
+<code>(</code> or <code>[</code> has already been gobbled, and gobbles expressions and commas
+until the terminator character <code>)</code> or <code>]</code> is encountered.
+e.g. <code>foo(bar, baz)</code>, <code>my_func()</code>, or <code>[bar, baz]</code></p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>				gobbleArguments = <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
+            <div class="content"><div class='highlight'><pre>				gobbleArguments = <span class="function"><span class="keyword">function</span><span class="params">(termination)</span> {</span>
 					<span class="keyword">var</span> ch_i, args = [], node;
 					<span class="keyword">while</span>(index &lt; length) {
 						gobbleSpaces();
-						ch_i = exprI(index);
-						<span class="keyword">if</span>(ch_i === <span class="string">')'</span>) { <span class="comment">// done parsing</span>
+						ch_i = exprICode(index);
+						<span class="keyword">if</span>(ch_i === termination) { <span class="comment">// done parsing</span>
 							index++;
 							<span class="keyword">break</span>;
-						} <span class="keyword">else</span> <span class="keyword">if</span> (ch_i === <span class="string">','</span>) { <span class="comment">// between expressions</span>
+						} <span class="keyword">else</span> <span class="keyword">if</span> (ch_i === COMMA_CODE) { <span class="comment">// between expressions</span>
 							index++;
 						} <span class="keyword">else</span> {
 							node = gobbleExpression();
 							<span class="keyword">if</span>(!node || node.type === COMPOUND) {
-								<span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">'Expected comma at character '</span> + index);
+								throwError(<span class="string">'Expected comma'</span>, index);
 							}
 							args.push(node);
 						}
@@ -875,11 +940,11 @@ e.g. <code>foo(bar, baz)</code> or <code>my_func()</code></p>
         </li>
         
         
-        <li id="section-40">
+        <li id="section-41">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-40">&#182;</a>
+                <a class="pilcrow" href="#section-41">&#182;</a>
               </div>
               <p>Gobble a non-literal variable name. This variable name may include properties
 e.g. <code>foo</code>, <code>bar.baz</code>, <code>foo[&#39;bar&#39;].baz</code>
@@ -889,13 +954,19 @@ e.g. <code>Math.acos(obj.angle)</code></p>
             </div>
             
             <div class="content"><div class='highlight'><pre>				gobbleVariable = <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
-					<span class="keyword">var</span> ch_i, node, old_index;
-					node = gobbleIdentifier();
+					<span class="keyword">var</span> ch_i, node;
+					ch_i = exprICode(index);
+						
+					<span class="keyword">if</span>(ch_i === OPAREN_CODE) {
+						node = gobbleGroup();
+					} <span class="keyword">else</span> {
+						node = gobbleIdentifier();
+					}
 					gobbleSpaces();
-					ch_i = exprI(index);
-					<span class="keyword">while</span>(ch_i === <span class="string">'.'</span> || ch_i === <span class="string">'['</span> || ch_i === <span class="string">'('</span>) {
-						<span class="keyword">if</span>(ch_i === <span class="string">'.'</span>) {
-							index++;
+					ch_i = exprICode(index);
+					<span class="keyword">while</span>(ch_i === PERIOD_CODE || ch_i === OBRACK_CODE || ch_i === OPAREN_CODE) {
+						index++;
+						<span class="keyword">if</span>(ch_i === PERIOD_CODE) {
 							gobbleSpaces();
 							node = {
 								type: MEMBER_EXP,
@@ -903,9 +974,7 @@ e.g. <code>Math.acos(obj.angle)</code></p>
 								object: node,
 								property: gobbleIdentifier()
 							};
-						} <span class="keyword">else</span> <span class="keyword">if</span>(ch_i === <span class="string">'['</span>) {
-							old_index = index;
-							index++;
+						} <span class="keyword">else</span> <span class="keyword">if</span>(ch_i === OBRACK_CODE) {
 							node = {
 								type: MEMBER_EXP,
 								computed: <span class="literal">true</span>,
@@ -913,39 +982,12 @@ e.g. <code>Math.acos(obj.angle)</code></p>
 								property: gobbleExpression()
 							};
 							gobbleSpaces();
-							ch_i = exprI(index);
-							<span class="keyword">if</span>(ch_i !== <span class="string">']'</span>) {
-								<span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">'Unclosed [ at character '</span> + index);
+							ch_i = exprICode(index);
+							<span class="keyword">if</span>(ch_i !== CBRACK_CODE) {
+								throwError(<span class="string">'Unclosed ['</span>, index);
 							}
 							index++;
-							gobbleSpaces();
-						} <span class="keyword">else</span> <span class="keyword">if</span>(ch_i === <span class="string">'('</span>) {</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-41">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-41">&#182;</a>
-              </div>
-              <p>A function call is being made; gobble all the arguments</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>							index++;
-							node = {
-								type: CALL_EXP,
-								<span class="string">'arguments'</span>: gobbleArguments(),
-								callee: node
-							};
-						}
-						gobbleSpaces();
-						ch_i = exprI(index);
-					}
-					<span class="keyword">return</span> node;
-				},</pre></div></div>
+						} <span class="keyword">else</span> <span class="keyword">if</span>(ch_i === OPAREN_CODE) {</pre></div></div>
             
         </li>
         
@@ -955,6 +997,31 @@ e.g. <code>Math.acos(obj.angle)</code></p>
               
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-42">&#182;</a>
+              </div>
+              <p>A function call is being made; gobble all the arguments</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>							node = {
+								type: CALL_EXP,
+								<span class="string">'arguments'</span>: gobbleArguments(CPAREN_CODE),
+								callee: node
+							};
+						}
+						gobbleSpaces();
+						ch_i = exprICode(index);
+					}
+					<span class="keyword">return</span> node;
+				},</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-43">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-43">&#182;</a>
               </div>
               <p>Responsible for parsing a group of things within parentheses <code>()</code>
 This function assumes that it needs to gobble the opening parenthesis
@@ -968,35 +1035,13 @@ then the expression probably doesn&#39;t have a <code>)</code></p>
 					index++;
 					<span class="keyword">var</span> node = gobbleExpression();
 					gobbleSpaces();
-					<span class="keyword">if</span>(exprI(index) === <span class="string">')'</span>) {
+					<span class="keyword">if</span>(exprICode(index) === CPAREN_CODE) {
 						index++;
 						<span class="keyword">return</span> node;
 					} <span class="keyword">else</span> {
-						<span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">'Unclosed ( at character '</span> + index);
+						throwError(<span class="string">'Unclosed ('</span>, index);
 					}
-				},
-				nodes = [], ch_i, node;
-				
-			<span class="keyword">while</span>(index &lt; length) {
-				ch_i = exprI(index);</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-43">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-43">&#182;</a>
-              </div>
-              <p>Expressions can be separated by semicolons, commas, or just inferred without any
-separators</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>				<span class="keyword">if</span>(ch_i === <span class="string">';'</span> || ch_i ===<span class="string">','</span>) {
-					index++; <span class="comment">// ignore separators</span>
-				} <span class="keyword">else</span> {</pre></div></div>
+				},</pre></div></div>
             
         </li>
         
@@ -1006,6 +1051,54 @@ separators</p>
               
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-44">&#182;</a>
+              </div>
+              <p>Responsible for parsing Array literals <code>[1, 2, 3]</code>
+This function assumes that it needs to gobble the opening bracket
+and then tries to gobble the expressions as arguments.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>				gobbleArray = <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
+					index++;
+					<span class="keyword">return</span> {
+						type: ARRAY_EXP,
+						body: gobbleArguments(CBRACK_CODE)
+					};
+				},
+
+				nodes = [], ch_i, node;
+				
+			<span class="keyword">while</span>(index &lt; length) {
+				ch_i = exprICode(index);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-45">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-45">&#182;</a>
+              </div>
+              <p>Expressions can be separated by semicolons, commas, or just inferred without any
+separators</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>				<span class="keyword">if</span>(ch_i === SEMCOL_CODE || ch_i === COMMA_CODE) {
+					index++; <span class="comment">// ignore separators</span>
+				} <span class="keyword">else</span> <span class="keyword">if</span> (ch_i === OBRACK_CODE &amp;&amp; (node = gobbleArray())) {
+					nodes.push(node);
+				} <span class="keyword">else</span> {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-46">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-46">&#182;</a>
               </div>
               <p>Try to gobble each expression individually</p>
 
@@ -1017,11 +1110,11 @@ separators</p>
         </li>
         
         
-        <li id="section-45">
+        <li id="section-47">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-45">&#182;</a>
+                <a class="pilcrow" href="#section-47">&#182;</a>
               </div>
               <p>If we weren&#39;t able to find a binary expression and are out of room, then
 the expression passed in probably has too much</p>
@@ -1029,7 +1122,7 @@ the expression passed in probably has too much</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>					} <span class="keyword">else</span> <span class="keyword">if</span>(index &lt; length) {
-						<span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">"Unexpected '"</span>+exprI(index)+<span class="string">"' at character "</span> + index);
+						throwError(<span class="string">'Unexpected "'</span> + exprI(index) + <span class="string">'"'</span>, index);
 					}
 				}
 			}</pre></div></div>
@@ -1037,11 +1130,11 @@ the expression passed in probably has too much</p>
         </li>
         
         
-        <li id="section-46">
+        <li id="section-48">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-46">&#182;</a>
+                <a class="pilcrow" href="#section-48">&#182;</a>
               </div>
               <p>If there&#39;s only one expression just try returning the expression</p>
 
@@ -1060,17 +1153,17 @@ the expression passed in probably has too much</p>
         </li>
         
         
-        <li id="section-47">
+        <li id="section-49">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-47">&#182;</a>
+                <a class="pilcrow" href="#section-49">&#182;</a>
               </div>
               <p>To be filled in by the template</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>	jsep.version = <span class="string">'0.2.8'</span>;
+            <div class="content"><div class='highlight'><pre>	jsep.version = <span class="string">'0.2.9'</span>;
 	jsep.toString = <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span> <span class="keyword">return</span> <span class="string">'JavaScript Expression Parser (JSEP) v'</span> + jsep.version; };
 
 	<span class="comment">/**
@@ -1123,11 +1216,11 @@ the expression passed in probably has too much</p>
         </li>
         
         
-        <li id="section-48">
+        <li id="section-50">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-48">&#182;</a>
+                <a class="pilcrow" href="#section-50">&#182;</a>
               </div>
               <p>In desktop environments, have a way to restore the old value for <code>jsep</code></p>
 
@@ -1139,11 +1232,11 @@ the expression passed in probably has too much</p>
         </li>
         
         
-        <li id="section-49">
+        <li id="section-51">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-49">&#182;</a>
+                <a class="pilcrow" href="#section-51">&#182;</a>
               </div>
               <p>The star of the show! It&#39;s a function!</p>
 
@@ -1154,11 +1247,11 @@ the expression passed in probably has too much</p>
         </li>
         
         
-        <li id="section-50">
+        <li id="section-52">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-50">&#182;</a>
+                <a class="pilcrow" href="#section-52">&#182;</a>
               </div>
               <p>And a courteous function willing to move out of the way for other similarly-named objects!</p>
 
@@ -1175,11 +1268,11 @@ the expression passed in probably has too much</p>
         </li>
         
         
-        <li id="section-51">
+        <li id="section-53">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-51">&#182;</a>
+                <a class="pilcrow" href="#section-53">&#182;</a>
               </div>
               <p>In Node.JS environments</p>
 
