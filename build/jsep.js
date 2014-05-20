@@ -19,8 +19,20 @@
 		UNARY_EXP = 'UnaryExpression',
 		BINARY_EXP = 'BinaryExpression',
 		LOGICAL_EXP = 'LogicalExpression',
-    CONDITIONAL_EXP = 'ConditionalExpression',
-    ARRAY_EXP = 'Array',
+		CONDITIONAL_EXP = 'ConditionalExpression',
+		ARRAY_EXP = 'Array',
+
+		PERIOD_CODE = 46, // '.'
+		COMMA_CODE  = 44, // ','
+		SQUOTE_CODE = 39, // single quote
+		DQUOTE_CODE = 34, // double quotes
+		OPAREN_CODE = 40, // (
+		CPAREN_CODE = 41, // )
+		OBRACK_CODE = 91, // [
+		CBRACK_CODE = 93, // ]
+		QUMARK_CODE = 63, // ?
+		SEMCOL_CODE = 59, // ;
+		COLON_CODE  = 58, // :
 
 		throwError = function(message, index) {
 			var error = new Error(message + ' at character ' + index);
@@ -130,14 +142,14 @@
 					
 					gobbleSpaces();
 					// Ternary expression: test ? consequent : alternate
-					if(exprI(index) === '?') {
+					if(exprICode(index) === QUMARK_CODE) {
 						index++;
 						consequent = gobbleExpression();
 						if(!consequent) {
 							throwError('Expected expression', index);
 						}
 						gobbleSpaces();
-						if(exprI(index) === ':') {
+						if(exprICode(index) === COLON_CODE) {
 							index++;
 							alternate = gobbleExpression();
 							if(!alternate) {
@@ -221,8 +233,7 @@
 						if(!node) {
 							throwError("Expected expression after " + biop, index);
 						}
-						stack.push(biop_info);
-						stack.push(node);
+						stack.push(biop_info, node);
 					}
 
 					i = stack.length - 1;
@@ -242,18 +253,15 @@
 					gobbleSpaces();
 					ch = exprICode(index);
 
-					if(isDecimalDigit(ch) || ch === 46) {
+					if(isDecimalDigit(ch) || ch === PERIOD_CODE) {
 						// Char code 46 is a dot `.` which can start off a numeric literal
 						return gobbleNumericLiteral();
-					} else if(ch === 39 || ch === 34) {
+					} else if(ch === SQUOTE_CODE || ch === DQUOTE_CODE) {
 						// Single or double quotes
 						return gobbleStringLiteral();
-					} else if(isIdentifierStart(ch)) {
+					} else if(isIdentifierStart(ch) || ch === OPAREN_CODE) { // open parenthesis
 						// `foo`, `bar.baz`
 						return gobbleVariable();
-					} else if(ch === 40) {
-						// Open parentheses
-						return gobbleGroup();
 					} else {
 						to_check = expr.substr(index, max_unop_len);
 						tc_len = to_check.length;
@@ -276,12 +284,12 @@
 				// Parse simple numeric literals: `12`, `3.4`, `.5`. Do this by using a string to
 				// keep track of everything in the numeric literal and then calling `parseFloat` on that string
 				gobbleNumericLiteral = function() {
-					var number = '';
+					var number = '', ch;
 					while(isDecimalDigit(exprICode(index))) {
 						number += exprI(index++);
 					}
 
-					if(exprI(index) === '.') { // can start with a decimal marker
+					if(exprICode(index) === PERIOD_CODE) { // can start with a decimal marker
 						number += exprI(index++);
 
 						while(isDecimalDigit(exprICode(index))) {
@@ -289,9 +297,11 @@
 						}
 					}
 					
-					if(exprI(index) === 'e' || exprI(index) === 'E') { // exponent marker
+					ch = exprI(index);
+					if(ch === 'e' || ch === 'E') { // exponent marker
 						number += exprI(index++);
-						if(exprI(index) === '+' || exprI(index) === '-') { // exponent sign
+						ch = exprI(index);
+						if(ch === '+' || ch === '-') { // exponent sign
 							number += exprI(index++);
 						}
 						while(isDecimalDigit(exprICode(index))) { //exponent itself
@@ -401,11 +411,11 @@
 					var ch_i, args = [], node;
 					while(index < length) {
 						gobbleSpaces();
-						ch_i = exprI(index);
+						ch_i = exprICode(index);
 						if(ch_i === termination) { // done parsing
 							index++;
 							break;
-						} else if (ch_i === ',') { // between expressions
+						} else if (ch_i === COMMA_CODE) { // between expressions
 							index++;
 						} else {
 							node = gobbleExpression();
@@ -423,13 +433,19 @@
 				// It also gobbles function calls:
 				// e.g. `Math.acos(obj.angle)`
 				gobbleVariable = function() {
-					var ch_i, node, old_index;
-					node = gobbleIdentifier();
+					var ch_i, node;
+					ch_i = exprICode(index);
+						
+					if(ch_i === OPAREN_CODE) {
+						node = gobbleGroup();
+					} else {
+						node = gobbleIdentifier();
+					}
 					gobbleSpaces();
-					ch_i = exprI(index);
-					while(ch_i === '.' || ch_i === '[' || ch_i === '(') {
-						if(ch_i === '.') {
-							index++;
+					ch_i = exprICode(index);
+					while(ch_i === PERIOD_CODE || ch_i === OBRACK_CODE || ch_i === OPAREN_CODE) {
+						index++;
+						if(ch_i === PERIOD_CODE) {
 							gobbleSpaces();
 							node = {
 								type: MEMBER_EXP,
@@ -437,9 +453,7 @@
 								object: node,
 								property: gobbleIdentifier()
 							};
-						} else if(ch_i === '[') {
-							old_index = index;
-							index++;
+						} else if(ch_i === OBRACK_CODE) {
 							node = {
 								type: MEMBER_EXP,
 								computed: true,
@@ -447,23 +461,21 @@
 								property: gobbleExpression()
 							};
 							gobbleSpaces();
-							ch_i = exprI(index);
-							if(ch_i !== ']') {
+							ch_i = exprICode(index);
+							if(ch_i !== CBRACK_CODE) {
 								throwError('Unclosed [', index);
 							}
 							index++;
-							gobbleSpaces();
-						} else if(ch_i === '(') {
+						} else if(ch_i === OPAREN_CODE) {
 							// A function call is being made; gobble all the arguments
-							index++;
 							node = {
 								type: CALL_EXP,
-								'arguments': gobbleArguments(')'),
+								'arguments': gobbleArguments(CPAREN_CODE),
 								callee: node
 							};
 						}
 						gobbleSpaces();
-						ch_i = exprI(index);
+						ch_i = exprICode(index);
 					}
 					return node;
 				},
@@ -477,7 +489,7 @@
 					index++;
 					var node = gobbleExpression();
 					gobbleSpaces();
-					if(exprI(index) === ')') {
+					if(exprICode(index) === CPAREN_CODE) {
 						index++;
 						return node;
 					} else {
@@ -492,20 +504,20 @@
 					index++;
 					return {
 						type: ARRAY_EXP,
-						body: gobbleArguments(']')
+						body: gobbleArguments(CBRACK_CODE)
 					};
 				},
 
 				nodes = [], ch_i, node;
 				
 			while(index < length) {
-				ch_i = exprI(index);
+				ch_i = exprICode(index);
 
 				// Expressions can be separated by semicolons, commas, or just inferred without any
 				// separators
-				if(ch_i === ';' || ch_i ===',') {
+				if(ch_i === SEMCOL_CODE || ch_i === COMMA_CODE) {
 					index++; // ignore separators
-				} else if (ch_i === '[' && (node = gobbleArray())) {
+				} else if (ch_i === OBRACK_CODE && (node = gobbleArray())) {
 					nodes.push(node);
 				} else {
 					// Try to gobble each expression individually

@@ -112,7 +112,9 @@ test('Esprima Comparison', function() {
 		"$foo[ bar][ baz].other12 ['lawl'][12]",
 		"$foo     [ 12	] [ baz[z]    ].other12*4 + 1 ",
 		"$foo[ bar][ baz]    (a, bb ,   c  )   .other12 ['lawl'][12]",
-		"(a(b(c[!d]).e).f+'hi'==2) === true"
+		"(a(b(c[!d]).e).f+'hi'==2) === true",
+		"(Object.variable.toLowerCase()).length == 3",
+		"(Object.variable.toLowerCase())  .  length == 3"
 	]).map(esprima_comparison_test);
 });
 
