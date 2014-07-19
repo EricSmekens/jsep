@@ -37,7 +37,7 @@
 		throwError = function(message, index) {
 			var error = new Error(message + ' at character ' + index);
 			error.index = index;
-			error.dedscription = message;
+			error.description = message;
 			throw error;
 		},
 
