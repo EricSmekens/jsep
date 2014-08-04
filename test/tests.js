@@ -98,6 +98,17 @@ test('Custom ops', function() {
 	test_parser("a^b", {});
 });
 
+test('Bad Numbers', function() {
+	test_parser("1.", {type: "Literal", value: 1, raw: "1."});
+	try {
+		var x = jsep("1.2.3");
+		console.log(x);
+		ok(false);
+	} catch(e) {
+		ok(true);
+	}
+});
+
 test('Esprima Comparison', function() {
 	([
 		" true",

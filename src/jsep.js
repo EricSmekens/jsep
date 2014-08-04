@@ -284,7 +284,7 @@
 				// Parse simple numeric literals: `12`, `3.4`, `.5`. Do this by using a string to
 				// keep track of everything in the numeric literal and then calling `parseFloat` on that string
 				gobbleNumericLiteral = function() {
-					var number = '', ch;
+					var number = '', ch, chCode;
 					while(isDecimalDigit(exprICode(index))) {
 						number += exprI(index++);
 					}
@@ -313,10 +313,13 @@
 					}
 					
 
+					chCode = exprICode(index);
 					// Check to make sure this isn't a variable name that start with a number (123abc)
-					if(isIdentifierStart(exprICode(index))) {
-						throwError( 'Variable names cannot start with a number (' +
+					if(isIdentifierStart(chCode)) {
+						throwError('Variable names cannot start with a number (' +
 									number + exprI(index) + ')', index);
+					} else if(chCode === PERIOD_CODE) {
+						throwError('Unexpected period', index);
 					}
 
 					return {
