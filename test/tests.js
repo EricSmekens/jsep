@@ -75,11 +75,11 @@ test('Function Calls', function() {
 });
 
 test('Arrays', function() {
-	test_parser("[]", {type: 'Array', body: []});
+	test_parser("[]", {type: 'ArrayExpression', elements: []});
 
 	test_parser("[a]", {
-		type: 'Array',
-		body: [{type: 'Identifier', name: 'a'}]
+		type: 'ArrayExpression',
+		elements: [{type: 'Identifier', name: 'a'}]
 	});
 });
 
@@ -110,6 +110,7 @@ test('Bad Numbers', function() {
 });
 
 test('Esprima Comparison', function() {
+
 	([
 		" true",
 		"false ",
@@ -125,7 +126,8 @@ test('Esprima Comparison', function() {
 		"$foo[ bar][ baz]    (a, bb ,   c  )   .other12 ['lawl'][12]",
 		"(a(b(c[!d]).e).f+'hi'==2) === true",
 		"(Object.variable.toLowerCase()).length == 3",
-		"(Object.variable.toLowerCase())  .  length == 3"
+		"(Object.variable.toLowerCase())  .  length == 3",
+		"[1] + [2]"
 	]).map(esprima_comparison_test);
 });
 

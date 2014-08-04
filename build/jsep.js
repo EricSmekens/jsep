@@ -20,7 +20,7 @@
 		BINARY_EXP = 'BinaryExpression',
 		LOGICAL_EXP = 'LogicalExpression',
 		CONDITIONAL_EXP = 'ConditionalExpression',
-		ARRAY_EXP = 'Array',
+		ARRAY_EXP = 'ArrayExpression',
 
 		PERIOD_CODE = 46, // '.'
 		COMMA_CODE  = 44, // ','
@@ -139,10 +139,9 @@
 				gobbleExpression = function() {
 					var test = gobbleBinaryExpression(),
 						consequent, alternate;
-					
 					gobbleSpaces();
-					// Ternary expression: test ? consequent : alternate
 					if(exprICode(index) === QUMARK_CODE) {
+						// Ternary expression: test ? consequent : alternate
 						index++;
 						consequent = gobbleExpression();
 						if(!consequent) {
@@ -248,7 +247,7 @@
 				// An individual part of a binary expression:
 				// e.g. `foo.bar(baz)`, `1`, `"abc"`, `(a % 2)` (because it's in parenthesis)
 				gobbleToken = function() {
-					var ch, curr_node, unop, to_check, tc_len;
+					var ch, to_check, tc_len;
 					
 					gobbleSpaces();
 					ch = exprICode(index);
@@ -262,6 +261,8 @@
 					} else if(isIdentifierStart(ch) || ch === OPAREN_CODE) { // open parenthesis
 						// `foo`, `bar.baz`
 						return gobbleVariable();
+					} else if (ch === OBRACK_CODE) {
+						return gobbleArray();
 					} else {
 						to_check = expr.substr(index, max_unop_len);
 						tc_len = to_check.length;
@@ -507,7 +508,7 @@
 					index++;
 					return {
 						type: ARRAY_EXP,
-						body: gobbleArguments(CBRACK_CODE)
+						elements: gobbleArguments(CBRACK_CODE)
 					};
 				},
 
@@ -520,8 +521,6 @@
 				// separators
 				if(ch_i === SEMCOL_CODE || ch_i === COMMA_CODE) {
 					index++; // ignore separators
-				} else if (ch_i === OBRACK_CODE && (node = gobbleArray())) {
-					nodes.push(node);
 				} else {
 					// Try to gobble each expression individually
 					if((node = gobbleExpression())) {
