@@ -83,6 +83,28 @@ test('Arrays', function() {
 	});
 });
 
+test('JSON Expressions', function() {
+	test_parser("{}", {type: "ObjectExpression", properties: []});
+
+	test_parser('{ "foo": 3 }', {
+		type: "ObjectExpression",
+		properties: [
+			{
+				type: "Property",
+				key: {
+					type: "Literal",
+					value: "foo",
+					raw: "\"foo\""
+				},
+				value: {
+					type: "Literal",
+					value: 3
+				}
+			}
+		]
+	});
+});
+
 test('Ops', function() {
 	test_op_expession("1");
 	test_op_expession("1+2");
