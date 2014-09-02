@@ -2,12 +2,32 @@
 //     JSEP may be freely distributed under the MIT License
 //     http://jsep.from.so/
 
-/*global module: true, exports: true, console: true */
-(function (root) {
+/*global module: true, exports: true*/
+(function (root, factory) {
+	if (typeof define === 'function' && define.amd) {
+		// AMD. Register as an anonymous module.
+		define([], factory);
+	} else if (typeof exports === 'object') {
+		// Node. Does not work with strict CommonJS, but
+		// only CommonJS-like environments that support module.exports,
+		// like Node.
+		module.exports = factory();
+	} else {
+		// Browser globals (root is window)
+		var old_jsep = root.jsep;
+		root.jsep = factory();
+		root.jsep.noConflict = function() {
+			if (root.jsep === this) {
+				root.jsep = old_jsep;
+			}
+			return this;
+		};
+	}
+}(this, function () {
 	'use strict';
 	// Node Types
 	// ----------
-	
+
 	// This is the full set of types that any JSEP node can be.
 	// Store them here to save space when minified
 	var COMPOUND = 'Compound',
@@ -43,7 +63,7 @@
 
 	// Operations
 	// ----------
-	
+
 	// Set `t` to `true` to save space (when minified, not gzipped)
 		t = true,
 	// Use a quickly-accessible map to store all of the unary operators
@@ -55,7 +75,7 @@
 		binary_ops = {
 			'||': 1, '&&': 2, '|': 3,  '^': 4,  '&': 5,
 			'==': 6, '!=': 6, '===': 6, '!==': 6,
-			'<': 7,  '>': 7,  '<=': 7,  '>=': 7, 
+			'<': 7,  '>': 7,  '<=': 7,  '>=': 7,
 			'<<':8,  '>>': 8, '>>>': 8,
 			'+': 9, '-': 9,
 			'*': 10, '/': 10, '%': 10
@@ -134,7 +154,7 @@
 						ch = exprICode(++index);
 					}
 				},
-				
+
 				// The main parsing function. Much of this code is dedicated to ternary expressions
 				gobbleExpression = function() {
 					var test = gobbleBinaryExpression(),
@@ -174,7 +194,7 @@
 				// then, return that binary operation
 				gobbleBinaryOp = function() {
 					gobbleSpaces();
-					var biop, to_check = expr.substr(index, max_binop_len), tc_len = to_check.length;
+					var to_check = expr.substr(index, max_binop_len), tc_len = to_check.length;
 					while(tc_len > 0) {
 						if(binary_ops.hasOwnProperty(to_check)) {
 							index += tc_len;
@@ -188,7 +208,7 @@
 				// This function is responsible for gobbling an individual expression,
 				// e.g. `1`, `1+2`, `a+(b*2)-Math.sqrt(2)`
 				gobbleBinaryExpression = function() {
-					var ch_i, node, biop, prec, stack, biop_info, left, right, i;
+					var node, biop, prec, stack, biop_info, left, right, i;
 
 					// First, try to get the leftmost thing
 					// Then, check to see if there's a binary operator operating on that leftmost thing
@@ -238,7 +258,7 @@
 					i = stack.length - 1;
 					node = stack[i];
 					while(i > 1) {
-						node = createBinaryExpression(stack[i - 1].value, stack[i - 2], node); 
+						node = createBinaryExpression(stack[i - 1].value, stack[i - 2], node);
 						i -= 2;
 					}
 					return node;
@@ -248,7 +268,7 @@
 				// e.g. `foo.bar(baz)`, `1`, `"abc"`, `(a % 2)` (because it's in parenthesis)
 				gobbleToken = function() {
 					var ch, to_check, tc_len;
-					
+
 					gobbleSpaces();
 					ch = exprICode(index);
 
@@ -278,7 +298,7 @@
 							}
 							to_check = to_check.substr(0, --tc_len);
 						}
-						
+
 						return false;
 					}
 				},
@@ -297,7 +317,7 @@
 							number += exprI(index++);
 						}
 					}
-					
+
 					ch = exprI(index);
 					if(ch === 'e' || ch === 'E') { // exponent marker
 						number += exprI(index++);
@@ -312,7 +332,7 @@
 							throwError('Expected exponent (' + number + exprI(index) + ')', index);
 						}
 					}
-					
+
 
 					chCode = exprICode(index);
 					// Check to make sure this isn't a variable name that start with a number (123abc)
@@ -366,7 +386,7 @@
 						raw: quote + str + quote
 					};
 				},
-				
+
 				// Gobbles only identifiers
 				// e.g.: `foo`, `_value`, `$x1`
 				// Also, this function checks if that identifier is a literal:
@@ -439,7 +459,7 @@
 				gobbleVariable = function() {
 					var ch_i, node;
 					ch_i = exprICode(index);
-						
+
 					if(ch_i === OPAREN_CODE) {
 						node = gobbleGroup();
 					} else {
@@ -513,7 +533,7 @@
 				},
 
 				nodes = [], ch_i, node;
-				
+
 			while(index < length) {
 				ch_i = exprICode(index);
 
@@ -595,24 +615,5 @@
 		return this;
 	};
 
-	// In desktop environments, have a way to restore the old value for `jsep`
-	if (typeof exports === 'undefined') {
-		var old_jsep = root.jsep;
-		// The star of the show! It's a function!
-		root.jsep = jsep;
-		// And a courteous function willing to move out of the way for other similarly-named objects!
-		jsep.noConflict = function() {
-			if(root.jsep === jsep) {
-				root.jsep = old_jsep;
-			}
-			return jsep;
-		};
-	} else {
-		// In Node.JS environments
-		if (typeof module !== 'undefined' && module.exports) {
-			exports = module.exports = jsep;
-		} else {
-			exports.parse = jsep;
-		}
-	}
-}(this));
+	return jsep;
+}));
