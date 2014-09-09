@@ -1,4 +1,4 @@
-//     JavaScript Expression Parser (JSEP) <%= version %>
+//     JavaScript Expression Parser (JSEP) 0.3.0-beta
 //     JSEP may be freely distributed under the MIT License
 //     http://jsep.from.so/
 
@@ -100,6 +100,11 @@
 		// `ch` is a character code in the next three functions
 		isDecimalDigit = function(ch) {
 			return (ch >= 48 && ch <= 57); // 0...9
+		},
+		isHexDigit = function(ch){
+			return (ch >=65 && ch <= 70) || // A...F
+					(ch >=97 && ch <= 102) || // a...f
+					isDecimalDigit(ch);
 		},
 		isIdentifierStart = function(ch) {
 			return (ch === 36) || (ch === 95) || // `$` and `_`
@@ -311,6 +316,12 @@
 						if(!isDecimalDigit(exprICode(index-1)) ) {
 							throwError('Expected exponent (' + number + exprI(index) + ')', index);
 						}
+					}else if(ch === "x" && number === "0"){ //hex number indicator
+						number += exprI(index++); // gobble x
+						while(isHexDigit(exprICode(index))) {
+							number += exprI(index++);
+						}
+						number = parseInt(number,16).toString();
 					}
 					
 
@@ -545,7 +556,7 @@
 		};
 
 	// To be filled in by the template
-	jsep.version = '<%= version %>';
+	jsep.version = '0.3.0-beta';
 	jsep.toString = function() { return 'JavaScript Expression Parser (JSEP) v' + jsep.version; };
 
 	/**

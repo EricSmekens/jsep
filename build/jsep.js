@@ -101,6 +101,11 @@
 		isDecimalDigit = function(ch) {
 			return (ch >= 48 && ch <= 57); // 0...9
 		},
+		isHexDigit = function(ch){
+			return (ch >=65 && ch <= 70) || // A...F
+					(ch >=97 && ch <= 102) || // a...f
+					isDecimalDigit(ch);
+		},
 		isIdentifierStart = function(ch) {
 			return (ch === 36) || (ch === 95) || // `$` and `_`
 					(ch >= 65 && ch <= 90) || // A...Z
@@ -311,6 +316,12 @@
 						if(!isDecimalDigit(exprICode(index-1)) ) {
 							throwError('Expected exponent (' + number + exprI(index) + ')', index);
 						}
+					}else if(ch === "x" && number === "0"){ //hex number indicator
+						number += exprI(index++); // gobble x
+						while(isHexDigit(exprICode(index))) {
+							number += exprI(index++);
+						}
+						number = parseInt(number,16).toString();
 					}
 					
 
