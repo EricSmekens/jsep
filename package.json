@@ -1,6 +1,6 @@
 {
 	"name": "jsep",
-	"version": "0.3.0",
+	"version": "0.3.1-beta",
 	"description": "a tiny JavaScript expression parser",
 	"author": "Stephen Oney <swloney@gmail.com> (http://from.so/)",
 	"homepage": "http://jsep.from.so/",
