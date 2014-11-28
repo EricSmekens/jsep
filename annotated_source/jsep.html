@@ -27,15 +27,16 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-1">&#182;</a>
               </div>
-              <pre><code>JavaScript Expression Parser (JSEP) 0.2.9
+              <pre><code>JavaScript Expression Parser (JSEP) <span class="hljs-number">0.3</span><span class="hljs-number">.0</span>
 JSEP may be freely distributed under the MIT License
-http://jsep.from.so/</code></pre>
-
+http:<span class="hljs-comment">//jsep.from.so/</span>
+</code></pre>
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="comment">/*global module: true, exports: true, console: true */</span>
-(<span class="function"><span class="keyword">function</span> <span class="params">(root)</span> {</span>
-	<span class="string">'use strict'</span>;</pre></div></div>
+            <div class="content"><div class='highlight'><pre>
+<span class="hljs-comment">/*global module: true, exports: true, console: true */</span>
+(<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(root)</span> {</span>
+<span class="hljs-pi">	'use strict'</span>;</pre></div></div>
             
         </li>
         
@@ -76,35 +77,35 @@ Store them here to save space when minified</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>	<span class="keyword">var</span> COMPOUND = <span class="string">'Compound'</span>,
-		IDENTIFIER = <span class="string">'Identifier'</span>,
-		MEMBER_EXP = <span class="string">'MemberExpression'</span>,
-		LITERAL = <span class="string">'Literal'</span>,
-		THIS_EXP = <span class="string">'ThisExpression'</span>,
-		CALL_EXP = <span class="string">'CallExpression'</span>,
-		UNARY_EXP = <span class="string">'UnaryExpression'</span>,
-		BINARY_EXP = <span class="string">'BinaryExpression'</span>,
-		LOGICAL_EXP = <span class="string">'LogicalExpression'</span>,
-		CONDITIONAL_EXP = <span class="string">'ConditionalExpression'</span>,
-		ARRAY_EXP = <span class="string">'Array'</span>,
+            <div class="content"><div class='highlight'><pre>	<span class="hljs-keyword">var</span> COMPOUND = <span class="hljs-string">'Compound'</span>,
+		IDENTIFIER = <span class="hljs-string">'Identifier'</span>,
+		MEMBER_EXP = <span class="hljs-string">'MemberExpression'</span>,
+		LITERAL = <span class="hljs-string">'Literal'</span>,
+		THIS_EXP = <span class="hljs-string">'ThisExpression'</span>,
+		CALL_EXP = <span class="hljs-string">'CallExpression'</span>,
+		UNARY_EXP = <span class="hljs-string">'UnaryExpression'</span>,
+		BINARY_EXP = <span class="hljs-string">'BinaryExpression'</span>,
+		LOGICAL_EXP = <span class="hljs-string">'LogicalExpression'</span>,
+		CONDITIONAL_EXP = <span class="hljs-string">'ConditionalExpression'</span>,
+		ARRAY_EXP = <span class="hljs-string">'ArrayExpression'</span>,
 
-		PERIOD_CODE = <span class="number">46</span>, <span class="comment">// '.'</span>
-		COMMA_CODE  = <span class="number">44</span>, <span class="comment">// ','</span>
-		SQUOTE_CODE = <span class="number">39</span>, <span class="comment">// single quote</span>
-		DQUOTE_CODE = <span class="number">34</span>, <span class="comment">// double quotes</span>
-		OPAREN_CODE = <span class="number">40</span>, <span class="comment">// (</span>
-		CPAREN_CODE = <span class="number">41</span>, <span class="comment">// )</span>
-		OBRACK_CODE = <span class="number">91</span>, <span class="comment">// [</span>
-		CBRACK_CODE = <span class="number">93</span>, <span class="comment">// ]</span>
-		QUMARK_CODE = <span class="number">63</span>, <span class="comment">// ?</span>
-		SEMCOL_CODE = <span class="number">59</span>, <span class="comment">// ;</span>
-		COLON_CODE  = <span class="number">58</span>, <span class="comment">// :</span>
+		PERIOD_CODE = <span class="hljs-number">46</span>, <span class="hljs-comment">// '.'</span>
+		COMMA_CODE  = <span class="hljs-number">44</span>, <span class="hljs-comment">// ','</span>
+		SQUOTE_CODE = <span class="hljs-number">39</span>, <span class="hljs-comment">// single quote</span>
+		DQUOTE_CODE = <span class="hljs-number">34</span>, <span class="hljs-comment">// double quotes</span>
+		OPAREN_CODE = <span class="hljs-number">40</span>, <span class="hljs-comment">// (</span>
+		CPAREN_CODE = <span class="hljs-number">41</span>, <span class="hljs-comment">// )</span>
+		OBRACK_CODE = <span class="hljs-number">91</span>, <span class="hljs-comment">// [</span>
+		CBRACK_CODE = <span class="hljs-number">93</span>, <span class="hljs-comment">// ]</span>
+		QUMARK_CODE = <span class="hljs-number">63</span>, <span class="hljs-comment">// ?</span>
+		SEMCOL_CODE = <span class="hljs-number">59</span>, <span class="hljs-comment">// ;</span>
+		COLON_CODE  = <span class="hljs-number">58</span>, <span class="hljs-comment">// :</span>
 
-		throwError = <span class="function"><span class="keyword">function</span><span class="params">(message, index)</span> {</span>
-			<span class="keyword">var</span> error = <span class="keyword">new</span> Error(message + <span class="string">' at character '</span> + index);
+		throwError = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(message, index)</span> {</span>
+			<span class="hljs-keyword">var</span> error = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(message + <span class="hljs-string">' at character '</span> + index);
 			error.index = index;
-			error.dedscription = message;
-			<span class="keyword">throw</span> error;
+			error.description = message;
+			<span class="hljs-keyword">throw</span> error;
 		},</pre></div></div>
             
         </li>
@@ -145,7 +146,7 @@ Store them here to save space when minified</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>		t = <span class="literal">true</span>,</pre></div></div>
+            <div class="content"><div class='highlight'><pre>		t = <span class="hljs-literal">true</span>,</pre></div></div>
             
         </li>
         
@@ -157,11 +158,11 @@ Store them here to save space when minified</p>
                 <a class="pilcrow" href="#section-8">&#182;</a>
               </div>
               <p>Use a quickly-accessible map to store all of the unary operators
-Values are set to <code>true</code> (it really doesn&#39;t matter)</p>
+Values are set to <code>true</code> (it really doesn’t matter)</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>		unary_ops = {<span class="string">'-'</span>: t, <span class="string">'!'</span>: t, <span class="string">'~'</span>: t, <span class="string">'+'</span>: t},</pre></div></div>
+            <div class="content"><div class='highlight'><pre>		unary_ops = {<span class="hljs-string">'-'</span>: t, <span class="hljs-string">'!'</span>: t, <span class="hljs-string">'~'</span>: t, <span class="hljs-string">'+'</span>: t},</pre></div></div>
             
         </li>
         
@@ -179,12 +180,12 @@ see <a href="http://en.wikipedia.org/wiki/Order_of_operations#Programming_langua
             </div>
             
             <div class="content"><div class='highlight'><pre>		binary_ops = {
-			<span class="string">'||'</span>: <span class="number">1</span>, <span class="string">'&amp;&amp;'</span>: <span class="number">2</span>, <span class="string">'|'</span>: <span class="number">3</span>,  <span class="string">'^'</span>: <span class="number">4</span>,  <span class="string">'&amp;'</span>: <span class="number">5</span>,
-			<span class="string">'=='</span>: <span class="number">6</span>, <span class="string">'!='</span>: <span class="number">6</span>, <span class="string">'==='</span>: <span class="number">6</span>, <span class="string">'!=='</span>: <span class="number">6</span>,
-			<span class="string">'&lt;'</span>: <span class="number">7</span>,  <span class="string">'&gt;'</span>: <span class="number">7</span>,  <span class="string">'&lt;='</span>: <span class="number">7</span>,  <span class="string">'&gt;='</span>: <span class="number">7</span>, 
-			<span class="string">'&lt;&lt;'</span>:<span class="number">8</span>,  <span class="string">'&gt;&gt;'</span>: <span class="number">8</span>, <span class="string">'&gt;&gt;&gt;'</span>: <span class="number">8</span>,
-			<span class="string">'+'</span>: <span class="number">9</span>, <span class="string">'-'</span>: <span class="number">9</span>,
-			<span class="string">'*'</span>: <span class="number">10</span>, <span class="string">'/'</span>: <span class="number">10</span>, <span class="string">'%'</span>: <span class="number">10</span>
+			<span class="hljs-string">'||'</span>: <span class="hljs-number">1</span>, <span class="hljs-string">'&amp;&amp;'</span>: <span class="hljs-number">2</span>, <span class="hljs-string">'|'</span>: <span class="hljs-number">3</span>,  <span class="hljs-string">'^'</span>: <span class="hljs-number">4</span>,  <span class="hljs-string">'&amp;'</span>: <span class="hljs-number">5</span>,
+			<span class="hljs-string">'=='</span>: <span class="hljs-number">6</span>, <span class="hljs-string">'!='</span>: <span class="hljs-number">6</span>, <span class="hljs-string">'==='</span>: <span class="hljs-number">6</span>, <span class="hljs-string">'!=='</span>: <span class="hljs-number">6</span>,
+			<span class="hljs-string">'&lt;'</span>: <span class="hljs-number">7</span>,  <span class="hljs-string">'&gt;'</span>: <span class="hljs-number">7</span>,  <span class="hljs-string">'&lt;='</span>: <span class="hljs-number">7</span>,  <span class="hljs-string">'&gt;='</span>: <span class="hljs-number">7</span>, 
+			<span class="hljs-string">'&lt;&lt;'</span>:<span class="hljs-number">8</span>,  <span class="hljs-string">'&gt;&gt;'</span>: <span class="hljs-number">8</span>, <span class="hljs-string">'&gt;&gt;&gt;'</span>: <span class="hljs-number">8</span>,
+			<span class="hljs-string">'+'</span>: <span class="hljs-number">9</span>, <span class="hljs-string">'-'</span>: <span class="hljs-number">9</span>,
+			<span class="hljs-string">'*'</span>: <span class="hljs-number">10</span>, <span class="hljs-string">'/'</span>: <span class="hljs-number">10</span>, <span class="hljs-string">'%'</span>: <span class="hljs-number">10</span>
 		},</pre></div></div>
             
         </li>
@@ -200,14 +201,14 @@ see <a href="http://en.wikipedia.org/wiki/Order_of_operations#Programming_langua
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>		getMaxKeyLen = <span class="function"><span class="keyword">function</span><span class="params">(obj)</span> {</span>
-			<span class="keyword">var</span> max_len = <span class="number">0</span>, len;
-			<span class="keyword">for</span>(<span class="keyword">var</span> key <span class="keyword">in</span> obj) {
-				<span class="keyword">if</span>((len = key.length) &gt; max_len &amp;&amp; obj.hasOwnProperty(key)) {
+            <div class="content"><div class='highlight'><pre>		getMaxKeyLen = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(obj)</span> {</span>
+			<span class="hljs-keyword">var</span> max_len = <span class="hljs-number">0</span>, len;
+			<span class="hljs-keyword">for</span>(<span class="hljs-keyword">var</span> key <span class="hljs-keyword">in</span> obj) {
+				<span class="hljs-keyword">if</span>((len = key.length) &gt; max_len &amp;&amp; obj.hasOwnProperty(key)) {
 					max_len = len;
 				}
 			}
-			<span class="keyword">return</span> max_len;
+			<span class="hljs-keyword">return</span> max_len;
 		},
 		max_unop_len = getMaxKeyLen(unary_ops),
 		max_binop_len = getMaxKeyLen(binary_ops),</pre></div></div>
@@ -239,9 +240,9 @@ see <a href="http://en.wikipedia.org/wiki/Order_of_operations#Programming_langua
             </div>
             
             <div class="content"><div class='highlight'><pre>		literals = {
-			<span class="string">'true'</span>: <span class="literal">true</span>,
-			<span class="string">'false'</span>: <span class="literal">false</span>,
-			<span class="string">'null'</span>: <span class="literal">null</span>
+			<span class="hljs-string">'true'</span>: <span class="hljs-literal">true</span>,
+			<span class="hljs-string">'false'</span>: <span class="hljs-literal">false</span>,
+			<span class="hljs-string">'null'</span>: <span class="hljs-literal">null</span>
 		},</pre></div></div>
             
         </li>
@@ -257,7 +258,7 @@ see <a href="http://en.wikipedia.org/wiki/Order_of_operations#Programming_langua
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>		this_str = <span class="string">'this'</span>,</pre></div></div>
+            <div class="content"><div class='highlight'><pre>		this_str = <span class="hljs-string">'this'</span>,</pre></div></div>
             
         </li>
         
@@ -268,12 +269,12 @@ see <a href="http://en.wikipedia.org/wiki/Order_of_operations#Programming_langua
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-14">&#182;</a>
               </div>
-              <p>Returns the precedence of a binary operator or <code>0</code> if it isn&#39;t a binary operator</p>
+              <p>Returns the precedence of a binary operator or <code>0</code> if it isn’t a binary operator</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>		binaryPrecedence = <span class="function"><span class="keyword">function</span><span class="params">(op_val)</span> {</span>
-			<span class="keyword">return</span> binary_ops[op_val] || <span class="number">0</span>;
+            <div class="content"><div class='highlight'><pre>		binaryPrecedence = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(op_val)</span> {</span>
+			<span class="hljs-keyword">return</span> binary_ops[op_val] || <span class="hljs-number">0</span>;
 		},</pre></div></div>
             
         </li>
@@ -290,9 +291,9 @@ Also note that <code>a &amp;&amp; b</code> and <code>a || b</code> are <em>logic
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>		createBinaryExpression = <span class="function"><span class="keyword">function</span> <span class="params">(operator, left, right)</span> {</span>
-			<span class="keyword">var</span> type = (operator === <span class="string">'||'</span> || operator === <span class="string">'&amp;&amp;'</span>) ? LOGICAL_EXP : BINARY_EXP;
-			<span class="keyword">return</span> {
+            <div class="content"><div class='highlight'><pre>		createBinaryExpression = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(operator, left, right)</span> {</span>
+			<span class="hljs-keyword">var</span> type = (operator === <span class="hljs-string">'||'</span> || operator === <span class="hljs-string">'&amp;&amp;'</span>) ? LOGICAL_EXP : BINARY_EXP;
+			<span class="hljs-keyword">return</span> {
 				type: type,
 				operator: operator,
 				left: left,
@@ -313,19 +314,19 @@ Also note that <code>a &amp;&amp; b</code> and <code>a || b</code> are <em>logic
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>		isDecimalDigit = <span class="function"><span class="keyword">function</span><span class="params">(ch)</span> {</span>
-			<span class="keyword">return</span> (ch &gt;= <span class="number">48</span> &amp;&amp; ch &lt;= <span class="number">57</span>); <span class="comment">// 0...9</span>
+            <div class="content"><div class='highlight'><pre>		isDecimalDigit = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(ch)</span> {</span>
+			<span class="hljs-keyword">return</span> (ch &gt;= <span class="hljs-number">48</span> &amp;&amp; ch &lt;= <span class="hljs-number">57</span>); <span class="hljs-comment">// 0...9</span>
 		},
-		isIdentifierStart = <span class="function"><span class="keyword">function</span><span class="params">(ch)</span> {</span>
-			<span class="keyword">return</span> (ch === <span class="number">36</span>) || (ch === <span class="number">95</span>) || <span class="comment">// `$` and `_`</span>
-					(ch &gt;= <span class="number">65</span> &amp;&amp; ch &lt;= <span class="number">90</span>) || <span class="comment">// A...Z</span>
-					(ch &gt;= <span class="number">97</span> &amp;&amp; ch &lt;= <span class="number">122</span>); <span class="comment">// a...z</span>
+		isIdentifierStart = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(ch)</span> {</span>
+			<span class="hljs-keyword">return</span> (ch === <span class="hljs-number">36</span>) || (ch === <span class="hljs-number">95</span>) || <span class="hljs-comment">// `$` and `_`</span>
+					(ch &gt;= <span class="hljs-number">65</span> &amp;&amp; ch &lt;= <span class="hljs-number">90</span>) || <span class="hljs-comment">// A...Z</span>
+					(ch &gt;= <span class="hljs-number">97</span> &amp;&amp; ch &lt;= <span class="hljs-number">122</span>); <span class="hljs-comment">// a...z</span>
 		},
-		isIdentifierPart = <span class="function"><span class="keyword">function</span><span class="params">(ch)</span> {</span>
-			<span class="keyword">return</span> (ch === <span class="number">36</span>) || (ch === <span class="number">95</span>) || <span class="comment">// `$` and `_`</span>
-					(ch &gt;= <span class="number">65</span> &amp;&amp; ch &lt;= <span class="number">90</span>) || <span class="comment">// A...Z</span>
-					(ch &gt;= <span class="number">97</span> &amp;&amp; ch &lt;= <span class="number">122</span>) || <span class="comment">// a...z</span>
-					(ch &gt;= <span class="number">48</span> &amp;&amp; ch &lt;= <span class="number">57</span>); <span class="comment">// 0...9</span>
+		isIdentifierPart = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(ch)</span> {</span>
+			<span class="hljs-keyword">return</span> (ch === <span class="hljs-number">36</span>) || (ch === <span class="hljs-number">95</span>) || <span class="hljs-comment">// `$` and `_`</span>
+					(ch &gt;= <span class="hljs-number">65</span> &amp;&amp; ch &lt;= <span class="hljs-number">90</span>) || <span class="hljs-comment">// A...Z</span>
+					(ch &gt;= <span class="hljs-number">97</span> &amp;&amp; ch &lt;= <span class="hljs-number">122</span>) || <span class="hljs-comment">// a...z</span>
+					(ch &gt;= <span class="hljs-number">48</span> &amp;&amp; ch &lt;= <span class="hljs-number">57</span>); <span class="hljs-comment">// 0...9</span>
 		},</pre></div></div>
             
         </li>
@@ -354,7 +355,7 @@ Also note that <code>a &amp;&amp; b</code> and <code>a || b</code> are <em>logic
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>		jsep = <span class="function"><span class="keyword">function</span><span class="params">(expr)</span> {</span></pre></div></div>
+            <div class="content"><div class='highlight'><pre>		jsep = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(expr)</span> {</span></pre></div></div>
             
         </li>
         
@@ -370,11 +371,11 @@ All of the gobbles below will modify <code>index</code> as we move along</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>			<span class="keyword">var</span> index = <span class="number">0</span>,
+            <div class="content"><div class='highlight'><pre>			<span class="hljs-keyword">var</span> index = <span class="hljs-number">0</span>,
 				charAtFunc = expr.charAt,
 				charCodeAtFunc = expr.charCodeAt,
-				exprI = <span class="function"><span class="keyword">function</span><span class="params">(i)</span> {</span> <span class="keyword">return</span> charAtFunc.call(expr, i); },
-				exprICode = <span class="function"><span class="keyword">function</span><span class="params">(i)</span> {</span> <span class="keyword">return</span> charCodeAtFunc.call(expr, i); },
+				exprI = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(i)</span> {</span> <span class="hljs-keyword">return</span> charAtFunc.call(expr, i); },
+				exprICode = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(i)</span> {</span> <span class="hljs-keyword">return</span> charCodeAtFunc.call(expr, i); },
 				length = expr.length,</pre></div></div>
             
         </li>
@@ -390,8 +391,8 @@ All of the gobbles below will modify <code>index</code> as we move along</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>				gobbleSpaces = <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
-					<span class="keyword">var</span> ch = exprICode(index);</pre></div></div>
+            <div class="content"><div class='highlight'><pre>				gobbleSpaces = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
+					<span class="hljs-keyword">var</span> ch = exprICode(index);</pre></div></div>
             
         </li>
         
@@ -406,7 +407,7 @@ All of the gobbles below will modify <code>index</code> as we move along</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>					<span class="keyword">while</span>(ch === <span class="number">32</span> || ch === <span class="number">9</span>) {
+            <div class="content"><div class='highlight'><pre>					<span class="hljs-keyword">while</span>(ch === <span class="hljs-number">32</span> || ch === <span class="hljs-number">9</span>) {
 						ch = exprICode(++index);
 					}
 				},</pre></div></div>
@@ -424,11 +425,11 @@ All of the gobbles below will modify <code>index</code> as we move along</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>				gobbleExpression = <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
-					<span class="keyword">var</span> test = gobbleBinaryExpression(),
+            <div class="content"><div class='highlight'><pre>				gobbleExpression = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
+					<span class="hljs-keyword">var</span> test = gobbleBinaryExpression(),
 						consequent, alternate;
-					
-					gobbleSpaces();</pre></div></div>
+					gobbleSpaces();
+					<span class="hljs-keyword">if</span>(exprICode(index) === QUMARK_CODE) {</pre></div></div>
             
         </li>
         
@@ -443,30 +444,29 @@ All of the gobbles below will modify <code>index</code> as we move along</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>					<span class="keyword">if</span>(exprICode(index) === QUMARK_CODE) {
-						index++;
+            <div class="content"><div class='highlight'><pre>						index++;
 						consequent = gobbleExpression();
-						<span class="keyword">if</span>(!consequent) {
-							throwError(<span class="string">'Expected expression'</span>, index);
+						<span class="hljs-keyword">if</span>(!consequent) {
+							throwError(<span class="hljs-string">'Expected expression'</span>, index);
 						}
 						gobbleSpaces();
-						<span class="keyword">if</span>(exprICode(index) === COLON_CODE) {
+						<span class="hljs-keyword">if</span>(exprICode(index) === COLON_CODE) {
 							index++;
 							alternate = gobbleExpression();
-							<span class="keyword">if</span>(!alternate) {
-								throwError(<span class="string">'Expected expression'</span>, index);
+							<span class="hljs-keyword">if</span>(!alternate) {
+								throwError(<span class="hljs-string">'Expected expression'</span>, index);
 							}
-							<span class="keyword">return</span> {
+							<span class="hljs-keyword">return</span> {
 								type: CONDITIONAL_EXP,
 								test: test,
 								consequent: consequent,
 								alternate: alternate
 							};
-						} <span class="keyword">else</span> {
-							throwError(<span class="string">'Expected :'</span>, index);
+						} <span class="hljs-keyword">else</span> {
+							throwError(<span class="hljs-string">'Expected :'</span>, index);
 						}
-					} <span class="keyword">else</span> {
-						<span class="keyword">return</span> test;
+					} <span class="hljs-keyword">else</span> {
+						<span class="hljs-keyword">return</span> test;
 					}
 				},</pre></div></div>
             
@@ -486,17 +486,17 @@ then, return that binary operation</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>				gobbleBinaryOp = <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
+            <div class="content"><div class='highlight'><pre>				gobbleBinaryOp = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
 					gobbleSpaces();
-					<span class="keyword">var</span> biop, to_check = expr.substr(index, max_binop_len), tc_len = to_check.length;
-					<span class="keyword">while</span>(tc_len &gt; <span class="number">0</span>) {
-						<span class="keyword">if</span>(binary_ops.hasOwnProperty(to_check)) {
+					<span class="hljs-keyword">var</span> biop, to_check = expr.substr(index, max_binop_len), tc_len = to_check.length;
+					<span class="hljs-keyword">while</span>(tc_len &gt; <span class="hljs-number">0</span>) {
+						<span class="hljs-keyword">if</span>(binary_ops.hasOwnProperty(to_check)) {
 							index += tc_len;
-							<span class="keyword">return</span> to_check;
+							<span class="hljs-keyword">return</span> to_check;
 						}
-						to_check = to_check.substr(<span class="number">0</span>, --tc_len);
+						to_check = to_check.substr(<span class="hljs-number">0</span>, --tc_len);
 					}
-					<span class="keyword">return</span> <span class="literal">false</span>;
+					<span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
 				},</pre></div></div>
             
         </li>
@@ -513,8 +513,8 @@ e.g. <code>1</code>, <code>1+2</code>, <code>a+(b*2)-Math.sqrt(2)</code></p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>				gobbleBinaryExpression = <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
-					<span class="keyword">var</span> ch_i, node, biop, prec, stack, biop_info, left, right, i;</pre></div></div>
+            <div class="content"><div class='highlight'><pre>				gobbleBinaryExpression = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
+					<span class="hljs-keyword">var</span> ch_i, node, biop, prec, stack, biop_info, left, right, i;</pre></div></div>
             
         </li>
         
@@ -526,7 +526,7 @@ e.g. <code>1</code>, <code>1+2</code>, <code>a+(b*2)-Math.sqrt(2)</code></p>
                 <a class="pilcrow" href="#section-26">&#182;</a>
               </div>
               <p>First, try to get the leftmost thing
-Then, check to see if there&#39;s a binary operator operating on that leftmost thing</p>
+Then, check to see if there’s a binary operator operating on that leftmost thing</p>
 
             </div>
             
@@ -542,12 +542,12 @@ Then, check to see if there&#39;s a binary operator operating on that leftmost t
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-27">&#182;</a>
               </div>
-              <p>If there wasn&#39;t a binary operator, just return the leftmost node</p>
+              <p>If there wasn’t a binary operator, just return the leftmost node</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>					<span class="keyword">if</span>(!biop) {
-						<span class="keyword">return</span> left;
+            <div class="content"><div class='highlight'><pre>					<span class="hljs-keyword">if</span>(!biop) {
+						<span class="hljs-keyword">return</span> left;
 					}</pre></div></div>
             
         </li>
@@ -567,8 +567,8 @@ precedence structure</p>
             <div class="content"><div class='highlight'><pre>					biop_info = { value: biop, prec: binaryPrecedence(biop)};
 
 					right = gobbleToken();
-					<span class="keyword">if</span>(!right) {
-						throwError(<span class="string">"Expected expression after "</span> + biop, index);
+					<span class="hljs-keyword">if</span>(!right) {
+						throwError(<span class="hljs-string">"Expected expression after "</span> + biop, index);
 					}
 					stack = [left, biop_info, right];</pre></div></div>
             
@@ -585,11 +585,11 @@ precedence structure</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>					<span class="keyword">while</span>((biop = gobbleBinaryOp())) {
+            <div class="content"><div class='highlight'><pre>					<span class="hljs-keyword">while</span>((biop = gobbleBinaryOp())) {
 						prec = binaryPrecedence(biop);
 
-						<span class="keyword">if</span>(prec === <span class="number">0</span>) {
-							<span class="keyword">break</span>;
+						<span class="hljs-keyword">if</span>(prec === <span class="hljs-number">0</span>) {
+							<span class="hljs-keyword">break</span>;
 						}
 						biop_info = { value: biop, prec: prec };</pre></div></div>
             
@@ -606,7 +606,7 @@ precedence structure</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>						<span class="keyword">while</span> ((stack.length &gt; <span class="number">2</span>) &amp;&amp; (prec &lt;= stack[stack.length - <span class="number">2</span>].prec)) {
+            <div class="content"><div class='highlight'><pre>						<span class="hljs-keyword">while</span> ((stack.length &gt; <span class="hljs-number">2</span>) &amp;&amp; (prec &lt;= stack[stack.length - <span class="hljs-number">2</span>].prec)) {
 							right = stack.pop();
 							biop = stack.pop().value;
 							left = stack.pop();
@@ -615,19 +615,19 @@ precedence structure</p>
 						}
 
 						node = gobbleToken();
-						<span class="keyword">if</span>(!node) {
-							throwError(<span class="string">"Expected expression after "</span> + biop, index);
+						<span class="hljs-keyword">if</span>(!node) {
+							throwError(<span class="hljs-string">"Expected expression after "</span> + biop, index);
 						}
 						stack.push(biop_info, node);
 					}
 
-					i = stack.length - <span class="number">1</span>;
+					i = stack.length - <span class="hljs-number">1</span>;
 					node = stack[i];
-					<span class="keyword">while</span>(i &gt; <span class="number">1</span>) {
-						node = createBinaryExpression(stack[i - <span class="number">1</span>].value, stack[i - <span class="number">2</span>], node); 
-						i -= <span class="number">2</span>;
+					<span class="hljs-keyword">while</span>(i &gt; <span class="hljs-number">1</span>) {
+						node = createBinaryExpression(stack[i - <span class="hljs-number">1</span>].value, stack[i - <span class="hljs-number">2</span>], node); 
+						i -= <span class="hljs-number">2</span>;
 					}
-					<span class="keyword">return</span> node;
+					<span class="hljs-keyword">return</span> node;
 				},</pre></div></div>
             
         </li>
@@ -640,17 +640,17 @@ precedence structure</p>
                 <a class="pilcrow" href="#section-31">&#182;</a>
               </div>
               <p>An individual part of a binary expression:
-e.g. <code>foo.bar(baz)</code>, <code>1</code>, <code>&quot;abc&quot;</code>, <code>(a % 2)</code> (because it&#39;s in parenthesis)</p>
+e.g. <code>foo.bar(baz)</code>, <code>1</code>, <code>&quot;abc&quot;</code>, <code>(a % 2)</code> (because it’s in parenthesis)</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>				gobbleToken = <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
-					<span class="keyword">var</span> ch, curr_node, unop, to_check, tc_len;
+            <div class="content"><div class='highlight'><pre>				gobbleToken = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
+					<span class="hljs-keyword">var</span> ch, to_check, tc_len;
 					
 					gobbleSpaces();
 					ch = exprICode(index);
 
-					<span class="keyword">if</span>(isDecimalDigit(ch) || ch === PERIOD_CODE) {</pre></div></div>
+					<span class="hljs-keyword">if</span>(isDecimalDigit(ch) || ch === PERIOD_CODE) {</pre></div></div>
             
         </li>
         
@@ -665,8 +665,8 @@ e.g. <code>foo.bar(baz)</code>, <code>1</code>, <code>&quot;abc&quot;</code>, <c
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>						<span class="keyword">return</span> gobbleNumericLiteral();
-					} <span class="keyword">else</span> <span class="keyword">if</span>(ch === SQUOTE_CODE || ch === DQUOTE_CODE) {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>						<span class="hljs-keyword">return</span> gobbleNumericLiteral();
+					} <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>(ch === SQUOTE_CODE || ch === DQUOTE_CODE) {</pre></div></div>
             
         </li>
         
@@ -681,8 +681,8 @@ e.g. <code>foo.bar(baz)</code>, <code>1</code>, <code>&quot;abc&quot;</code>, <c
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>						<span class="keyword">return</span> gobbleStringLiteral();
-					} <span class="keyword">else</span> <span class="keyword">if</span>(isIdentifierStart(ch) || ch === OPAREN_CODE) { <span class="comment">// open parenthesis</span></pre></div></div>
+            <div class="content"><div class='highlight'><pre>						<span class="hljs-keyword">return</span> gobbleStringLiteral();
+					} <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>(isIdentifierStart(ch) || ch === OPAREN_CODE) { <span class="hljs-comment">// open parenthesis</span></pre></div></div>
             
         </li>
         
@@ -697,24 +697,26 @@ e.g. <code>foo.bar(baz)</code>, <code>1</code>, <code>&quot;abc&quot;</code>, <c
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>						<span class="keyword">return</span> gobbleVariable();
-					} <span class="keyword">else</span> {
+            <div class="content"><div class='highlight'><pre>						<span class="hljs-keyword">return</span> gobbleVariable();
+					} <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (ch === OBRACK_CODE) {
+						<span class="hljs-keyword">return</span> gobbleArray();
+					} <span class="hljs-keyword">else</span> {
 						to_check = expr.substr(index, max_unop_len);
 						tc_len = to_check.length;
-						<span class="keyword">while</span>(tc_len &gt; <span class="number">0</span>) {
-							<span class="keyword">if</span>(unary_ops.hasOwnProperty(to_check)) {
+						<span class="hljs-keyword">while</span>(tc_len &gt; <span class="hljs-number">0</span>) {
+							<span class="hljs-keyword">if</span>(unary_ops.hasOwnProperty(to_check)) {
 								index += tc_len;
-								<span class="keyword">return</span> {
+								<span class="hljs-keyword">return</span> {
 									type: UNARY_EXP,
 									operator: to_check,
 									argument: gobbleToken(),
-									prefix: <span class="literal">true</span>
+									prefix: <span class="hljs-literal">true</span>
 								};
 							}
-							to_check = to_check.substr(<span class="number">0</span>, --tc_len);
+							to_check = to_check.substr(<span class="hljs-number">0</span>, --tc_len);
 						}
 						
-						<span class="keyword">return</span> <span class="literal">false</span>;
+						<span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
 					}
 				},</pre></div></div>
             
@@ -732,34 +734,37 @@ keep track of everything in the numeric literal and then calling <code>parseFloa
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>				gobbleNumericLiteral = <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
-					<span class="keyword">var</span> number = <span class="string">''</span>, ch;
-					<span class="keyword">while</span>(isDecimalDigit(exprICode(index))) {
+            <div class="content"><div class='highlight'><pre>				gobbleNumericLiteral = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
+					<span class="hljs-keyword">var</span> number = <span class="hljs-string">''</span>, ch, chCode;
+					<span class="hljs-keyword">while</span>(isDecimalDigit(exprICode(index))) {
 						number += exprI(index++);
 					}
 
-					<span class="keyword">if</span>(exprICode(index) === PERIOD_CODE) { <span class="comment">// can start with a decimal marker</span>
+					<span class="hljs-keyword">if</span>(exprICode(index) === PERIOD_CODE) { <span class="hljs-comment">// can start with a decimal marker</span>
 						number += exprI(index++);
 
-						<span class="keyword">while</span>(isDecimalDigit(exprICode(index))) {
+						<span class="hljs-keyword">while</span>(isDecimalDigit(exprICode(index))) {
 							number += exprI(index++);
 						}
 					}
 					
 					ch = exprI(index);
-					<span class="keyword">if</span>(ch === <span class="string">'e'</span> || ch === <span class="string">'E'</span>) { <span class="comment">// exponent marker</span>
+					<span class="hljs-keyword">if</span>(ch === <span class="hljs-string">'e'</span> || ch === <span class="hljs-string">'E'</span>) { <span class="hljs-comment">// exponent marker</span>
 						number += exprI(index++);
 						ch = exprI(index);
-						<span class="keyword">if</span>(ch === <span class="string">'+'</span> || ch === <span class="string">'-'</span>) { <span class="comment">// exponent sign</span>
+						<span class="hljs-keyword">if</span>(ch === <span class="hljs-string">'+'</span> || ch === <span class="hljs-string">'-'</span>) { <span class="hljs-comment">// exponent sign</span>
 							number += exprI(index++);
 						}
-						<span class="keyword">while</span>(isDecimalDigit(exprICode(index))) { <span class="comment">//exponent itself</span>
+						<span class="hljs-keyword">while</span>(isDecimalDigit(exprICode(index))) { <span class="hljs-comment">//exponent itself</span>
 							number += exprI(index++);
 						}
-						<span class="keyword">if</span>(!isDecimalDigit(exprICode(index-<span class="number">1</span>)) ) {
-							throwError(<span class="string">'Expected exponent ('</span> + number + exprI(index) + <span class="string">')'</span>, index);
+						<span class="hljs-keyword">if</span>(!isDecimalDigit(exprICode(index-<span class="hljs-number">1</span>)) ) {
+							throwError(<span class="hljs-string">'Expected exponent ('</span> + number + exprI(index) + <span class="hljs-string">')'</span>, index);
 						}
-					}</pre></div></div>
+					}
+					
+
+					chCode = exprICode(index);</pre></div></div>
             
         </li>
         
@@ -770,18 +775,20 @@ keep track of everything in the numeric literal and then calling <code>parseFloa
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-36">&#182;</a>
               </div>
-              <p>Check to make sure this isn&#39;t a variable name that start with a number (123abc)</p>
+              <p>Check to make sure this isn’t a variable name that start with a number (123abc)</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>					<span class="keyword">if</span>(isIdentifierStart(exprICode(index))) {
-						throwError( <span class="string">'Variable names cannot start with a number ('</span> +
-									number + exprI(index) + <span class="string">')'</span>, index);
+            <div class="content"><div class='highlight'><pre>					<span class="hljs-keyword">if</span>(isIdentifierStart(chCode)) {
+						throwError(<span class="hljs-string">'Variable names cannot start with a number ('</span> +
+									number + exprI(index) + <span class="hljs-string">')'</span>, index);
+					} <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>(chCode === PERIOD_CODE) {
+						throwError(<span class="hljs-string">'Unexpected period'</span>, index);
 					}
 
-					<span class="keyword">return</span> {
+					<span class="hljs-keyword">return</span> {
 						type: LITERAL,
-						value: parseFloat(number),
+						value: <span class="hljs-built_in">parseFloat</span>(number),
 						raw: number
 					};
 				},</pre></div></div>
@@ -800,15 +807,15 @@ e.g. <code>&quot;hello world&quot;</code>, <code>&#39;this is\nJSEP&#39;</code><
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>				gobbleStringLiteral = <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
-					<span class="keyword">var</span> str = <span class="string">''</span>, quote = exprI(index++), closed = <span class="literal">false</span>, ch;
+            <div class="content"><div class='highlight'><pre>				gobbleStringLiteral = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
+					<span class="hljs-keyword">var</span> str = <span class="hljs-string">''</span>, quote = exprI(index++), closed = <span class="hljs-literal">false</span>, ch;
 
-					<span class="keyword">while</span>(index &lt; length) {
+					<span class="hljs-keyword">while</span>(index &lt; length) {
 						ch = exprI(index++);
-						<span class="keyword">if</span>(ch === quote) {
-							closed = <span class="literal">true</span>;
-							<span class="keyword">break</span>;
-						} <span class="keyword">else</span> <span class="keyword">if</span>(ch === <span class="string">'\\'</span>) {</pre></div></div>
+						<span class="hljs-keyword">if</span>(ch === quote) {
+							closed = <span class="hljs-literal">true</span>;
+							<span class="hljs-keyword">break</span>;
+						} <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>(ch === <span class="hljs-string">'\\'</span>) {</pre></div></div>
             
         </li>
         
@@ -824,24 +831,24 @@ e.g. <code>&quot;hello world&quot;</code>, <code>&#39;this is\nJSEP&#39;</code><
             </div>
             
             <div class="content"><div class='highlight'><pre>							ch = exprI(index++);
-							<span class="keyword">switch</span>(ch) {
-								<span class="keyword">case</span> <span class="string">'n'</span>: str += <span class="string">'\n'</span>; <span class="keyword">break</span>;
-								<span class="keyword">case</span> <span class="string">'r'</span>: str += <span class="string">'\r'</span>; <span class="keyword">break</span>;
-								<span class="keyword">case</span> <span class="string">'t'</span>: str += <span class="string">'\t'</span>; <span class="keyword">break</span>;
-								<span class="keyword">case</span> <span class="string">'b'</span>: str += <span class="string">'\b'</span>; <span class="keyword">break</span>;
-								<span class="keyword">case</span> <span class="string">'f'</span>: str += <span class="string">'\f'</span>; <span class="keyword">break</span>;
-								<span class="keyword">case</span> <span class="string">'v'</span>: str += <span class="string">'\x0B'</span>; <span class="keyword">break</span>;
+							<span class="hljs-keyword">switch</span>(ch) {
+								<span class="hljs-keyword">case</span> <span class="hljs-string">'n'</span>: str += <span class="hljs-string">'\n'</span>; <span class="hljs-keyword">break</span>;
+								<span class="hljs-keyword">case</span> <span class="hljs-string">'r'</span>: str += <span class="hljs-string">'\r'</span>; <span class="hljs-keyword">break</span>;
+								<span class="hljs-keyword">case</span> <span class="hljs-string">'t'</span>: str += <span class="hljs-string">'\t'</span>; <span class="hljs-keyword">break</span>;
+								<span class="hljs-keyword">case</span> <span class="hljs-string">'b'</span>: str += <span class="hljs-string">'\b'</span>; <span class="hljs-keyword">break</span>;
+								<span class="hljs-keyword">case</span> <span class="hljs-string">'f'</span>: str += <span class="hljs-string">'\f'</span>; <span class="hljs-keyword">break</span>;
+								<span class="hljs-keyword">case</span> <span class="hljs-string">'v'</span>: str += <span class="hljs-string">'\x0B'</span>; <span class="hljs-keyword">break</span>;
 							}
-						} <span class="keyword">else</span> {
+						} <span class="hljs-keyword">else</span> {
 							str += ch;
 						}
 					}
 
-					<span class="keyword">if</span>(!closed) {
-						throwError(<span class="string">'Unclosed quote after "'</span>+str+<span class="string">'"'</span>, index);
+					<span class="hljs-keyword">if</span>(!closed) {
+						throwError(<span class="hljs-string">'Unclosed quote after "'</span>+str+<span class="hljs-string">'"'</span>, index);
 					}
 
-					<span class="keyword">return</span> {
+					<span class="hljs-keyword">return</span> {
 						type: LITERAL,
 						value: str,
 						raw: quote + str + quote
@@ -864,35 +871,35 @@ Also, this function checks if that identifier is a literal:
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>				gobbleIdentifier = <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
-					<span class="keyword">var</span> ch = exprICode(index), start = index, identifier;
+            <div class="content"><div class='highlight'><pre>				gobbleIdentifier = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
+					<span class="hljs-keyword">var</span> ch = exprICode(index), start = index, identifier;
 
-					<span class="keyword">if</span>(isIdentifierStart(ch)) {
+					<span class="hljs-keyword">if</span>(isIdentifierStart(ch)) {
 						index++;
-					} <span class="keyword">else</span> {
-						throwError(<span class="string">'Unexpected '</span> + exprI(index), index);
+					} <span class="hljs-keyword">else</span> {
+						throwError(<span class="hljs-string">'Unexpected '</span> + exprI(index), index);
 					}
 
-					<span class="keyword">while</span>(index &lt; length) {
+					<span class="hljs-keyword">while</span>(index &lt; length) {
 						ch = exprICode(index);
-						<span class="keyword">if</span>(isIdentifierPart(ch)) {
+						<span class="hljs-keyword">if</span>(isIdentifierPart(ch)) {
 							index++;
-						} <span class="keyword">else</span> {
-							<span class="keyword">break</span>;
+						} <span class="hljs-keyword">else</span> {
+							<span class="hljs-keyword">break</span>;
 						}
 					}
 					identifier = expr.slice(start, index);
 
-					<span class="keyword">if</span>(literals.hasOwnProperty(identifier)) {
-						<span class="keyword">return</span> {
+					<span class="hljs-keyword">if</span>(literals.hasOwnProperty(identifier)) {
+						<span class="hljs-keyword">return</span> {
 							type: LITERAL,
 							value: literals[identifier],
 							raw: identifier
 						};
-					} <span class="keyword">else</span> <span class="keyword">if</span>(identifier === this_str) {
-						<span class="keyword">return</span> { type: THIS_EXP };
-					} <span class="keyword">else</span> {
-						<span class="keyword">return</span> {
+					} <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>(identifier === this_str) {
+						<span class="hljs-keyword">return</span> { type: THIS_EXP };
+					} <span class="hljs-keyword">else</span> {
+						<span class="hljs-keyword">return</span> {
 							type: IDENTIFIER,
 							name: identifier
 						};
@@ -916,25 +923,25 @@ e.g. <code>foo(bar, baz)</code>, <code>my_func()</code>, or <code>[bar, baz]</co
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>				gobbleArguments = <span class="function"><span class="keyword">function</span><span class="params">(termination)</span> {</span>
-					<span class="keyword">var</span> ch_i, args = [], node;
-					<span class="keyword">while</span>(index &lt; length) {
+            <div class="content"><div class='highlight'><pre>				gobbleArguments = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(termination)</span> {</span>
+					<span class="hljs-keyword">var</span> ch_i, args = [], node;
+					<span class="hljs-keyword">while</span>(index &lt; length) {
 						gobbleSpaces();
 						ch_i = exprICode(index);
-						<span class="keyword">if</span>(ch_i === termination) { <span class="comment">// done parsing</span>
+						<span class="hljs-keyword">if</span>(ch_i === termination) { <span class="hljs-comment">// done parsing</span>
 							index++;
-							<span class="keyword">break</span>;
-						} <span class="keyword">else</span> <span class="keyword">if</span> (ch_i === COMMA_CODE) { <span class="comment">// between expressions</span>
+							<span class="hljs-keyword">break</span>;
+						} <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (ch_i === COMMA_CODE) { <span class="hljs-comment">// between expressions</span>
 							index++;
-						} <span class="keyword">else</span> {
+						} <span class="hljs-keyword">else</span> {
 							node = gobbleExpression();
-							<span class="keyword">if</span>(!node || node.type === COMPOUND) {
-								throwError(<span class="string">'Expected comma'</span>, index);
+							<span class="hljs-keyword">if</span>(!node || node.type === COMPOUND) {
+								throwError(<span class="hljs-string">'Expected comma'</span>, index);
 							}
 							args.push(node);
 						}
 					}
-					<span class="keyword">return</span> args;
+					<span class="hljs-keyword">return</span> args;
 				},</pre></div></div>
             
         </li>
@@ -953,41 +960,41 @@ e.g. <code>Math.acos(obj.angle)</code></p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>				gobbleVariable = <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
-					<span class="keyword">var</span> ch_i, node;
+            <div class="content"><div class='highlight'><pre>				gobbleVariable = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
+					<span class="hljs-keyword">var</span> ch_i, node;
 					ch_i = exprICode(index);
 						
-					<span class="keyword">if</span>(ch_i === OPAREN_CODE) {
+					<span class="hljs-keyword">if</span>(ch_i === OPAREN_CODE) {
 						node = gobbleGroup();
-					} <span class="keyword">else</span> {
+					} <span class="hljs-keyword">else</span> {
 						node = gobbleIdentifier();
 					}
 					gobbleSpaces();
 					ch_i = exprICode(index);
-					<span class="keyword">while</span>(ch_i === PERIOD_CODE || ch_i === OBRACK_CODE || ch_i === OPAREN_CODE) {
+					<span class="hljs-keyword">while</span>(ch_i === PERIOD_CODE || ch_i === OBRACK_CODE || ch_i === OPAREN_CODE) {
 						index++;
-						<span class="keyword">if</span>(ch_i === PERIOD_CODE) {
+						<span class="hljs-keyword">if</span>(ch_i === PERIOD_CODE) {
 							gobbleSpaces();
 							node = {
 								type: MEMBER_EXP,
-								computed: <span class="literal">false</span>,
+								computed: <span class="hljs-literal">false</span>,
 								object: node,
 								property: gobbleIdentifier()
 							};
-						} <span class="keyword">else</span> <span class="keyword">if</span>(ch_i === OBRACK_CODE) {
+						} <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>(ch_i === OBRACK_CODE) {
 							node = {
 								type: MEMBER_EXP,
-								computed: <span class="literal">true</span>,
+								computed: <span class="hljs-literal">true</span>,
 								object: node,
 								property: gobbleExpression()
 							};
 							gobbleSpaces();
 							ch_i = exprICode(index);
-							<span class="keyword">if</span>(ch_i !== CBRACK_CODE) {
-								throwError(<span class="string">'Unclosed ['</span>, index);
+							<span class="hljs-keyword">if</span>(ch_i !== CBRACK_CODE) {
+								throwError(<span class="hljs-string">'Unclosed ['</span>, index);
 							}
 							index++;
-						} <span class="keyword">else</span> <span class="keyword">if</span>(ch_i === OPAREN_CODE) {</pre></div></div>
+						} <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>(ch_i === OPAREN_CODE) {</pre></div></div>
             
         </li>
         
@@ -1004,14 +1011,14 @@ e.g. <code>Math.acos(obj.angle)</code></p>
             
             <div class="content"><div class='highlight'><pre>							node = {
 								type: CALL_EXP,
-								<span class="string">'arguments'</span>: gobbleArguments(CPAREN_CODE),
+								<span class="hljs-string">'arguments'</span>: gobbleArguments(CPAREN_CODE),
 								callee: node
 							};
 						}
 						gobbleSpaces();
 						ch_i = exprICode(index);
 					}
-					<span class="keyword">return</span> node;
+					<span class="hljs-keyword">return</span> node;
 				},</pre></div></div>
             
         </li>
@@ -1027,19 +1034,19 @@ e.g. <code>Math.acos(obj.angle)</code></p>
 This function assumes that it needs to gobble the opening parenthesis
 and then tries to gobble everything within that parenthesis, assuming
 that the next thing it should see is the close parenthesis. If not,
-then the expression probably doesn&#39;t have a <code>)</code></p>
+then the expression probably doesn’t have a <code>)</code></p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>				gobbleGroup = <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
+            <div class="content"><div class='highlight'><pre>				gobbleGroup = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
 					index++;
-					<span class="keyword">var</span> node = gobbleExpression();
+					<span class="hljs-keyword">var</span> node = gobbleExpression();
 					gobbleSpaces();
-					<span class="keyword">if</span>(exprICode(index) === CPAREN_CODE) {
+					<span class="hljs-keyword">if</span>(exprICode(index) === CPAREN_CODE) {
 						index++;
-						<span class="keyword">return</span> node;
-					} <span class="keyword">else</span> {
-						throwError(<span class="string">'Unclosed ('</span>, index);
+						<span class="hljs-keyword">return</span> node;
+					} <span class="hljs-keyword">else</span> {
+						throwError(<span class="hljs-string">'Unclosed ('</span>, index);
 					}
 				},</pre></div></div>
             
@@ -1058,17 +1065,17 @@ and then tries to gobble the expressions as arguments.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>				gobbleArray = <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
+            <div class="content"><div class='highlight'><pre>				gobbleArray = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
 					index++;
-					<span class="keyword">return</span> {
+					<span class="hljs-keyword">return</span> {
 						type: ARRAY_EXP,
-						body: gobbleArguments(CBRACK_CODE)
+						elements: gobbleArguments(CBRACK_CODE)
 					};
 				},
 
 				nodes = [], ch_i, node;
 				
-			<span class="keyword">while</span>(index &lt; length) {
+			<span class="hljs-keyword">while</span>(index &lt; length) {
 				ch_i = exprICode(index);</pre></div></div>
             
         </li>
@@ -1085,11 +1092,9 @@ separators</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>				<span class="keyword">if</span>(ch_i === SEMCOL_CODE || ch_i === COMMA_CODE) {
-					index++; <span class="comment">// ignore separators</span>
-				} <span class="keyword">else</span> <span class="keyword">if</span> (ch_i === OBRACK_CODE &amp;&amp; (node = gobbleArray())) {
-					nodes.push(node);
-				} <span class="keyword">else</span> {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>				<span class="hljs-keyword">if</span>(ch_i === SEMCOL_CODE || ch_i === COMMA_CODE) {
+					index++; <span class="hljs-comment">// ignore separators</span>
+				} <span class="hljs-keyword">else</span> {</pre></div></div>
             
         </li>
         
@@ -1104,7 +1109,7 @@ separators</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>					<span class="keyword">if</span>((node = gobbleExpression())) {
+            <div class="content"><div class='highlight'><pre>					<span class="hljs-keyword">if</span>((node = gobbleExpression())) {
 						nodes.push(node);</pre></div></div>
             
         </li>
@@ -1116,13 +1121,13 @@ separators</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-47">&#182;</a>
               </div>
-              <p>If we weren&#39;t able to find a binary expression and are out of room, then
+              <p>If we weren’t able to find a binary expression and are out of room, then
 the expression passed in probably has too much</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>					} <span class="keyword">else</span> <span class="keyword">if</span>(index &lt; length) {
-						throwError(<span class="string">'Unexpected "'</span> + exprI(index) + <span class="string">'"'</span>, index);
+            <div class="content"><div class='highlight'><pre>					} <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>(index &lt; length) {
+						throwError(<span class="hljs-string">'Unexpected "'</span> + exprI(index) + <span class="hljs-string">'"'</span>, index);
 					}
 				}
 			}</pre></div></div>
@@ -1136,14 +1141,14 @@ the expression passed in probably has too much</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-48">&#182;</a>
               </div>
-              <p>If there&#39;s only one expression just try returning the expression</p>
+              <p>If there’s only one expression just try returning the expression</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>			<span class="keyword">if</span>(nodes.length === <span class="number">1</span>) {
-				<span class="keyword">return</span> nodes[<span class="number">0</span>];
-			} <span class="keyword">else</span> {
-				<span class="keyword">return</span> {
+            <div class="content"><div class='highlight'><pre>			<span class="hljs-keyword">if</span>(nodes.length === <span class="hljs-number">1</span>) {
+				<span class="hljs-keyword">return</span> nodes[<span class="hljs-number">0</span>];
+			} <span class="hljs-keyword">else</span> {
+				<span class="hljs-keyword">return</span> {
 					type: COMPOUND,
 					body: nodes
 				};
@@ -1163,54 +1168,54 @@ the expression passed in probably has too much</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>	jsep.version = <span class="string">'0.2.9'</span>;
-	jsep.toString = <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span> <span class="keyword">return</span> <span class="string">'JavaScript Expression Parser (JSEP) v'</span> + jsep.version; };
+            <div class="content"><div class='highlight'><pre>	jsep.version = <span class="hljs-string">'0.3.0'</span>;
+	jsep.toString = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span> <span class="hljs-keyword">return</span> <span class="hljs-string">'JavaScript Expression Parser (JSEP) v'</span> + jsep.version; };
 
-	<span class="comment">/**
+	<span class="hljs-comment">/**
 	 * @method jsep.addUnaryOp
 	 * @param {string} op_name The name of the unary op to add
 	 * @return jsep
 	 */</span>
-	jsep.addUnaryOp = <span class="function"><span class="keyword">function</span><span class="params">(op_name)</span> {</span>
-		unary_ops[op_name] = t; <span class="keyword">return</span> <span class="keyword">this</span>;
+	jsep.addUnaryOp = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(op_name)</span> {</span>
+		unary_ops[op_name] = t; <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
 	};
 
-	<span class="comment">/**
+	<span class="hljs-comment">/**
 	 * @method jsep.addBinaryOp
 	 * @param {string} op_name The name of the binary op to add
 	 * @param {number} precedence The precedence of the binary op (can be a float)
 	 * @return jsep
 	 */</span>
-	jsep.addBinaryOp = <span class="function"><span class="keyword">function</span><span class="params">(op_name, precedence)</span> {</span>
-		max_binop_len = Math.max(op_name.length, max_binop_len);
+	jsep.addBinaryOp = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(op_name, precedence)</span> {</span>
+		max_binop_len = <span class="hljs-built_in">Math</span>.max(op_name.length, max_binop_len);
 		binary_ops[op_name] = precedence;
-		<span class="keyword">return</span> <span class="keyword">this</span>;
+		<span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
 	};
 
-	<span class="comment">/**
+	<span class="hljs-comment">/**
 	 * @method jsep.removeUnaryOp
 	 * @param {string} op_name The name of the unary op to remove
 	 * @return jsep
 	 */</span>
-	jsep.removeUnaryOp = <span class="function"><span class="keyword">function</span><span class="params">(op_name)</span> {</span>
-		<span class="keyword">delete</span> unary_ops[op_name];
-		<span class="keyword">if</span>(op_name.length === max_unop_len) {
+	jsep.removeUnaryOp = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(op_name)</span> {</span>
+		<span class="hljs-keyword">delete</span> unary_ops[op_name];
+		<span class="hljs-keyword">if</span>(op_name.length === max_unop_len) {
 			max_unop_len = getMaxKeyLen(unary_ops);
 		}
-		<span class="keyword">return</span> <span class="keyword">this</span>;
+		<span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
 	};
 
-	<span class="comment">/**
+	<span class="hljs-comment">/**
 	 * @method jsep.removeBinaryOp
 	 * @param {string} op_name The name of the binary op to remove
 	 * @return jsep
 	 */</span>
-	jsep.removeBinaryOp = <span class="function"><span class="keyword">function</span><span class="params">(op_name)</span> {</span>
-		<span class="keyword">delete</span> binary_ops[op_name];
-		<span class="keyword">if</span>(op_name.length === max_binop_len) {
+	jsep.removeBinaryOp = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(op_name)</span> {</span>
+		<span class="hljs-keyword">delete</span> binary_ops[op_name];
+		<span class="hljs-keyword">if</span>(op_name.length === max_binop_len) {
 			max_binop_len = getMaxKeyLen(binary_ops);
 		}
-		<span class="keyword">return</span> <span class="keyword">this</span>;
+		<span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
 	};</pre></div></div>
             
         </li>
@@ -1226,8 +1231,8 @@ the expression passed in probably has too much</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>	<span class="keyword">if</span> (<span class="keyword">typeof</span> exports === <span class="string">'undefined'</span>) {
-		<span class="keyword">var</span> old_jsep = root.jsep;</pre></div></div>
+            <div class="content"><div class='highlight'><pre>	<span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> exports === <span class="hljs-string">'undefined'</span>) {
+		<span class="hljs-keyword">var</span> old_jsep = root.jsep;</pre></div></div>
             
         </li>
         
@@ -1238,7 +1243,7 @@ the expression passed in probably has too much</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-51">&#182;</a>
               </div>
-              <p>The star of the show! It&#39;s a function!</p>
+              <p>The star of the show! It’s a function!</p>
 
             </div>
             
@@ -1257,13 +1262,13 @@ the expression passed in probably has too much</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>		jsep.noConflict = <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
-			<span class="keyword">if</span>(root.jsep === jsep) {
+            <div class="content"><div class='highlight'><pre>		jsep.noConflict = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
+			<span class="hljs-keyword">if</span>(root.jsep === jsep) {
 				root.jsep = old_jsep;
 			}
-			<span class="keyword">return</span> jsep;
+			<span class="hljs-keyword">return</span> jsep;
 		};
-	} <span class="keyword">else</span> {</pre></div></div>
+	} <span class="hljs-keyword">else</span> {</pre></div></div>
             
         </li>
         
@@ -1278,13 +1283,13 @@ the expression passed in probably has too much</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>		<span class="keyword">if</span> (<span class="keyword">typeof</span> module !== <span class="string">'undefined'</span> &amp;&amp; module.exports) {
+            <div class="content"><div class='highlight'><pre>		<span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> module !== <span class="hljs-string">'undefined'</span> &amp;&amp; module.exports) {
 			exports = module.exports = jsep;
-		} <span class="keyword">else</span> {
+		} <span class="hljs-keyword">else</span> {
 			exports.parse = jsep;
 		}
 	}
-}(<span class="keyword">this</span>));</pre></div></div>
+}(<span class="hljs-keyword">this</span>));</pre></div></div>
             
         </li>
         
