@@ -570,6 +570,17 @@
 	};
 
 	/**
+	 * @method jsep.addLiteral
+	 * @param {string} literal_name The name of the literal to add
+	 * @param {*} literal_value The value of the literal
+	 * @return jsep
+	 */
+	jsep.addLiteral = function(literal_name, literal_value) {
+		literals[literal_name] = literal_value;
+		return this;
+	};
+
+	/**
 	 * @method jsep.removeUnaryOp
 	 * @param {string} op_name The name of the unary op to remove
 	 * @return jsep
@@ -592,6 +603,16 @@
 		if(op_name.length === max_binop_len) {
 			max_binop_len = getMaxKeyLen(binary_ops);
 		}
+		return this;
+	};
+
+	/**
+	 * @method jsep.removeLiteral
+	 * @param {string} literal_name The name of the literal to remove
+	 * @return jsep
+	 */
+	jsep.removeLiteral = function(literal_name) {
+		delete literals[literal_name];
 		return this;
 	};
 
