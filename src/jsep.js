@@ -258,9 +258,6 @@
 					} else if(ch === SQUOTE_CODE || ch === DQUOTE_CODE) {
 						// Single or double quotes
 						return gobbleStringLiteral();
-					} else if(isIdentifierStart(ch) || ch === OPAREN_CODE) { // open parenthesis
-						// `foo`, `bar.baz`
-						return gobbleVariable();
 					} else if (ch === OBRACK_CODE) {
 						return gobbleArray();
 					} else {
@@ -279,8 +276,13 @@
 							to_check = to_check.substr(0, --tc_len);
 						}
 						
-						return false;
+						if (isIdentifierStart(ch) || ch === OPAREN_CODE) { // open parenthesis
+							// `foo`, `bar.baz`
+							return gobbleVariable();
+						}
 					}
+					
+					return false;
 				},
 				// Parse simple numeric literals: `12`, `3.4`, `.5`. Do this by using a string to
 				// keep track of everything in the numeric literal and then calling `parseFloat` on that string
