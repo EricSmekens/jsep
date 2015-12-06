@@ -315,19 +315,28 @@
 					
 
 					chCode = exprICode(index);
-					// Check to make sure this isn't a variable name that start with a number (123abc)
-					if(isIdentifierStart(chCode)) {
-						throwError('Variable names cannot start with a number (' +
-									number + exprI(index) + ')', index);
-					} else if(chCode === PERIOD_CODE) {
+					if(chCode === PERIOD_CODE) {
 						throwError('Unexpected period', index);
 					}
 
-					return {
+					var literal = {
 						type: LITERAL,
 						value: parseFloat(number),
 						raw: number
 					};
+					// Check to make sure this isn't a variable name that start with a number (123abc)
+					if(isIdentifierStart(chCode)) {
+						if(!jsep.allowImplicitCompound) {
+							throwError('Variable names cannot start with a number (' +
+									number + exprI(index) + ')', index);
+						}
+						return {
+							type: COMPOUND,
+							body: [ literal, gobbleIdentifier() ]
+						};
+					}
+
+					return literal;
 				},
 
 				// Parses a string literal, staring with single or double quotes with basic support for escape codes
@@ -548,6 +557,7 @@
 	// To be filled in by the template
 	jsep.version = '<%= version %>';
 	jsep.toString = function() { return 'JavaScript Expression Parser (JSEP) v' + jsep.version; };
+	jsep.allowImplicitCompound = false;
 
 	/**
 	 * @method jsep.addUnaryOp

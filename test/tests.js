@@ -83,6 +83,20 @@ test('Arrays', function() {
 	});
 });
 
+test('Number followed by literal', function() {
+	equal(jsep.allowImplicitCompound, false);
+
+	jsep.allowImplicitCompound = true;
+	var withoutSpace = jsep("123abc");
+	var withSpace = jsep("123 abc");
+	deepEqual(withSpace, withoutSpace);
+
+	jsep.allowImplicitCompound = false;
+	throws(function() {
+      jsep("123abc");
+    }, Error, "Variable names cannot start with a number (123a) at character 3");
+});
+
 test('Ops', function() {
 	test_op_expession("1");
 	test_op_expession("1+2");
