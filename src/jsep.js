@@ -116,7 +116,8 @@
 		// Parsing
 		// -------
 		// `expr` is a string with the passed in expression
-		jsep = function(expr) {
+		jsep = function(expr, options) {
+			options = options || {};
 			// `index` stores the character number we are currently at while `length` is a constant
 			// All of the gobbles below will modify `index` as we move along
 			var index = 0,
@@ -125,6 +126,32 @@
 				exprI = function(i) { return charAtFunc.call(expr, i); },
 				exprICode = function(i) { return charCodeAtFunc.call(expr, i); },
 				length = expr.length,
+				annotate = function(node, start, end) {
+					if (options.range) {
+						node.range = [start, end];
+					}
+					return node;
+				},
+				RANGE_FOR_BINARY = '$$br',
+				annotateForBinary = function(node, realStart, realEnd) {
+					if (options.range) {
+						node[RANGE_FOR_BINARY] = [realStart, realEnd];
+					}
+					return node;
+				},
+				annotateBinary = function(node) {
+					var left = node.left, right = node.right;
+					if (options.range) {
+						annotate(
+							node,
+							(left[RANGE_FOR_BINARY] || left.range)[0],
+							(right[RANGE_FOR_BINARY] || right.range)[1]
+						);
+						delete left[RANGE_FOR_BINARY];
+						delete right[RANGE_FOR_BINARY];
+					}
+					return node;
+				},
 
 				// Push `index` up to the next non-space character
 				gobbleSpaces = function() {
@@ -137,7 +164,8 @@
 				
 				// The main parsing function. Much of this code is dedicated to ternary expressions
 				gobbleExpression = function() {
-					var test = gobbleBinaryExpression(),
+					var start = index,
+						test = gobbleBinaryExpression(),
 						consequent, alternate;
 					gobbleSpaces();
 					if(exprICode(index) === QUMARK_CODE) {
@@ -154,12 +182,12 @@
 							if(!alternate) {
 								throwError('Expected expression', index);
 							}
-							return {
+							return annotate({
 								type: CONDITIONAL_EXP,
 								test: test,
 								consequent: consequent,
 								alternate: alternate
-							};
+							}, start, index);
 						} else {
 							throwError('Expected :', index);
 						}
@@ -188,7 +216,7 @@
 				// This function is responsible for gobbling an individual expression,
 				// e.g. `1`, `1+2`, `a+(b*2)-Math.sqrt(2)`
 				gobbleBinaryExpression = function() {
-					var ch_i, node, biop, prec, stack, biop_info, left, right, i;
+					var ch_i, node, biop, prec, stack, biop_info, left, right, i, start = index, tokenStart = start;
 
 					// First, try to get the leftmost thing
 					// Then, check to see if there's a binary operator operating on that leftmost thing
@@ -199,12 +227,14 @@
 					if(!biop) {
 						return left;
 					}
+					annotateForBinary(left, tokenStart, index);
 
 					// Otherwise, we need to start a stack to properly place the binary operations in their
 					// precedence structure
-					biop_info = { value: biop, prec: binaryPrecedence(biop)};
+					biop_info = { value: biop, prec: binaryPrecedence(biop) };
 
-					right = gobbleToken();
+					tokenStart = index;
+					right = annotateForBinary(gobbleToken(), tokenStart, index);
 					if(!right) {
 						throwError("Expected expression after " + biop, index);
 					}
@@ -224,11 +254,13 @@
 							right = stack.pop();
 							biop = stack.pop().value;
 							left = stack.pop();
-							node = createBinaryExpression(biop, left, right);
+							node = annotateBinary(createBinaryExpression(biop, left, right));
+							
 							stack.push(node);
 						}
 
-						node = gobbleToken();
+						tokenStart = index;
+						node = annotateForBinary(gobbleToken(), tokenStart, index);
 						if(!node) {
 							throwError("Expected expression after " + biop, index);
 						}
@@ -238,7 +270,7 @@
 					i = stack.length - 1;
 					node = stack[i];
 					while(i > 1) {
-						node = createBinaryExpression(stack[i - 1].value, stack[i - 2], node); 
+						node = annotateBinary(createBinaryExpression(stack[i - 1].value, stack[i - 2], node));
 						i -= 2;
 					}
 					return node;
@@ -247,7 +279,7 @@
 				// An individual part of a binary expression:
 				// e.g. `foo.bar(baz)`, `1`, `"abc"`, `(a % 2)` (because it's in parenthesis)
 				gobbleToken = function() {
-					var ch, to_check, tc_len;
+					var ch, to_check, tc_len, start = index;
 					
 					gobbleSpaces();
 					ch = exprICode(index);
@@ -269,12 +301,12 @@
 						while(tc_len > 0) {
 							if(unary_ops.hasOwnProperty(to_check)) {
 								index += tc_len;
-								return {
+								return annotate({
 									type: UNARY_EXP,
 									operator: to_check,
 									argument: gobbleToken(),
 									prefix: true
-								};
+								}, start, index);
 							}
 							to_check = to_check.substr(0, --tc_len);
 						}
@@ -285,7 +317,7 @@
 				// Parse simple numeric literals: `12`, `3.4`, `.5`. Do this by using a string to
 				// keep track of everything in the numeric literal and then calling `parseFloat` on that string
 				gobbleNumericLiteral = function() {
-					var number = '', ch, chCode;
+					var number = '', ch, chCode, start = index;
 					while(isDecimalDigit(exprICode(index))) {
 						number += exprI(index++);
 					}
@@ -323,17 +355,17 @@
 						throwError('Unexpected period', index);
 					}
 
-					return {
+					return annotate({
 						type: LITERAL,
 						value: parseFloat(number),
 						raw: number
-					};
+					}, start, index);
 				},
 
 				// Parses a string literal, staring with single or double quotes with basic support for escape codes
 				// e.g. `"hello world"`, `'this is\nJSEP'`
 				gobbleStringLiteral = function() {
-					var str = '', quote = exprI(index++), closed = false, ch;
+					var str = '', quote = exprI(index++), closed = false, ch, start = index-1;
 
 					while(index < length) {
 						ch = exprI(index++);
@@ -361,11 +393,11 @@
 						throwError('Unclosed quote after "'+str+'"', index);
 					}
 
-					return {
+					return annotate({
 						type: LITERAL,
 						value: str,
 						raw: quote + str + quote
-					};
+					}, start, index);
 				},
 				
 				// Gobbles only identifiers
@@ -392,18 +424,18 @@
 					identifier = expr.slice(start, index);
 
 					if(literals.hasOwnProperty(identifier)) {
-						return {
+						return annotate({
 							type: LITERAL,
 							value: literals[identifier],
 							raw: identifier
-						};
+						}, start, index);
 					} else if(identifier === this_str) {
-						return { type: THIS_EXP };
+						return annotate({ type: THIS_EXP }, start, index);
 					} else {
-						return {
+						return annotate({
 							type: IDENTIFIER,
 							name: identifier
-						};
+						}, start, index);
 					}
 				},
 
@@ -438,7 +470,7 @@
 				// It also gobbles function calls:
 				// e.g. `Math.acos(obj.angle)`
 				gobbleVariable = function() {
-					var ch_i, node;
+					var ch_i, node, start = index;
 					ch_i = exprICode(index);
 						
 					if(ch_i === OPAREN_CODE) {
@@ -452,12 +484,12 @@
 						index++;
 						if(ch_i === PERIOD_CODE) {
 							gobbleSpaces();
-							node = {
+							node = annotate({
 								type: MEMBER_EXP,
 								computed: false,
 								object: node,
 								property: gobbleIdentifier()
-							};
+							}, start, index);
 						} else if(ch_i === OBRACK_CODE) {
 							node = {
 								type: MEMBER_EXP,
@@ -471,13 +503,14 @@
 								throwError('Unclosed [', index);
 							}
 							index++;
+							annotate(node, start, index);
 						} else if(ch_i === OPAREN_CODE) {
 							// A function call is being made; gobble all the arguments
-							node = {
+							node = annotate({
 								type: CALL_EXP,
 								'arguments': gobbleArguments(CPAREN_CODE),
 								callee: node
-							};
+							}, start, index);
 						}
 						gobbleSpaces();
 						ch_i = exprICode(index);
@@ -506,11 +539,12 @@
 				// This function assumes that it needs to gobble the opening bracket
 				// and then tries to gobble the expressions as arguments.
 				gobbleArray = function() {
+					var start = index;
 					index++;
-					return {
+					return annotate({
 						type: ARRAY_EXP,
 						elements: gobbleArguments(CBRACK_CODE)
-					};
+					}, start, index);
 				},
 
 				nodes = [], ch_i, node;
@@ -538,10 +572,10 @@
 			if(nodes.length === 1) {
 				return nodes[0];
 			} else {
-				return {
+				return annotate({
 					type: COMPOUND,
 					body: nodes
-				};
+				}, 0, length);
 			}
 		};
 

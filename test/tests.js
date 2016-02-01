@@ -40,13 +40,13 @@ var filter_props = function(larger, smaller) {
 };
 
 var parse = jsep;
-var test_parser = function(inp, out) {
-	var parse_val = parse(inp);
+var test_parser = function(inp, out, options) {
+	var parse_val = parse(inp, options);
 	return deepEqual(filter_props(parse_val, out), out);
 };
 var esprima_comparison_test = function(str) {
-	var jsep_val = jsep(str),
-		esprima_val = esprima.parse(str);
+	var jsep_val = jsep(str, {range:true}),
+		esprima_val = esprima.parse(str, {range:true});
 	return deepEqual(jsep_val, esprima_val.body[0].expression);
 };
 
@@ -54,6 +54,7 @@ module("Expression Parser");
 
 test('Constants', function() {
 	test_parser("'abc'", {value: "abc"});
+	test_parser("'abc'", {range: [0,5]}, {range:true});
 	test_parser('"abc"', {value: "abc"});
 	test_parser("123", {value: 123});
 	test_parser("12.3", {value: 12.3});
@@ -66,6 +67,8 @@ test('Variables', function() {
 			type: "MemberExpression"
 		}
 	});
+	test_parser("a.b. c", {property: {range: [5, 6]}}, {range: true});
+	test_parser("a[b]", {range: [0, 4]}, {range: true});
 });
 
 test('Function Calls', function() {
@@ -91,6 +94,10 @@ test('Ops', function() {
 	test_op_expession("(1+2)*3");
 	test_op_expession("(1+2)*3+4-2-5+2/2*3");
 	test_op_expession("1 + 2-   3*	4 /8");
+
+	test_parser("(a)+b", {range:[0,5]}, {range:true});
+	test_parser("1 + 2 + 3", {range:[0,9]}, {range:true});
+	test_parser("1+(2)*3", {right:{range:[2,7]}}, {range:true});
 });
 
 test('Custom ops', function() {
