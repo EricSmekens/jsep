@@ -461,11 +461,16 @@
 						index++;
 						if(ch_i === PERIOD_CODE) {
 							gobbleSpaces();
+							var id = gobbleIdentifier();
 							node = {
 								type: MEMBER_EXP,
 								computed: false,
 								object: node,
-								property: gobbleIdentifier()
+								property: {
+									type : LITERAL,
+									value : id.name,
+									raw : '\'' + id.name + '\''
+								}
 							};
 						} else if(ch_i === OBRACK_CODE) {
 							node = {
