@@ -66,6 +66,7 @@ test('Variables', function() {
 			type: "MemberExpression"
 		}
 	});
+    test_parser("Δέλτα", {name: "Δέλτα"});
 });
 
 test('Function Calls', function() {
