@@ -100,9 +100,9 @@ test('Custom ops', function() {
 
     jsep.addBinaryOp("×", 9);
     test_parser("a×b", {
-        type: 'BinaryExpression'
-        //left: {name: 'a'},
-        //right: {name: 'b'}
+        type: 'BinaryExpression',
+        left: {name: 'a'},
+        right: {name: 'b'}
     });
 });
 
