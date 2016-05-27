@@ -105,14 +105,14 @@
 			return (ch === 36) || (ch === 95) || // `$` and `_`
 					(ch >= 65 && ch <= 90) || // A...Z
 					(ch >= 97 && ch <= 122) || // a...z
-                    (ch >= 128); // any non-ASCII character
+                    (ch >= 128 && !binary_ops[String.fromCharCode(ch)]); // any non-ASCII that is not an operator
 		},
 		isIdentifierPart = function(ch) {
 			return (ch === 36) || (ch === 95) || // `$` and `_`
 					(ch >= 65 && ch <= 90) || // A...Z
 					(ch >= 97 && ch <= 122) || // a...z
 					(ch >= 48 && ch <= 57) || // 0...9
-                    (ch >= 128); // any non-ASCII character
+                    (ch >= 128 && !binary_ops[String.fromCharCode(ch)]); // any non-ASCII that is not an operator
 		},
 
 		// Parsing

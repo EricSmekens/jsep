@@ -97,6 +97,13 @@ test('Ops', function() {
 test('Custom ops', function() {
 	jsep.addBinaryOp("^", 10);
 	test_parser("a^b", {});
+
+    jsep.addBinaryOp("×", 9);
+    test_parser("a×b", {
+        type: 'BinaryExpression'
+        //left: {name: 'a'},
+        //right: {name: 'b'}
+    });
 });
 
 test('Bad Numbers', function() {
