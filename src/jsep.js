@@ -415,11 +415,12 @@
 				// until the terminator character `)` or `]` is encountered.
 				// e.g. `foo(bar, baz)`, `my_func()`, or `[bar, baz]`
 				gobbleArguments = function(termination) {
-					var ch_i, args = [], node;
+					var ch_i, args = [], node, closed = false;
 					while(index < length) {
 						gobbleSpaces();
 						ch_i = exprICode(index);
 						if(ch_i === termination) { // done parsing
+							closed = true;
 							index++;
 							break;
 						} else if (ch_i === COMMA_CODE) { // between expressions
@@ -431,6 +432,9 @@
 							}
 							args.push(node);
 						}
+					}
+					if (!closed) {
+						throwError('Expected ' + String.fromCharCode(termination), index);
 					}
 					return args;
 				},
