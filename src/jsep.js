@@ -557,6 +557,7 @@
 	 * @return jsep
 	 */
 	jsep.addUnaryOp = function(op_name) {
+		max_unop_len = Math.max(op_name.length, max_unop_len);
 		unary_ops[op_name] = t; return this;
 	};
 
