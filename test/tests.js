@@ -108,17 +108,22 @@ test('Custom ops', function() {
 
 test('Bad Numbers', function() {
 	test_parser("1.", {type: "Literal", value: 1, raw: "1."});
-	try {
+
+	throws(function(){
 		var x = jsep("1.2.3");
-		console.log(x);
-		ok(false);
-	} catch(e) {
-		ok(true);
-	}
+	});
+});
+
+test('Uncompleted expression-call/array', function() {
+	throws(function(){
+		var x = jsep("myFunction(a,b");
+	}, "detects unfinished expression call");
+	throws(function(){
+		var x = jsep("[1,2");
+	}, "detects unfinished array");
 });
 
 test('Esprima Comparison', function() {
-
 	([
 		" true",
 		"false ",
