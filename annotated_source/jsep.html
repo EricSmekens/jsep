@@ -27,7 +27,7 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-1">&#182;</a>
               </div>
-              <pre><code>JavaScript Expression Parser (JSEP) <span class="hljs-number">0.3</span><span class="hljs-number">.0</span>
+              <pre><code>JavaScript Expression Parser (JSEP) <span class="hljs-number">0.3</span><span class="hljs-number">.1</span>
 JSEP may be freely distributed under the MIT License
 http:<span class="hljs-comment">//jsep.from.so/</span>
 </code></pre>
@@ -35,8 +35,8 @@ http:<span class="hljs-comment">//jsep.from.so/</span>
             
             <div class="content"><div class='highlight'><pre>
 <span class="hljs-comment">/*global module: true, exports: true, console: true */</span>
-(<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(root)</span> {</span>
-<span class="hljs-pi">	'use strict'</span>;</pre></div></div>
+(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">root</span>) </span>{<span class="hljs-meta">
+	'use strict'</span>;</pre></div></div>
             
         </li>
         
@@ -59,18 +59,6 @@ http:<span class="hljs-comment">//jsep.from.so/</span>
               
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-3">&#182;</a>
-              </div>
-              
-            </div>
-            
-        </li>
-        
-        
-        <li id="section-4">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-4">&#182;</a>
               </div>
               <p>This is the full set of types that any JSEP node can be.
 Store them here to save space when minified</p>
@@ -101,12 +89,25 @@ Store them here to save space when minified</p>
 		SEMCOL_CODE = <span class="hljs-number">59</span>, <span class="hljs-comment">// ;</span>
 		COLON_CODE  = <span class="hljs-number">58</span>, <span class="hljs-comment">// :</span>
 
-		throwError = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(message, index)</span> {</span>
+		throwError = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">message, index</span>) </span>{
 			<span class="hljs-keyword">var</span> error = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(message + <span class="hljs-string">' at character '</span> + index);
 			error.index = index;
 			error.description = message;
 			<span class="hljs-keyword">throw</span> error;
 		},</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <h2 id="operations">Operations</h2>
+
+            </div>
             
         </li>
         
@@ -117,31 +118,6 @@ Store them here to save space when minified</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-5">&#182;</a>
               </div>
-              <h2 id="operations">Operations</h2>
-
-            </div>
-            
-        </li>
-        
-        
-        <li id="section-6">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-6">&#182;</a>
-              </div>
-              
-            </div>
-            
-        </li>
-        
-        
-        <li id="section-7">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-7">&#182;</a>
-              </div>
               <p>Set <code>t</code> to <code>true</code> to save space (when minified, not gzipped)</p>
 
             </div>
@@ -151,11 +127,11 @@ Store them here to save space when minified</p>
         </li>
         
         
-        <li id="section-8">
+        <li id="section-6">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-8">&#182;</a>
+                <a class="pilcrow" href="#section-6">&#182;</a>
               </div>
               <p>Use a quickly-accessible map to store all of the unary operators
 Values are set to <code>true</code> (it really doesn’t matter)</p>
@@ -167,11 +143,11 @@ Values are set to <code>true</code> (it really doesn’t matter)</p>
         </li>
         
         
-        <li id="section-9">
+        <li id="section-7">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-9">&#182;</a>
+                <a class="pilcrow" href="#section-7">&#182;</a>
               </div>
               <p>Also use a map for the binary operations but set their values to their
 binary precedence for quick reference:
@@ -191,17 +167,17 @@ see <a href="http://en.wikipedia.org/wiki/Order_of_operations#Programming_langua
         </li>
         
         
-        <li id="section-10">
+        <li id="section-8">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-10">&#182;</a>
+                <a class="pilcrow" href="#section-8">&#182;</a>
               </div>
               <p>Get return the longest key length of any object</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>		getMaxKeyLen = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(obj)</span> {</span>
+            <div class="content"><div class='highlight'><pre>		getMaxKeyLen = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">obj</span>) </span>{
 			<span class="hljs-keyword">var</span> max_len = <span class="hljs-number">0</span>, len;
 			<span class="hljs-keyword">for</span>(<span class="hljs-keyword">var</span> key <span class="hljs-keyword">in</span> obj) {
 				<span class="hljs-keyword">if</span>((len = key.length) &gt; max_len &amp;&amp; obj.hasOwnProperty(key)) {
@@ -216,26 +192,14 @@ see <a href="http://en.wikipedia.org/wiki/Order_of_operations#Programming_langua
         </li>
         
         
-        <li id="section-11">
+        <li id="section-9">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-11">&#182;</a>
+                <a class="pilcrow" href="#section-9">&#182;</a>
               </div>
               <h2 id="literals">Literals</h2>
-
-            </div>
-            
-        </li>
-        
-        
-        <li id="section-12">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-12">&#182;</a>
-              </div>
-              <p>Store the values to return for the various literals we may encounter</p>
+<p>Store the values to return for the various literals we may encounter</p>
 
             </div>
             
@@ -248,11 +212,11 @@ see <a href="http://en.wikipedia.org/wiki/Order_of_operations#Programming_langua
         </li>
         
         
-        <li id="section-13">
+        <li id="section-10">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-13">&#182;</a>
+                <a class="pilcrow" href="#section-10">&#182;</a>
               </div>
               <p>Except for <code>this</code>, which is special. This could be changed to something like <code>&#39;self&#39;</code> as well</p>
 
@@ -263,35 +227,35 @@ see <a href="http://en.wikipedia.org/wiki/Order_of_operations#Programming_langua
         </li>
         
         
-        <li id="section-14">
+        <li id="section-11">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-14">&#182;</a>
+                <a class="pilcrow" href="#section-11">&#182;</a>
               </div>
               <p>Returns the precedence of a binary operator or <code>0</code> if it isn’t a binary operator</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>		binaryPrecedence = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(op_val)</span> {</span>
+            <div class="content"><div class='highlight'><pre>		binaryPrecedence = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">op_val</span>) </span>{
 			<span class="hljs-keyword">return</span> binary_ops[op_val] || <span class="hljs-number">0</span>;
 		},</pre></div></div>
             
         </li>
         
         
-        <li id="section-15">
+        <li id="section-12">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-15">&#182;</a>
+                <a class="pilcrow" href="#section-12">&#182;</a>
               </div>
               <p>Utility function (gets called from multiple places)
 Also note that <code>a &amp;&amp; b</code> and <code>a || b</code> are <em>logical</em> expressions, not binary expressions</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>		createBinaryExpression = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(operator, left, right)</span> {</span>
+            <div class="content"><div class='highlight'><pre>		createBinaryExpression = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">operator, left, right</span>) </span>{
 			<span class="hljs-keyword">var</span> type = (operator === <span class="hljs-string">'||'</span> || operator === <span class="hljs-string">'&amp;&amp;'</span>) ? LOGICAL_EXP : BINARY_EXP;
 			<span class="hljs-keyword">return</span> {
 				type: type,
@@ -304,67 +268,57 @@ Also note that <code>a &amp;&amp; b</code> and <code>a || b</code> are <em>logic
         </li>
         
         
-        <li id="section-16">
+        <li id="section-13">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-16">&#182;</a>
+                <a class="pilcrow" href="#section-13">&#182;</a>
               </div>
               <p><code>ch</code> is a character code in the next three functions</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>		isDecimalDigit = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(ch)</span> {</span>
+            <div class="content"><div class='highlight'><pre>		isDecimalDigit = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">ch</span>) </span>{
 			<span class="hljs-keyword">return</span> (ch &gt;= <span class="hljs-number">48</span> &amp;&amp; ch &lt;= <span class="hljs-number">57</span>); <span class="hljs-comment">// 0...9</span>
 		},
-		isIdentifierStart = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(ch)</span> {</span>
-			<span class="hljs-keyword">return</span> (ch === <span class="hljs-number">36</span>) || (ch === <span class="hljs-number">95</span>) || <span class="hljs-comment">// `$` and `_`</span>
-					(ch &gt;= <span class="hljs-number">65</span> &amp;&amp; ch &lt;= <span class="hljs-number">90</span>) || <span class="hljs-comment">// A...Z</span>
-					(ch &gt;= <span class="hljs-number">97</span> &amp;&amp; ch &lt;= <span class="hljs-number">122</span>); <span class="hljs-comment">// a...z</span>
-		},
-		isIdentifierPart = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(ch)</span> {</span>
+		isIdentifierStart = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">ch</span>) </span>{
 			<span class="hljs-keyword">return</span> (ch === <span class="hljs-number">36</span>) || (ch === <span class="hljs-number">95</span>) || <span class="hljs-comment">// `$` and `_`</span>
 					(ch &gt;= <span class="hljs-number">65</span> &amp;&amp; ch &lt;= <span class="hljs-number">90</span>) || <span class="hljs-comment">// A...Z</span>
 					(ch &gt;= <span class="hljs-number">97</span> &amp;&amp; ch &lt;= <span class="hljs-number">122</span>) || <span class="hljs-comment">// a...z</span>
-					(ch &gt;= <span class="hljs-number">48</span> &amp;&amp; ch &lt;= <span class="hljs-number">57</span>); <span class="hljs-comment">// 0...9</span>
+                    (ch &gt;= <span class="hljs-number">128</span> &amp;&amp; !binary_ops[<span class="hljs-built_in">String</span>.fromCharCode(ch)]); <span class="hljs-comment">// any non-ASCII that is not an operator</span>
+		},
+		isIdentifierPart = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">ch</span>) </span>{
+			<span class="hljs-keyword">return</span> (ch === <span class="hljs-number">36</span>) || (ch === <span class="hljs-number">95</span>) || <span class="hljs-comment">// `$` and `_`</span>
+					(ch &gt;= <span class="hljs-number">65</span> &amp;&amp; ch &lt;= <span class="hljs-number">90</span>) || <span class="hljs-comment">// A...Z</span>
+					(ch &gt;= <span class="hljs-number">97</span> &amp;&amp; ch &lt;= <span class="hljs-number">122</span>) || <span class="hljs-comment">// a...z</span>
+					(ch &gt;= <span class="hljs-number">48</span> &amp;&amp; ch &lt;= <span class="hljs-number">57</span>) || <span class="hljs-comment">// 0...9</span>
+                    (ch &gt;= <span class="hljs-number">128</span> &amp;&amp; !binary_ops[<span class="hljs-built_in">String</span>.fromCharCode(ch)]); <span class="hljs-comment">// any non-ASCII that is not an operator</span>
 		},</pre></div></div>
             
         </li>
         
         
-        <li id="section-17">
+        <li id="section-14">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-17">&#182;</a>
+                <a class="pilcrow" href="#section-14">&#182;</a>
               </div>
               <h2 id="parsing">Parsing</h2>
+<p><code>expr</code> is a string with the passed in expression</p>
 
             </div>
+            
+            <div class="content"><div class='highlight'><pre>		jsep = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">expr</span>) </span>{</pre></div></div>
             
         </li>
         
         
-        <li id="section-18">
+        <li id="section-15">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-18">&#182;</a>
-              </div>
-              <p><code>expr</code> is a string with the passed in expression</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>		jsep = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(expr)</span> {</span></pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-19">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-19">&#182;</a>
+                <a class="pilcrow" href="#section-15">&#182;</a>
               </div>
               <p><code>index</code> stores the character number we are currently at while <code>length</code> is a constant
 All of the gobbles below will modify <code>index</code> as we move along</p>
@@ -374,34 +328,34 @@ All of the gobbles below will modify <code>index</code> as we move along</p>
             <div class="content"><div class='highlight'><pre>			<span class="hljs-keyword">var</span> index = <span class="hljs-number">0</span>,
 				charAtFunc = expr.charAt,
 				charCodeAtFunc = expr.charCodeAt,
-				exprI = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(i)</span> {</span> <span class="hljs-keyword">return</span> charAtFunc.call(expr, i); },
-				exprICode = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(i)</span> {</span> <span class="hljs-keyword">return</span> charCodeAtFunc.call(expr, i); },
+				exprI = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">i</span>) </span>{ <span class="hljs-keyword">return</span> charAtFunc.call(expr, i); },
+				exprICode = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">i</span>) </span>{ <span class="hljs-keyword">return</span> charCodeAtFunc.call(expr, i); },
 				length = expr.length,</pre></div></div>
             
         </li>
         
         
-        <li id="section-20">
+        <li id="section-16">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-20">&#182;</a>
+                <a class="pilcrow" href="#section-16">&#182;</a>
               </div>
               <p>Push <code>index</code> up to the next non-space character</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>				gobbleSpaces = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
+            <div class="content"><div class='highlight'><pre>				gobbleSpaces = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
 					<span class="hljs-keyword">var</span> ch = exprICode(index);</pre></div></div>
             
         </li>
         
         
-        <li id="section-21">
+        <li id="section-17">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-21">&#182;</a>
+                <a class="pilcrow" href="#section-17">&#182;</a>
               </div>
               <p>space or tab</p>
 
@@ -415,17 +369,17 @@ All of the gobbles below will modify <code>index</code> as we move along</p>
         </li>
         
         
-        <li id="section-22">
+        <li id="section-18">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-22">&#182;</a>
+                <a class="pilcrow" href="#section-18">&#182;</a>
               </div>
               <p>The main parsing function. Much of this code is dedicated to ternary expressions</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>				gobbleExpression = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
+            <div class="content"><div class='highlight'><pre>				gobbleExpression = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
 					<span class="hljs-keyword">var</span> test = gobbleBinaryExpression(),
 						consequent, alternate;
 					gobbleSpaces();
@@ -434,11 +388,11 @@ All of the gobbles below will modify <code>index</code> as we move along</p>
         </li>
         
         
-        <li id="section-23">
+        <li id="section-19">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-23">&#182;</a>
+                <a class="pilcrow" href="#section-19">&#182;</a>
               </div>
               <p>Ternary expression: test ? consequent : alternate</p>
 
@@ -473,11 +427,11 @@ All of the gobbles below will modify <code>index</code> as we move along</p>
         </li>
         
         
-        <li id="section-24">
+        <li id="section-20">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-24">&#182;</a>
+                <a class="pilcrow" href="#section-20">&#182;</a>
               </div>
               <p>Search for the operation portion of the string (e.g. <code>+</code>, <code>===</code>)
 Start by taking the longest possible binary operations (3 characters: <code>===</code>, <code>!==</code>, <code>&gt;&gt;&gt;</code>)
@@ -486,7 +440,7 @@ then, return that binary operation</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>				gobbleBinaryOp = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
+            <div class="content"><div class='highlight'><pre>				gobbleBinaryOp = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
 					gobbleSpaces();
 					<span class="hljs-keyword">var</span> biop, to_check = expr.substr(index, max_binop_len), tc_len = to_check.length;
 					<span class="hljs-keyword">while</span>(tc_len &gt; <span class="hljs-number">0</span>) {
@@ -502,28 +456,28 @@ then, return that binary operation</p>
         </li>
         
         
-        <li id="section-25">
+        <li id="section-21">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-25">&#182;</a>
+                <a class="pilcrow" href="#section-21">&#182;</a>
               </div>
               <p>This function is responsible for gobbling an individual expression,
 e.g. <code>1</code>, <code>1+2</code>, <code>a+(b*2)-Math.sqrt(2)</code></p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>				gobbleBinaryExpression = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
+            <div class="content"><div class='highlight'><pre>				gobbleBinaryExpression = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
 					<span class="hljs-keyword">var</span> ch_i, node, biop, prec, stack, biop_info, left, right, i;</pre></div></div>
             
         </li>
         
         
-        <li id="section-26">
+        <li id="section-22">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-26">&#182;</a>
+                <a class="pilcrow" href="#section-22">&#182;</a>
               </div>
               <p>First, try to get the leftmost thing
 Then, check to see if there’s a binary operator operating on that leftmost thing</p>
@@ -536,11 +490,11 @@ Then, check to see if there’s a binary operator operating on that leftmost thi
         </li>
         
         
-        <li id="section-27">
+        <li id="section-23">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-27">&#182;</a>
+                <a class="pilcrow" href="#section-23">&#182;</a>
               </div>
               <p>If there wasn’t a binary operator, just return the leftmost node</p>
 
@@ -553,11 +507,11 @@ Then, check to see if there’s a binary operator operating on that leftmost thi
         </li>
         
         
-        <li id="section-28">
+        <li id="section-24">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-28">&#182;</a>
+                <a class="pilcrow" href="#section-24">&#182;</a>
               </div>
               <p>Otherwise, we need to start a stack to properly place the binary operations in their
 precedence structure</p>
@@ -575,11 +529,11 @@ precedence structure</p>
         </li>
         
         
-        <li id="section-29">
+        <li id="section-25">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-29">&#182;</a>
+                <a class="pilcrow" href="#section-25">&#182;</a>
               </div>
               <p>Properly deal with precedence using <a href="http://www.engr.mun.ca/~theo/Misc/exp_parsing.htm">recursive descent</a></p>
 
@@ -596,11 +550,11 @@ precedence structure</p>
         </li>
         
         
-        <li id="section-30">
+        <li id="section-26">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-30">&#182;</a>
+                <a class="pilcrow" href="#section-26">&#182;</a>
               </div>
               <p>Reduce: make a binary expression from the three topmost entries.</p>
 
@@ -633,18 +587,18 @@ precedence structure</p>
         </li>
         
         
-        <li id="section-31">
+        <li id="section-27">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-31">&#182;</a>
+                <a class="pilcrow" href="#section-27">&#182;</a>
               </div>
               <p>An individual part of a binary expression:
 e.g. <code>foo.bar(baz)</code>, <code>1</code>, <code>&quot;abc&quot;</code>, <code>(a % 2)</code> (because it’s in parenthesis)</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>				gobbleToken = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
+            <div class="content"><div class='highlight'><pre>				gobbleToken = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
 					<span class="hljs-keyword">var</span> ch, to_check, tc_len;
 					
 					gobbleSpaces();
@@ -655,11 +609,11 @@ e.g. <code>foo.bar(baz)</code>, <code>1</code>, <code>&quot;abc&quot;</code>, <c
         </li>
         
         
-        <li id="section-32">
+        <li id="section-28">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-32">&#182;</a>
+                <a class="pilcrow" href="#section-28">&#182;</a>
               </div>
               <p>Char code 46 is a dot <code>.</code> which can start off a numeric literal</p>
 
@@ -671,11 +625,11 @@ e.g. <code>foo.bar(baz)</code>, <code>1</code>, <code>&quot;abc&quot;</code>, <c
         </li>
         
         
-        <li id="section-33">
+        <li id="section-29">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-33">&#182;</a>
+                <a class="pilcrow" href="#section-29">&#182;</a>
               </div>
               <p>Single or double quotes</p>
 
@@ -687,11 +641,11 @@ e.g. <code>foo.bar(baz)</code>, <code>1</code>, <code>&quot;abc&quot;</code>, <c
         </li>
         
         
-        <li id="section-34">
+        <li id="section-30">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-34">&#182;</a>
+                <a class="pilcrow" href="#section-30">&#182;</a>
               </div>
               <p><code>foo</code>, <code>bar.baz</code></p>
 
@@ -723,18 +677,18 @@ e.g. <code>foo.bar(baz)</code>, <code>1</code>, <code>&quot;abc&quot;</code>, <c
         </li>
         
         
-        <li id="section-35">
+        <li id="section-31">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-35">&#182;</a>
+                <a class="pilcrow" href="#section-31">&#182;</a>
               </div>
               <p>Parse simple numeric literals: <code>12</code>, <code>3.4</code>, <code>.5</code>. Do this by using a string to
 keep track of everything in the numeric literal and then calling <code>parseFloat</code> on that string</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>				gobbleNumericLiteral = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
+            <div class="content"><div class='highlight'><pre>				gobbleNumericLiteral = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
 					<span class="hljs-keyword">var</span> number = <span class="hljs-string">''</span>, ch, chCode;
 					<span class="hljs-keyword">while</span>(isDecimalDigit(exprICode(index))) {
 						number += exprI(index++);
@@ -758,7 +712,7 @@ keep track of everything in the numeric literal and then calling <code>parseFloa
 						<span class="hljs-keyword">while</span>(isDecimalDigit(exprICode(index))) { <span class="hljs-comment">//exponent itself</span>
 							number += exprI(index++);
 						}
-						<span class="hljs-keyword">if</span>(!isDecimalDigit(exprICode(index-<span class="hljs-number">1</span>)) ) {
+						<span class="hljs-keyword">if</span>(!isDecimalDigit(exprICode(index<span class="hljs-number">-1</span>)) ) {
 							throwError(<span class="hljs-string">'Expected exponent ('</span> + number + exprI(index) + <span class="hljs-string">')'</span>, index);
 						}
 					}
@@ -769,11 +723,11 @@ keep track of everything in the numeric literal and then calling <code>parseFloa
         </li>
         
         
-        <li id="section-36">
+        <li id="section-32">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-36">&#182;</a>
+                <a class="pilcrow" href="#section-32">&#182;</a>
               </div>
               <p>Check to make sure this isn’t a variable name that start with a number (123abc)</p>
 
@@ -796,18 +750,18 @@ keep track of everything in the numeric literal and then calling <code>parseFloa
         </li>
         
         
-        <li id="section-37">
+        <li id="section-33">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-37">&#182;</a>
+                <a class="pilcrow" href="#section-33">&#182;</a>
               </div>
               <p>Parses a string literal, staring with single or double quotes with basic support for escape codes
 e.g. <code>&quot;hello world&quot;</code>, <code>&#39;this is\nJSEP&#39;</code></p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>				gobbleStringLiteral = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
+            <div class="content"><div class='highlight'><pre>				gobbleStringLiteral = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
 					<span class="hljs-keyword">var</span> str = <span class="hljs-string">''</span>, quote = exprI(index++), closed = <span class="hljs-literal">false</span>, ch;
 
 					<span class="hljs-keyword">while</span>(index &lt; length) {
@@ -820,11 +774,11 @@ e.g. <code>&quot;hello world&quot;</code>, <code>&#39;this is\nJSEP&#39;</code><
         </li>
         
         
-        <li id="section-38">
+        <li id="section-34">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-38">&#182;</a>
+                <a class="pilcrow" href="#section-34">&#182;</a>
               </div>
               <p>Check for all of the common escape codes</p>
 
@@ -838,6 +792,7 @@ e.g. <code>&quot;hello world&quot;</code>, <code>&#39;this is\nJSEP&#39;</code><
 								<span class="hljs-keyword">case</span> <span class="hljs-string">'b'</span>: str += <span class="hljs-string">'\b'</span>; <span class="hljs-keyword">break</span>;
 								<span class="hljs-keyword">case</span> <span class="hljs-string">'f'</span>: str += <span class="hljs-string">'\f'</span>; <span class="hljs-keyword">break</span>;
 								<span class="hljs-keyword">case</span> <span class="hljs-string">'v'</span>: str += <span class="hljs-string">'\x0B'</span>; <span class="hljs-keyword">break</span>;
+								<span class="hljs-keyword">default</span> : str += <span class="hljs-string">'\\'</span> + ch;
 							}
 						} <span class="hljs-keyword">else</span> {
 							str += ch;
@@ -858,11 +813,11 @@ e.g. <code>&quot;hello world&quot;</code>, <code>&#39;this is\nJSEP&#39;</code><
         </li>
         
         
-        <li id="section-39">
+        <li id="section-35">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-39">&#182;</a>
+                <a class="pilcrow" href="#section-35">&#182;</a>
               </div>
               <p>Gobbles only identifiers
 e.g.: <code>foo</code>, <code>_value</code>, <code>$x1</code>
@@ -871,7 +826,7 @@ Also, this function checks if that identifier is a literal:
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>				gobbleIdentifier = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
+            <div class="content"><div class='highlight'><pre>				gobbleIdentifier = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
 					<span class="hljs-keyword">var</span> ch = exprICode(index), start = index, identifier;
 
 					<span class="hljs-keyword">if</span>(isIdentifierStart(ch)) {
@@ -909,11 +864,11 @@ Also, this function checks if that identifier is a literal:
         </li>
         
         
-        <li id="section-40">
+        <li id="section-36">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-40">&#182;</a>
+                <a class="pilcrow" href="#section-36">&#182;</a>
               </div>
               <p>Gobbles a list of arguments within the context of a function call
 or array literal. This function also assumes that the opening character
@@ -923,12 +878,13 @@ e.g. <code>foo(bar, baz)</code>, <code>my_func()</code>, or <code>[bar, baz]</co
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>				gobbleArguments = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(termination)</span> {</span>
-					<span class="hljs-keyword">var</span> ch_i, args = [], node;
+            <div class="content"><div class='highlight'><pre>				gobbleArguments = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">termination</span>) </span>{
+					<span class="hljs-keyword">var</span> ch_i, args = [], node, closed = <span class="hljs-literal">false</span>;
 					<span class="hljs-keyword">while</span>(index &lt; length) {
 						gobbleSpaces();
 						ch_i = exprICode(index);
 						<span class="hljs-keyword">if</span>(ch_i === termination) { <span class="hljs-comment">// done parsing</span>
+							closed = <span class="hljs-literal">true</span>;
 							index++;
 							<span class="hljs-keyword">break</span>;
 						} <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (ch_i === COMMA_CODE) { <span class="hljs-comment">// between expressions</span>
@@ -941,17 +897,20 @@ e.g. <code>foo(bar, baz)</code>, <code>my_func()</code>, or <code>[bar, baz]</co
 							args.push(node);
 						}
 					}
+					<span class="hljs-keyword">if</span> (!closed) {
+						throwError(<span class="hljs-string">'Expected '</span> + <span class="hljs-built_in">String</span>.fromCharCode(termination), index);
+					}
 					<span class="hljs-keyword">return</span> args;
 				},</pre></div></div>
             
         </li>
         
         
-        <li id="section-41">
+        <li id="section-37">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-41">&#182;</a>
+                <a class="pilcrow" href="#section-37">&#182;</a>
               </div>
               <p>Gobble a non-literal variable name. This variable name may include properties
 e.g. <code>foo</code>, <code>bar.baz</code>, <code>foo[&#39;bar&#39;].baz</code>
@@ -960,7 +919,7 @@ e.g. <code>Math.acos(obj.angle)</code></p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>				gobbleVariable = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
+            <div class="content"><div class='highlight'><pre>				gobbleVariable = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
 					<span class="hljs-keyword">var</span> ch_i, node;
 					ch_i = exprICode(index);
 						
@@ -999,11 +958,11 @@ e.g. <code>Math.acos(obj.angle)</code></p>
         </li>
         
         
-        <li id="section-42">
+        <li id="section-38">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-42">&#182;</a>
+                <a class="pilcrow" href="#section-38">&#182;</a>
               </div>
               <p>A function call is being made; gobble all the arguments</p>
 
@@ -1024,11 +983,11 @@ e.g. <code>Math.acos(obj.angle)</code></p>
         </li>
         
         
-        <li id="section-43">
+        <li id="section-39">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-43">&#182;</a>
+                <a class="pilcrow" href="#section-39">&#182;</a>
               </div>
               <p>Responsible for parsing a group of things within parentheses <code>()</code>
 This function assumes that it needs to gobble the opening parenthesis
@@ -1038,7 +997,7 @@ then the expression probably doesn’t have a <code>)</code></p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>				gobbleGroup = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
+            <div class="content"><div class='highlight'><pre>				gobbleGroup = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
 					index++;
 					<span class="hljs-keyword">var</span> node = gobbleExpression();
 					gobbleSpaces();
@@ -1053,11 +1012,11 @@ then the expression probably doesn’t have a <code>)</code></p>
         </li>
         
         
-        <li id="section-44">
+        <li id="section-40">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-44">&#182;</a>
+                <a class="pilcrow" href="#section-40">&#182;</a>
               </div>
               <p>Responsible for parsing Array literals <code>[1, 2, 3]</code>
 This function assumes that it needs to gobble the opening bracket
@@ -1065,7 +1024,7 @@ and then tries to gobble the expressions as arguments.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>				gobbleArray = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
+            <div class="content"><div class='highlight'><pre>				gobbleArray = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
 					index++;
 					<span class="hljs-keyword">return</span> {
 						type: ARRAY_EXP,
@@ -1081,11 +1040,11 @@ and then tries to gobble the expressions as arguments.</p>
         </li>
         
         
-        <li id="section-45">
+        <li id="section-41">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-45">&#182;</a>
+                <a class="pilcrow" href="#section-41">&#182;</a>
               </div>
               <p>Expressions can be separated by semicolons, commas, or just inferred without any
 separators</p>
@@ -1099,11 +1058,11 @@ separators</p>
         </li>
         
         
-        <li id="section-46">
+        <li id="section-42">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-46">&#182;</a>
+                <a class="pilcrow" href="#section-42">&#182;</a>
               </div>
               <p>Try to gobble each expression individually</p>
 
@@ -1115,11 +1074,11 @@ separators</p>
         </li>
         
         
-        <li id="section-47">
+        <li id="section-43">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-47">&#182;</a>
+                <a class="pilcrow" href="#section-43">&#182;</a>
               </div>
               <p>If we weren’t able to find a binary expression and are out of room, then
 the expression passed in probably has too much</p>
@@ -1135,11 +1094,11 @@ the expression passed in probably has too much</p>
         </li>
         
         
-        <li id="section-48">
+        <li id="section-44">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-48">&#182;</a>
+                <a class="pilcrow" href="#section-44">&#182;</a>
               </div>
               <p>If there’s only one expression just try returning the expression</p>
 
@@ -1158,25 +1117,26 @@ the expression passed in probably has too much</p>
         </li>
         
         
-        <li id="section-49">
+        <li id="section-45">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-49">&#182;</a>
+                <a class="pilcrow" href="#section-45">&#182;</a>
               </div>
               <p>To be filled in by the template</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>	jsep.version = <span class="hljs-string">'0.3.0'</span>;
-	jsep.toString = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span> <span class="hljs-keyword">return</span> <span class="hljs-string">'JavaScript Expression Parser (JSEP) v'</span> + jsep.version; };
+            <div class="content"><div class='highlight'><pre>	jsep.version = <span class="hljs-string">'0.3.1'</span>;
+	jsep.toString = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{ <span class="hljs-keyword">return</span> <span class="hljs-string">'JavaScript Expression Parser (JSEP) v'</span> + jsep.version; };
 
 	<span class="hljs-comment">/**
 	 * @method jsep.addUnaryOp
 	 * @param {string} op_name The name of the unary op to add
 	 * @return jsep
 	 */</span>
-	jsep.addUnaryOp = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(op_name)</span> {</span>
+	jsep.addUnaryOp = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">op_name</span>) </span>{
+		max_unop_len = <span class="hljs-built_in">Math</span>.max(op_name.length, max_unop_len);
 		unary_ops[op_name] = t; <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
 	};
 
@@ -1186,9 +1146,20 @@ the expression passed in probably has too much</p>
 	 * @param {number} precedence The precedence of the binary op (can be a float)
 	 * @return jsep
 	 */</span>
-	jsep.addBinaryOp = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(op_name, precedence)</span> {</span>
+	jsep.addBinaryOp = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">op_name, precedence</span>) </span>{
 		max_binop_len = <span class="hljs-built_in">Math</span>.max(op_name.length, max_binop_len);
 		binary_ops[op_name] = precedence;
+		<span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
+	};
+
+	<span class="hljs-comment">/**
+	 * @method jsep.addLiteral
+	 * @param {string} literal_name The name of the literal to add
+	 * @param {*} literal_value The value of the literal
+	 * @return jsep
+	 */</span>
+	jsep.addLiteral = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">literal_name, literal_value</span>) </span>{
+		literals[literal_name] = literal_value;
 		<span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
 	};
 
@@ -1197,7 +1168,7 @@ the expression passed in probably has too much</p>
 	 * @param {string} op_name The name of the unary op to remove
 	 * @return jsep
 	 */</span>
-	jsep.removeUnaryOp = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(op_name)</span> {</span>
+	jsep.removeUnaryOp = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">op_name</span>) </span>{
 		<span class="hljs-keyword">delete</span> unary_ops[op_name];
 		<span class="hljs-keyword">if</span>(op_name.length === max_unop_len) {
 			max_unop_len = getMaxKeyLen(unary_ops);
@@ -1210,22 +1181,32 @@ the expression passed in probably has too much</p>
 	 * @param {string} op_name The name of the binary op to remove
 	 * @return jsep
 	 */</span>
-	jsep.removeBinaryOp = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(op_name)</span> {</span>
+	jsep.removeBinaryOp = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">op_name</span>) </span>{
 		<span class="hljs-keyword">delete</span> binary_ops[op_name];
 		<span class="hljs-keyword">if</span>(op_name.length === max_binop_len) {
 			max_binop_len = getMaxKeyLen(binary_ops);
 		}
+		<span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
+	};
+
+	<span class="hljs-comment">/**
+	 * @method jsep.removeLiteral
+	 * @param {string} literal_name The name of the literal to remove
+	 * @return jsep
+	 */</span>
+	jsep.removeLiteral = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">literal_name</span>) </span>{
+		<span class="hljs-keyword">delete</span> literals[literal_name];
 		<span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
 	};</pre></div></div>
             
         </li>
         
         
-        <li id="section-50">
+        <li id="section-46">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-50">&#182;</a>
+                <a class="pilcrow" href="#section-46">&#182;</a>
               </div>
               <p>In desktop environments, have a way to restore the old value for <code>jsep</code></p>
 
@@ -1237,11 +1218,11 @@ the expression passed in probably has too much</p>
         </li>
         
         
-        <li id="section-51">
+        <li id="section-47">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-51">&#182;</a>
+                <a class="pilcrow" href="#section-47">&#182;</a>
               </div>
               <p>The star of the show! It’s a function!</p>
 
@@ -1252,17 +1233,17 @@ the expression passed in probably has too much</p>
         </li>
         
         
-        <li id="section-52">
+        <li id="section-48">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-52">&#182;</a>
+                <a class="pilcrow" href="#section-48">&#182;</a>
               </div>
               <p>And a courteous function willing to move out of the way for other similarly-named objects!</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>		jsep.noConflict = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
+            <div class="content"><div class='highlight'><pre>		jsep.noConflict = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
 			<span class="hljs-keyword">if</span>(root.jsep === jsep) {
 				root.jsep = old_jsep;
 			}
@@ -1273,18 +1254,18 @@ the expression passed in probably has too much</p>
         </li>
         
         
-        <li id="section-53">
+        <li id="section-49">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-53">&#182;</a>
+                <a class="pilcrow" href="#section-49">&#182;</a>
               </div>
               <p>In Node.JS environments</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>		<span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> module !== <span class="hljs-string">'undefined'</span> &amp;&amp; module.exports) {
-			exports = module.exports = jsep;
+            <div class="content"><div class='highlight'><pre>		<span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> <span class="hljs-built_in">module</span> !== <span class="hljs-string">'undefined'</span> &amp;&amp; <span class="hljs-built_in">module</span>.exports) {
+			exports = <span class="hljs-built_in">module</span>.exports = jsep;
 		} <span class="hljs-keyword">else</span> {
 			exports.parse = jsep;
 		}
