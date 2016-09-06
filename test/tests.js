@@ -66,6 +66,7 @@ test('Variables', function() {
 			type: "MemberExpression"
 		}
 	});
+    test_parser("Δέλτα", {name: "Δέλτα"});
 });
 
 test('Function Calls', function() {
@@ -96,21 +97,33 @@ test('Ops', function() {
 test('Custom ops', function() {
 	jsep.addBinaryOp("^", 10);
 	test_parser("a^b", {});
+
+    jsep.addBinaryOp("×", 9);
+    test_parser("a×b", {
+        type: 'BinaryExpression',
+        left: {name: 'a'},
+        right: {name: 'b'}
+    });
 });
 
 test('Bad Numbers', function() {
 	test_parser("1.", {type: "Literal", value: 1, raw: "1."});
-	try {
+
+	throws(function(){
 		var x = jsep("1.2.3");
-		console.log(x);
-		ok(false);
-	} catch(e) {
-		ok(true);
-	}
+	});
+});
+
+test('Uncompleted expression-call/array', function() {
+	throws(function(){
+		var x = jsep("myFunction(a,b");
+	}, "detects unfinished expression call");
+	throws(function(){
+		var x = jsep("[1,2");
+	}, "detects unfinished array");
 });
 
 test('Esprima Comparison', function() {
-
 	([
 		" true",
 		"false ",

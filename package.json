@@ -1,13 +1,10 @@
 {
 	"name": "jsep",
-	"version": "0.3.1-beta",
+	"version": "0.3.1",
 	"description": "a tiny JavaScript expression parser",
 	"author": "Stephen Oney <swloney@gmail.com> (http://from.so/)",
 	"homepage": "http://jsep.from.so/",
-	"licenses": [{
-		"type": "MIT",
-		"url": "https://github.com/soney/jsep/blob/master/LICENSE"
-	}],
+	"license": "MIT",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/soney/jsep.git"
@@ -16,17 +13,17 @@
 	"private": false,
 	"dependencies": {},
 	"devDependencies": {
-		"grunt": "~0.4.1",
-		"grunt-contrib-jshint": "~0.1",
-		"grunt-contrib-qunit": "~0.3",
-		"grunt-contrib-uglify": "~0.2",
-		"grunt-contrib-concat": "~0.2",
-		"grunt-contrib-watch": "~0.5",
-		"grunt-contrib-compress": "~0.5",
-		"grunt-contrib-clean": "~0.4",
-		"grunt-docco": "~0.3"
+		"grunt": "~0.4.5",
+		"grunt-contrib-jshint": "~1.0",
+		"grunt-contrib-qunit": "~1.2",
+		"grunt-contrib-uglify": "~1.0",
+		"grunt-contrib-concat": "~1.0",
+		"grunt-contrib-watch": "~1.0",
+		"grunt-contrib-compress": "~1.0",
+		"grunt-contrib-clean": "~1.0",
+		"grunt-docco": "~0.4"
 	},
-	"engines": {"node": ">= 0.4.7"},
+	"engines": {"node": ">= 0.10.0"},
 	"directories": {"test": "test"},
 	"scripts": {"test": "grunt test"}
 }

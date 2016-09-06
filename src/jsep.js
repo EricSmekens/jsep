@@ -104,13 +104,15 @@
 		isIdentifierStart = function(ch) {
 			return (ch === 36) || (ch === 95) || // `$` and `_`
 					(ch >= 65 && ch <= 90) || // A...Z
-					(ch >= 97 && ch <= 122); // a...z
+					(ch >= 97 && ch <= 122) || // a...z
+                    (ch >= 128 && !binary_ops[String.fromCharCode(ch)]); // any non-ASCII that is not an operator
 		},
 		isIdentifierPart = function(ch) {
 			return (ch === 36) || (ch === 95) || // `$` and `_`
 					(ch >= 65 && ch <= 90) || // A...Z
 					(ch >= 97 && ch <= 122) || // a...z
-					(ch >= 48 && ch <= 57); // 0...9
+					(ch >= 48 && ch <= 57) || // 0...9
+                    (ch >= 128 && !binary_ops[String.fromCharCode(ch)]); // any non-ASCII that is not an operator
 		},
 
 		// Parsing
@@ -352,7 +354,7 @@
 								case 'b': str += '\b'; break;
 								case 'f': str += '\f'; break;
 								case 'v': str += '\x0B'; break;
-								case '\\': str += '\\'; break;
+								default : str += '\\' + ch;
 							}
 						} else {
 							str += ch;
@@ -415,11 +417,12 @@
 				// until the terminator character `)` or `]` is encountered.
 				// e.g. `foo(bar, baz)`, `my_func()`, or `[bar, baz]`
 				gobbleArguments = function(termination) {
-					var ch_i, args = [], node;
+					var ch_i, args = [], node, closed = false;
 					while(index < length) {
 						gobbleSpaces();
 						ch_i = exprICode(index);
 						if(ch_i === termination) { // done parsing
+							closed = true;
 							index++;
 							break;
 						} else if (ch_i === COMMA_CODE) { // between expressions
@@ -431,6 +434,9 @@
 							}
 							args.push(node);
 						}
+					}
+					if (!closed) {
+						throwError('Expected ' + String.fromCharCode(termination), index);
 					}
 					return args;
 				},
@@ -574,6 +580,17 @@
 	};
 
 	/**
+	 * @method jsep.addLiteral
+	 * @param {string} literal_name The name of the literal to add
+	 * @param {*} literal_value The value of the literal
+	 * @return jsep
+	 */
+	jsep.addLiteral = function(literal_name, literal_value) {
+		literals[literal_name] = literal_value;
+		return this;
+	};
+
+	/**
 	 * @method jsep.removeUnaryOp
 	 * @param {string} op_name The name of the unary op to remove
 	 * @return jsep
@@ -596,6 +613,16 @@
 		if(op_name.length === max_binop_len) {
 			max_binop_len = getMaxKeyLen(binary_ops);
 		}
+		return this;
+	};
+
+	/**
+	 * @method jsep.removeLiteral
+	 * @param {string} literal_name The name of the literal to remove
+	 * @return jsep
+	 */
+	jsep.removeLiteral = function(literal_name) {
+		delete literals[literal_name];
 		return this;
 	};
 
