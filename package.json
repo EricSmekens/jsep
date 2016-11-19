@@ -10,6 +10,7 @@
 		"url": "https://github.com/soney/jsep.git"
 	},
 	"main": "build/jsep.js",
+	"typings": "typings/tsd.d.ts",
 	"private": false,
 	"dependencies": {},
 	"devDependencies": {
