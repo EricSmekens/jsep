@@ -602,6 +602,17 @@
 	};
 
 	/**
+	 * @method jsep.removeAllUnaryOps
+	 * @return jsep
+	 */
+	jsep.removeAllUnaryOps = function() {
+		unary_ops = {};
+		max_unop_len = 0;
+		
+		return this;
+	};
+
+	/**
 	 * @method jsep.removeBinaryOp
 	 * @param {string} op_name The name of the binary op to remove
 	 * @return jsep
@@ -615,12 +626,33 @@
 	};
 
 	/**
+	 * @method jsep.removeAllBinaryOps
+	 * @return jsep
+	 */
+	jsep.removeAllBinaryOps = function() {
+		binary_ops = {};
+		max_binop_len = 0;
+		
+		return this;
+	};
+
+	/**
 	 * @method jsep.removeLiteral
 	 * @param {string} literal_name The name of the literal to remove
 	 * @return jsep
 	 */
 	jsep.removeLiteral = function(literal_name) {
 		delete literals[literal_name];
+		return this;
+	};
+
+	/**
+	 * @method jsep.removeAllLiterals
+	 * @return jsep
+	 */
+	jsep.removeAllLiterals = function() {
+		literals = {};
+		
 		return this;
 	};
 
