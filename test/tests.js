@@ -92,6 +92,7 @@ test('Ops', function() {
 	test_op_expession("(1+2)*3");
 	test_op_expession("(1+2)*3+4-2-5+2/2*3");
 	test_op_expession("1 + 2-   3*	4 /8");
+	test_op_expession("\n1\r\n+\n2\n");
 });
 
 test('Custom ops', function() {
