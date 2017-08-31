@@ -1,4 +1,4 @@
-//     JavaScript Expression Parser (JSEP) 0.3.1
+//     JavaScript Expression Parser (JSEP) 0.3.2
 //     JSEP may be freely distributed under the MIT License
 //     http://jsep.from.so/
 
@@ -552,7 +552,7 @@
 		};
 
 	// To be filled in by the template
-	jsep.version = '0.3.1';
+	jsep.version = '0.3.2';
 	jsep.toString = function() { return 'JavaScript Expression Parser (JSEP) v' + jsep.version; };
 
 	/**
