@@ -37,6 +37,14 @@ declare module 'jsep' {
       object: IExpression;
       property: IExpression;
     }
+
+    export function addBinaryOp(operatorSymbol: string, precedence: number);
+
+    export function addUnaryOp(operatorSymbol: string);
+
+    export function removeBinaryOp(operatorSymbol: string);
+
+    export function removeUnaryOp(operatorSymbol: string);
   }
 
   function jsep(obj: string | jsep.IExpression): jsep.IExpression;
