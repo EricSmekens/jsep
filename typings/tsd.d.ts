@@ -3,11 +3,11 @@ declare module 'jsep' {
 
   namespace jsep {
     export interface IExpression {
-      type: string;  
+      type: string;
     }
 
     export interface ILiteral extends IExpression {
-      type: "Literal";
+      type: 'Literal';
       value: any;
       raw: string;
     }
