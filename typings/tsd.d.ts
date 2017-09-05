@@ -3,11 +3,11 @@ declare module 'jsep' {
 
   namespace jsep {
     export interface IExpression {
-      type: string;  
+      type: string;
     }
 
     export interface ILiteral extends IExpression {
-      type: "Literal";
+      type: 'Literal';
       value: any;
       raw: string;
     }
@@ -37,6 +37,27 @@ declare module 'jsep' {
       object: IExpression;
       property: IExpression;
     }
+
+    export interface ICallExpression extends IExpression {
+      type: 'CallExpression';
+      arguments: IExpression[];
+      callee: IExpression;
+    }
+
+    export interface IConditionalExpression extends IExpression {
+      type: 'ConditionalExpression';
+      test: IExpression;
+      consequent: IExpression;
+      alternate: IExpression;
+    }
+
+    export function addBinaryOp(operatorSymbol: string, precedence: number);
+
+    export function addUnaryOp(operatorSymbol: string);
+
+    export function removeBinaryOp(operatorSymbol: string);
+
+    export function removeUnaryOp(operatorSymbol: string);
   }
 
   function jsep(obj: string | jsep.IExpression): jsep.IExpression;
