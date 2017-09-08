@@ -29,7 +29,7 @@ First, run `npm install jsep`. Then, in your source file:
     // Add a custom ^ binary operator with precedence 10
     jsep.addBinaryOp("^", 10);
     
-    // Add a custom @ unary operator with precedence 10
+    // Add a custom @ unary operator
     jsep.addUnaryOp('@');
     
     // Remove a binary operator
