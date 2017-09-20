@@ -95,7 +95,7 @@ test('Ops', function() {
 	test_op_expession("\n1\r\n+\n2\n");
 });
 
-test('Custom ops', function() {
+test('Custom operators', function() {
 	jsep.addBinaryOp("^", 10);
 	test_parser("a^b", {});
 
@@ -105,6 +105,33 @@ test('Custom ops', function() {
         left: {name: 'a'},
         right: {name: 'b'}
     });
+
+	jsep.addUnaryOp("#");
+	test_parser("#a", {
+		type: "UnaryExpression",
+		operator: "#",
+		argument: {type: "Identifier", name: "a"}
+	});
+});
+
+test('Custom alphanumeric operators', function() {
+	jsep.addBinaryOp("and", 2);
+	test_parser("a and b", {
+		type: "BinaryExpression",
+		operator: "and",
+		left: {type: "Identifier", name: "a"},
+		right: {type: "Identifier", name: "b"}
+	});
+	test_parser("bands", {type: "Identifier", name: "bands"})
+	test_parser("b ands", {type: "Compound"})
+
+	jsep.addUnaryOp("not");
+	test_parser("not a", {
+		type: "UnaryExpression",
+		operator: "not",
+		argument: {type: "Identifier", name: "a"}
+	});
+	test_parser("notes", {type: "Identifier", name: "notes"})
 });
 
 test('Bad Numbers', function() {
