@@ -3,3 +3,7 @@
 node_modules
 *.zip
 annotated_source/
+
+
+#Build files
+[Bb]uild/
