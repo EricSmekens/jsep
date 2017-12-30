@@ -181,4 +181,10 @@ test('Ternary', function() {
 	equal(val.type, 'ConditionalExpression');
 });
 
+test('UnaryExpression without argument', function() {
+	throws(function(){
+		var x = jsep("-*21");
+	}, "detects no arguments for unary operators");
+});
+
 }());
