@@ -268,7 +268,7 @@
 						while(tc_len > 0) {
 							if(unary_ops.hasOwnProperty(to_check)) {
 								index += tc_len;
-								var argument = gobbleToken()
+								var argument = gobbleToken();
 								if(!argument) {
 									throwError("Expected an argument after "+ to_check, index);
 								}
