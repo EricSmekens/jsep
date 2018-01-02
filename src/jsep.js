@@ -33,6 +33,7 @@
 		QUMARK_CODE = 63, // ?
 		SEMCOL_CODE = 59, // ;
 		COLON_CODE  = 58, // :
+		SLASH_CODE  = 47, // /
 
 		throwError = function(message, index) {
 			var error = new Error(message + ' at character ' + index);
@@ -113,6 +114,13 @@
 					(ch >= 97 && ch <= 122) || // a...z
 					(ch >= 48 && ch <= 57) || // 0...9
                     (ch >= 128 && !binary_ops[String.fromCharCode(ch)]); // any non-ASCII that is not an operator
+		},
+		isRegexpFlag = function(ch) {
+			return ch === 103 || // g
+							ch === 105 || // i
+							ch === 109 || // m
+							ch === 117 || // u
+							ch === 121; // y
 		},
 
 		// Parsing
@@ -260,6 +268,8 @@
 					} else if(ch === SQUOTE_CODE || ch === DQUOTE_CODE) {
 						// Single or double quotes
 						return gobbleStringLiteral();
+					} else if (ch == SLASH_CODE) {
+						return gobbleRegexpLiteral();
 					} else if (ch === OBRACK_CODE) {
 						return gobbleArray();
 					} else {
@@ -369,6 +379,58 @@
 						type: LITERAL,
 						value: str,
 						raw: quote + str + quote
+					};
+				},
+
+				gobbleRegexpLiteral = function() {
+					var start=index, flags = '', pattern = '', slash = exprI(index++), closed = false, ch, re, classMarker = false;
+
+					// get pattern
+					while(index < length) {
+						ch = exprI(index++);
+						if(ch === '\\') {
+							// double escape backslash to use in string
+							pattern += ch;
+							ch = exprI(index++);
+							
+						} else if (classMarker) {
+							if (ch === ']') {
+									classMarker = false;
+							}
+						} else if(ch === slash) {
+							closed = true;
+							break;
+						} else if (ch === '[') {
+							classMarker = true;
+						} 
+
+						pattern += ch;
+					}
+
+					if(!closed) {
+						throwError('Unclosed quote after "'+str+'"', index);
+					}
+
+					// get flags
+					while(index < length) {
+						ch = exprICode(index);
+						if(!isIdentifierPart(ch)) {
+							break;
+						}
+						flags += exprI(index++);
+					}
+
+					try {
+						re = new RegExp(pattern, flags);
+					} catch (e) {
+						throwError(e.message, start);
+					}
+
+					return {
+						type: LITERAL,
+						value: re,
+						raw: expr.slice(start, index),
+						//regex: {pattern: pattern, flags: flags }
 					};
 				},
 
