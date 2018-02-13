@@ -9,34 +9,40 @@ jsep's output is almost identical to [esprima's](http://esprima.org/doc/index.ht
 ### Custom Build
 First, install [Grunt](http://gruntjs.com/). While in the jsep project directory, run:
 
-    npm install .
-    grunt
+```bash
+npm install .
+grunt
+```
 
 The jsep built files will be in the build/ directory.
 
 ### Usage
 #### Client-side
-    <script src="/PATH/TO/jsep.min.js" type="text/javascript"></script>
-    ...
-    var parse_tree = jsep("1 + 1");
+```javascript
+<script src="/PATH/TO/jsep.min.js" type="text/javascript"></script>
+...
+var parse_tree = jsep("1 + 1");
+```
 #### Node.JS
 First, run `npm install jsep`. Then, in your source file:
-
-    var jsep = require("jsep");
-    var parse_tree = jsep("1 + 1");
-
+```javascript
+var jsep = require("jsep");
+var parse_tree = jsep("1 + 1");
+```
 #### Custom Operators
-    // Add a custom ^ binary operator with precedence 10
-    jsep.addBinaryOp("^", 10);
-    
-    // Add a custom @ unary operator
-    jsep.addUnaryOp('@');
-    
-    // Remove a binary operator
-    jsep.removeBinaryOp(">>>");
-    
-    // Remove a unary operator
-    jsep.removeUnaryOp("~");
+```javascript
+// Add a custom ^ binary operator with precedence 10
+jsep.addBinaryOp("^", 10);
+
+// Add a custom @ unary operator
+jsep.addUnaryOp('@');
+
+// Remove a binary operator
+jsep.removeBinaryOp(">>>");
+
+// Remove a unary operator
+jsep.removeUnaryOp("~");
+```
 
 ### License
 jsep is under the MIT license. See LICENSE file.
