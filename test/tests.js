@@ -106,11 +106,43 @@ test('Custom operators', function() {
         right: {name: 'b'}
     });
 
+	jsep.addBinaryOp("or", 1);
+	test_parser("oneWord ordering anotherWord", {
+		type: 'Compound',
+		body: [
+			{
+				type: 'Identifier',
+				name: 'oneWord'
+			},
+			{
+				type: 'Identifier',
+				name: 'ordering'
+			},
+			{
+				type: 'Identifier',
+				name: 'anotherWord'
+			}
+		]
+    });
+
 	jsep.addUnaryOp("#");
 	test_parser("#a", {
 		type: "UnaryExpression",
 		operator: "#",
 		argument: {type: "Identifier", name: "a"}
+	});
+
+	jsep.addUnaryOp("not");
+	test_parser("not a", {
+		type: "UnaryExpression",
+		operator: "not",
+		argument: {type: "Identifier", name: "a"}
+	});
+
+	jsep.addUnaryOp("notes");
+	test_parser("notes", {
+		type: "Identifier",
+		name: "notes"
 	});
 });
 
