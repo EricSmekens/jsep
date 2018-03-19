@@ -131,6 +131,19 @@ test('Custom operators', function() {
 		operator: "#",
 		argument: {type: "Identifier", name: "a"}
 	});
+
+	jsep.addUnaryOp("not");
+	test_parser("not a", {
+		type: "UnaryExpression",
+		operator: "not",
+		argument: {type: "Identifier", name: "a"}
+	});
+
+	jsep.addUnaryOp("notes");
+	test_parser("notes", {
+		type: "Identifier",
+		name: "notes"
+	});
 });
 
 test('Custom alphanumeric operators', function() {
