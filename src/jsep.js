@@ -178,7 +178,13 @@
 					gobbleSpaces();
 					var biop, to_check = expr.substr(index, max_binop_len), tc_len = to_check.length;
 					while(tc_len > 0) {
-						if(binary_ops.hasOwnProperty(to_check)) {
+						// Don't accept a binary op when it is an identifier.
+						// Binary ops that start with a identifier-valid character must be followed
+						// by a non identifier-part valid character
+						if(binary_ops.hasOwnProperty(to_check) && (
+							!isIdentifierStart(exprICode(index)) ||
+							(index+to_check.length< expr.length && !isIdentifierPart(exprICode(index+to_check.length)))
+						)) {
 							index += tc_len;
 							return to_check;
 						}
@@ -266,7 +272,13 @@
 						to_check = expr.substr(index, max_unop_len);
 						tc_len = to_check.length;
 						while(tc_len > 0) {
-							if(unary_ops.hasOwnProperty(to_check)) {
+						// Don't accept an unary op when it is an identifier.
+						// Unary ops that start with a identifier-valid character must be followed
+						// by a non identifier-part valid character
+							if(unary_ops.hasOwnProperty(to_check) && (
+								!isIdentifierStart(exprICode(index)) ||
+								(index+to_check.length < expr.length && !isIdentifierPart(exprICode(index+to_check.length)))
+							)) {
 								index += tc_len;
 								return {
 									type: UNARY_EXP,
@@ -283,7 +295,7 @@
 							return gobbleVariable();
 						}
 					}
-					
+
 					return false;
 				},
 				// Parse simple numeric literals: `12`, `3.4`, `.5`. Do this by using a string to
