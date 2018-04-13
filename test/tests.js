@@ -155,8 +155,8 @@ test('Custom alphanumeric operators', function() {
 		right: {type: "Identifier", name: "b"}
 	});
 	test_parser("bands", {type: "Identifier", name: "bands"});
-	// TODO: https://github.com/soney/jsep/issues/68
-	//test_parser("b ands", {type: "Compound"});
+
+	test_parser("b ands", {type: "Compound"});
 
 	jsep.addUnaryOp("not");
 	test_parser("not a", {
@@ -164,8 +164,8 @@ test('Custom alphanumeric operators', function() {
 		operator: "not",
 		argument: {type: "Identifier", name: "a"}
 	});
-	// TODO: https://github.com/soney/jsep/issues/68
-	//test_parser("notes", {type: "Identifier", name: "notes"});
+
+	test_parser("notes", {type: "Identifier", name: "notes"});
 });
 
 test('Bad Numbers', function() {

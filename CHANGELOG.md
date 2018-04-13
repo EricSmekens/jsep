@@ -1,3 +1,7 @@
+## 0.3.4 - 2018-03-29
+### Fixed
+- Fixed identifiers as custom ops (#68,#83)
+
 ## 0.3.3 - 2017-12-16
 ### Notice
 - No functional changes, only updated support for typescript definitions.
