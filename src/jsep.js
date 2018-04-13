@@ -638,6 +638,17 @@
 	};
 
 	/**
+	 * @method jsep.removeIdentifierChar
+	 * @param {string} char The additional character to stop treating as a valid part of an identifier
+	 * @return jsep
+	 */
+	jsep.removeIdentifierChar = function(char) {
+		delete additional_identifier_chars[char];
+		return this;
+	};
+
+
+	/**
 	 * @method jsep.removeBinaryOp
 	 * @param {string} op_name The name of the binary op to remove
 	 * @return jsep
