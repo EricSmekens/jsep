@@ -168,6 +168,14 @@ test('Custom alphanumeric operators', function() {
 	test_parser("notes", {type: "Identifier", name: "notes"});
 });
 
+test('Custom identifier characters', function() {
+	jsep.addIdentifierChar("@");
+	test_parser("@asd", {
+		type: "Identifier",
+		name: "@asd",
+	});
+});
+
 test('Bad Numbers', function() {
 	test_parser("1.", {type: "Literal", value: 1, raw: "1."});
 
