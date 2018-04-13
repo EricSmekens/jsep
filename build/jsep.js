@@ -1,4 +1,4 @@
-//     JavaScript Expression Parser (JSEP) 0.3.3
+//     JavaScript Expression Parser (JSEP) 0.3.4
 //     JSEP may be freely distributed under the MIT License
 //     http://jsep.from.so/
 
@@ -105,6 +105,7 @@
 			return (ch === 36) || (ch === 95) || // `$` and `_`
 					(ch >= 65 && ch <= 90) || // A...Z
 					(ch >= 97 && ch <= 122) || // a...z
+					 ch == 64 ||
                     (ch >= 128 && !binary_ops[String.fromCharCode(ch)]); // any non-ASCII that is not an operator
 		},
 		isIdentifierPart = function(ch) {
@@ -566,7 +567,7 @@
 		};
 
 	// To be filled in by the template
-	jsep.version = '0.3.3';
+	jsep.version = '0.3.4';
 	jsep.toString = function() { return 'JavaScript Expression Parser (JSEP) v' + jsep.version; };
 
 	/**
