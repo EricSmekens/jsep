@@ -196,7 +196,7 @@
 				// This function is responsible for gobbling an individual expression,
 				// e.g. `1`, `1+2`, `a+(b*2)-Math.sqrt(2)`
 				gobbleBinaryExpression = function() {
-					var ch_i, node, biop, prec, stack, biop_info, left, right, i;
+					var ch_i, node, biop, prec, stack, biop_info, left, right, i, cur_biop;
 
 					// First, try to get the leftmost thing
 					// Then, check to see if there's a binary operator operating on that leftmost thing
@@ -227,6 +227,7 @@
 						}
 						biop_info = { value: biop, prec: prec };
 
+						cur_biop = biop;
 						// Reduce: make a binary expression from the three topmost entries.
 						while ((stack.length > 2) && (prec <= stack[stack.length - 2].prec)) {
 							right = stack.pop();
@@ -238,7 +239,7 @@
 
 						node = gobbleToken();
 						if(!node) {
-							throwError("Expected expression after " + biop, index);
+							throwError("Expected expression after " + cur_biop, index);
 						}
 						stack.push(biop_info, node);
 					}
