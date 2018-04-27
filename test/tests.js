@@ -183,6 +183,10 @@ test('Uncompleted expression-call/array', function() {
 	throws(function(){
 		var x = jsep("[1,2");
 	}, "detects unfinished array");
+    	throws(function(){
+        	var x = jsep("-1+2-");
+    	}, /Expected expression after - at character 5/,
+	"detects trailing operator");
 });
 
 test('Esprima Comparison', function() {
