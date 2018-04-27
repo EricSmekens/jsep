@@ -1,5 +1,5 @@
 language: node_js
 node_js:
-  - "8.11.0"
+  - "10.0.0"
 install:
-  - npm install             # instead of default npm install 
+  - npm install
