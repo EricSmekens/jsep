@@ -30,7 +30,7 @@ var filter_props = function(larger, smaller) {
 	var prop_val;
 	for(var prop_name in smaller) {
 		prop_val  = smaller[prop_name];
-		if(typeof prop_val === 'string' || typeof prop_val === 'number') {
+		if(typeof prop_val === 'string' || typeof prop_val === 'number' || prop_val instanceof RegExp) {
 			rv[prop_name] = larger[prop_name];
 		} else {
 			rv[prop_name] = filter_props(larger[prop_name], prop_val);
@@ -57,6 +57,8 @@ test('Constants', function() {
 	test_parser('"abc"', {value: "abc"});
 	test_parser("123", {value: 123});
 	test_parser("12.3", {value: 12.3});
+	test_parser("/pattern/", {value: /pattern/});
+	test_parser("/pattern\\t/gi", {value: /pattern\t/gi });
 });
 
 test('Variables', function() {
@@ -206,7 +208,12 @@ test('Esprima Comparison', function() {
 		"(a(b(c[!d]).e).f+'hi'==2) === true",
 		"(Object.variable.toLowerCase()).length == 3",
 		"(Object.variable.toLowerCase())  .  length == 3",
-		"[1] + [2]"
+		"[1] + [2]",
+		"/foo/",
+		"/foo\\t/gi",
+		"/123*(w)/g",
+		"/456[/]+/",
+		"1 /456/ 7",
 	]).map(esprima_comparison_test);
 });
 
