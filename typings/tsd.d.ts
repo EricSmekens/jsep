@@ -1,77 +1,73 @@
 declare module 'jsep' {
 
     namespace jsep {
-        export interface Expression {
-            type: ExpressionType;
-        }
-
-        export interface ArrayExpression extends Expression {
+        export interface ArrayExpression {
             type: 'ArrayExpression';
             elements: Expression[];
         }
 
-        export interface BinaryExpression extends Expression {
+        export interface BinaryExpression {
             type: 'BinaryExpression';
             operator: string;
             left: Expression;
             right: Expression;
         }
 
-        export interface CallExpression extends Expression {
+        export interface CallExpression {
             type: 'CallExpression';
             arguments: Expression[];
             callee: Expression;
         }
 
-        export interface Compound extends Expression {
+        export interface Compound {
             type: 'Compound';
             body: Expression[];
         }
 
-        export interface ConditionalExpression extends Expression {
+        export interface ConditionalExpression {
             type: 'ConditionalExpression';
             test: Expression;
             consequent: Expression;
             alternate: Expression;
         }
 
-        export interface Identifier extends Expression {
+        export interface Identifier {
             type: 'Identifier';
             name: string;
         }
 
-        export interface Literal extends Expression {
+        export interface Literal {
             type: 'Literal';
             value: boolean | number | string;
             raw: string;
         }
 
-        export interface LogicalExpression extends Expression {
+        export interface LogicalExpression {
             type: 'LogicalExpression';
             operator: string;
             left: Expression;
             right: Expression;
         }
 
-        export interface MemberExpression extends Expression {
+        export interface MemberExpression {
             type: 'MemberExpression';
             computed: boolean;
             object: Expression;
             property: Expression;
         }
 
-        export interface ThisExpression extends Expression {
+        export interface ThisExpression {
             type: 'ThisExpression';
         }
 
-        export interface UnaryExpression extends Expression {
+        export interface UnaryExpression {
             type: 'UnaryExpression';
             operator: string;
             argument: Expression;
             prefix: boolean;
         }
 
-        type ExpressionType = 'Compound' | 'Identifier' | 'MemberExpression' | 'Literal' | 'ThisExpression' | 'CallExpression' | 'UnaryExpression' | 'BinaryExpression' | 'LogicalExpression' | 'ConditionalExpression' | 'ArrayExpression';
+        type Expression = Compound | Identifier | MemberExpression | Literal | ThisExpression | CallExpression | UnaryExpression | BinaryExpression | LogicalExpression | ConditionalExpression | ArrayExpression;
 
         function addBinaryOp(operatorName: string, precedence: number): void;
 
