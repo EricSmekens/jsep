@@ -431,15 +431,23 @@
 				// e.g. `foo(bar, baz)`, `my_func()`, or `[bar, baz]`
 				gobbleArguments = function(termination) {
 					var ch_i, args = [], node, closed = false;
+					var separator_count = 0;
 					while(index < length) {
 						gobbleSpaces();
 						ch_i = exprICode(index);
 						if(ch_i === termination) { // done parsing
 							closed = true;
 							index++;
+							if(separator_count && separator_count >= args.length){
+								throwError('Unexpected token ' + String.fromCharCode(termination), index);
+							}
 							break;
 						} else if (ch_i === COMMA_CODE) { // between expressions
 							index++;
+							separator_count++;
+							if(separator_count !== args.length) { // missing argument
+								throwError('Unexpected token ,', index);
+							}
 						} else {
 							node = gobbleExpression();
 							if(!node || node.type === COMPOUND) {
