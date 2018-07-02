@@ -206,6 +206,8 @@ test('Uncompleted expression-call/array', function() {
 
 test('Esprima Comparison', function() {
 	([
+		"[1,,3]",
+		"[1,,]", // this is actually incorrect in esprima
 		" true",
 		"false ",
 		" 1.2 ",

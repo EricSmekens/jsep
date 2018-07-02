@@ -438,7 +438,7 @@
 						if(ch_i === termination) { // done parsing
 							closed = true;
 							index++;
-							if(separator_count && separator_count >= args.length){
+							if(termination === CPAREN_CODE && separator_count && separator_count >= args.length){
 								throwError('Unexpected token ' + String.fromCharCode(termination), index);
 							}
 							break;
@@ -446,7 +446,14 @@
 							index++;
 							separator_count++;
 							if(separator_count !== args.length) { // missing argument
-								throwError('Unexpected token ,', index);
+								if(termination === CPAREN_CODE) {
+									throwError('Unexpected token ,', index);
+								}
+								else if(termination === CBRACK_CODE) {
+									for(var arg = args.length; arg< separator_count; arg++) {
+										args.push(null);
+									}
+								}
 							}
 						} else {
 							node = gobbleExpression();
