@@ -176,6 +176,21 @@ test('Bad Numbers', function() {
 	});
 });
 
+test('Missing arguments', function() {
+	throws(function(){
+		var x = jsep("check(,)");
+	}, "detects missing argument (all)");
+	throws(function(){
+		var x = jsep("check(,1,2)");
+	}, "detects missing argument (head)");
+	throws(function(){
+		var x = jsep("check(1,,2)");
+	}, "detects missing argument (intervening)");
+	throws(function(){
+		var x = jsep("check(1,2,)");
+	}, "detects missing argument (tail)");
+});
+
 test('Uncompleted expression-call/array', function() {
 	throws(function(){
 		var x = jsep("myFunction(a,b");
@@ -191,6 +206,8 @@ test('Uncompleted expression-call/array', function() {
 
 test('Esprima Comparison', function() {
 	([
+		"[1,,3]",
+		"[1,,]", // this is actually incorrect in esprima
 		" true",
 		"false ",
 		" 1.2 ",
