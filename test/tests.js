@@ -226,7 +226,7 @@ QUnit.test('Esprima Comparison', function(assert) {
 		"(Object.variable.toLowerCase()).length == 3",
 		"(Object.variable.toLowerCase())  .  length == 3",
 		"[1] + [2]"
-	]).map((test) => {esprima_comparison_test(test, assert)});
+	]).map(function(test) {esprima_comparison_test(test, assert)});
 });
 
 QUnit.test('Ternary', function(assert) {
