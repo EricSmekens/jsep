@@ -21,8 +21,8 @@ var do_eval = function(node) {
 	}
 };
 
-var test_op_expession = function(str) {
-	equal(do_eval(jsep(str)), eval(str));
+var test_op_expession = function(str, assert) {
+	assert.equal(do_eval(jsep(str)), eval(str));
 };
 
 var filter_props = function(larger, smaller) {
@@ -40,71 +40,71 @@ var filter_props = function(larger, smaller) {
 };
 
 var parse = jsep;
-var test_parser = function(inp, out) {
+var test_parser = function(inp, out, assert) {
 	var parse_val = parse(inp);
-	return deepEqual(filter_props(parse_val, out), out);
+	return assert.deepEqual(filter_props(parse_val, out), out);
 };
-var esprima_comparison_test = function(str) {
+var esprima_comparison_test = function(str, assert) {
 	var jsep_val = jsep(str),
 		esprima_val = esprima.parse(str);
-	return deepEqual(jsep_val, esprima_val.body[0].expression);
+	return assert.deepEqual(jsep_val, esprima_val.body[0].expression);
 };
 
-module("Expression Parser");
+QUnit.module("Expression Parser");
 
-test('Constants', function() {
-	test_parser("'abc'", {value: "abc"});
-	test_parser('"abc"', {value: "abc"});
-	test_parser("123", {value: 123});
-	test_parser("12.3", {value: 12.3});
+QUnit.test('Constants', function(assert) {
+	test_parser("'abc'", {value: "abc"}, assert);
+	test_parser('"abc"', {value: "abc"}, assert);
+	test_parser("123", {value: 123}, assert);
+	test_parser("12.3", {value: 12.3}, assert);
 });
 
-test('Variables', function() {
-	test_parser("abc", {name: "abc"});
+QUnit.test('Variables', function(assert) {
+	test_parser("abc", {name: "abc"}, assert);
 	test_parser("a.b[c[0]]", {
 		property: {
 			type: "MemberExpression"
 		}
-	});
-    test_parser("Δέλτα", {name: "Δέλτα"});
+	}, assert);
+    test_parser("Δέλτα", {name: "Δέλτα"}, assert);
 });
 
-test('Function Calls', function() {
+QUnit.test('Function Calls', function(assert) {
 	//test_parser("a(b, c(d,e), f)", {});
-	test_parser("a b + c", {});
-	test_parser(";", {});
+	test_parser("a b + c", {}, assert);
+	test_parser(";", {}, assert);
 });
 
-test('Arrays', function() {
-	test_parser("[]", {type: 'ArrayExpression', elements: []});
+QUnit.test('Arrays', function(assert) {
+	test_parser("[]", {type: 'ArrayExpression', elements: []}, assert);
 
 	test_parser("[a]", {
 		type: 'ArrayExpression',
 		elements: [{type: 'Identifier', name: 'a'}]
-	});
+	}, assert);
 });
 
-test('Ops', function() {
-	test_op_expession("1");
-	test_op_expession("1+2");
-	test_op_expession("1*2");
-	test_op_expession("1*(2+3)");
-	test_op_expession("(1+2)*3");
-	test_op_expession("(1+2)*3+4-2-5+2/2*3");
-	test_op_expession("1 + 2-   3*	4 /8");
-	test_op_expession("\n1\r\n+\n2\n");
+QUnit.test('Ops', function(assert) {
+	test_op_expession("1", assert);
+	test_op_expession("1+2", assert);
+	test_op_expession("1*2", assert);
+	test_op_expession("1*(2+3)", assert);
+	test_op_expession("(1+2)*3", assert);
+	test_op_expession("(1+2)*3+4-2-5+2/2*3", assert);
+	test_op_expession("1 + 2-   3*	4 /8", assert);
+	test_op_expession("\n1\r\n+\n2\n", assert);
 });
 
-test('Custom operators', function() {
+QUnit.test('Custom operators', function(assert) {
 	jsep.addBinaryOp("^", 10);
-	test_parser("a^b", {});
+	test_parser("a^b", {}, assert);
 
     jsep.addBinaryOp("×", 9);
     test_parser("a×b", {
         type: 'BinaryExpression',
         left: {name: 'a'},
         right: {name: 'b'}
-    });
+    }, assert);
 
 	jsep.addBinaryOp("or", 1);
 	test_parser("oneWord ordering anotherWord", {
@@ -123,88 +123,90 @@ test('Custom operators', function() {
 				name: 'anotherWord'
 			}
 		]
-    });
+    }, assert);
 
 	jsep.addUnaryOp("#");
 	test_parser("#a", {
 		type: "UnaryExpression",
 		operator: "#",
 		argument: {type: "Identifier", name: "a"}
-	});
+	}, assert);
 
 	jsep.addUnaryOp("not");
 	test_parser("not a", {
 		type: "UnaryExpression",
 		operator: "not",
 		argument: {type: "Identifier", name: "a"}
-	});
+	}, assert);
 
 	jsep.addUnaryOp("notes");
 	test_parser("notes", {
 		type: "Identifier",
 		name: "notes"
-	});
+	}, assert);
 });
 
-test('Custom alphanumeric operators', function() {
+QUnit.test('Custom alphanumeric operators', function(assert) {
 	jsep.addBinaryOp("and", 2);
 	test_parser("a and b", {
 		type: "BinaryExpression",
 		operator: "and",
 		left: {type: "Identifier", name: "a"},
 		right: {type: "Identifier", name: "b"}
-	});
-	test_parser("bands", {type: "Identifier", name: "bands"});
+	}, assert);
+	test_parser("bands", {type: "Identifier", name: "bands"}, assert);
 
-	test_parser("b ands", {type: "Compound"});
+	test_parser("b ands", {type: "Compound"}, assert);
 
 	jsep.addUnaryOp("not");
 	test_parser("not a", {
 		type: "UnaryExpression",
 		operator: "not",
 		argument: {type: "Identifier", name: "a"}
-	});
+	}, assert);
 
-	test_parser("notes", {type: "Identifier", name: "notes"});
+	test_parser("notes", {type: "Identifier", name: "notes"}, assert);
 });
 
-test('Bad Numbers', function() {
-	test_parser("1.", {type: "Literal", value: 1, raw: "1."});
+QUnit.test('Bad Numbers', function(assert) {
+	test_parser("1.", {type: "Literal", value: 1, raw: "1."}, assert);
 
-	throws(function(){
+    assert.throws(function(){
 		var x = jsep("1.2.3");
 	});
 });
 
-test('Missing arguments', function() {
-	throws(function(){
+QUnit.test('Missing arguments', function(assert) {
+    assert.throws(function(){
 		var x = jsep("check(,)");
 	}, "detects missing argument (all)");
-	throws(function(){
+    assert.throws(function(){
 		var x = jsep("check(,1,2)");
 	}, "detects missing argument (head)");
-	throws(function(){
+    assert.throws(function(){
 		var x = jsep("check(1,,2)");
 	}, "detects missing argument (intervening)");
-	throws(function(){
+    assert.throws(function(){
 		var x = jsep("check(1,2,)");
 	}, "detects missing argument (tail)");
 });
 
-test('Uncompleted expression-call/array', function() {
-	throws(function(){
+QUnit.test('Uncompleted expression-call/array', function(assert) {
+    assert.throws(function(){
 		var x = jsep("myFunction(a,b");
 	}, "detects unfinished expression call");
-	throws(function(){
+
+    assert.throws(function(){
 		var x = jsep("[1,2");
 	}, "detects unfinished array");
-    	throws(function(){
+
+    assert.throws(function(){
         	var x = jsep("-1+2-");
     	}, /Expected expression after - at character 5/,
 	"detects trailing operator");
 });
 
-test('Esprima Comparison', function() {
+QUnit.test('Esprima Comparison', function(assert) {
 	([
 		"[1,,3]",
 		"[1,,]", // this is actually incorrect in esprima
@@ -224,14 +226,14 @@ test('Esprima Comparison', function() {
 		"(Object.variable.toLowerCase()).length == 3",
 		"(Object.variable.toLowerCase())  .  length == 3",
 		"[1] + [2]"
-	]).map(esprima_comparison_test);
+	]).map(function(test) {esprima_comparison_test(test, assert)});
 });
 
-test('Ternary', function() {
+QUnit.test('Ternary', function(assert) {
 	var val = jsep('a ? b : c');
-	equal(val.type, 'ConditionalExpression');
+    assert.equal(val.type, 'ConditionalExpression');
 	val = jsep('a||b ? c : d');
-	equal(val.type, 'ConditionalExpression');
+    assert.equal(val.type, 'ConditionalExpression');
 });
 
 }());
