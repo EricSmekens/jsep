@@ -367,7 +367,7 @@
 								case 'b': str += '\b'; break;
 								case 'f': str += '\f'; break;
 								case 'v': str += '\x0B'; break;
-								default : str += ch;
+								default : str += '\\' + ch;
 							}
 						} else {
 							str += ch;
