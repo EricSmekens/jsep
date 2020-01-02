@@ -1,6 +1,6 @@
-//     JavaScript Expression Parser (JSEP) <%= version %>
-//     JSEP may be freely distributed under the MIT License
-//     http://jsep.from.so/
+//	 JavaScript Expression Parser (JSEP) <%= version %>
+//	 JSEP may be freely distributed under the MIT License
+//	 http://jsep.from.so/
 
 /*global module: true, exports: true, console: true */
 (function (root) {
@@ -105,14 +105,14 @@
 			return (ch === 36) || (ch === 95) || // `$` and `_`
 					(ch >= 65 && ch <= 90) || // A...Z
 					(ch >= 97 && ch <= 122) || // a...z
-                    (ch >= 128 && !binary_ops[String.fromCharCode(ch)]); // any non-ASCII that is not an operator
+					(ch >= 128 && !binary_ops[String.fromCharCode(ch)]); // any non-ASCII that is not an operator
 		},
 		isIdentifierPart = function(ch) {
 			return (ch === 36) || (ch === 95) || // `$` and `_`
 					(ch >= 65 && ch <= 90) || // A...Z
 					(ch >= 97 && ch <= 122) || // a...z
 					(ch >= 48 && ch <= 57) || // 0...9
-                    (ch >= 128 && !binary_ops[String.fromCharCode(ch)]); // any non-ASCII that is not an operator
+					(ch >= 128 && !binary_ops[String.fromCharCode(ch)]); // any non-ASCII that is not an operator
 		},
 
 		// Parsing
@@ -142,6 +142,7 @@
 					var test = gobbleBinaryExpression(),
 						consequent, alternate;
 					gobbleSpaces();
+
 					if(exprICode(index) === QUMARK_CODE) {
 						// Ternary expression: test ? consequent : alternate
 						index++;
@@ -256,7 +257,7 @@
 				// An individual part of a binary expression:
 				// e.g. `foo.bar(baz)`, `1`, `"abc"`, `(a % 2)` (because it's in parenthesis)
 				gobbleToken = function() {
-					var ch, to_check, tc_len;
+					var ch, to_check, tc_len, node;
 
 					gobbleSpaces();
 					ch = exprICode(index);
@@ -264,11 +265,13 @@
 					if(isDecimalDigit(ch) || ch === PERIOD_CODE) {
 						// Char code 46 is a dot `.` which can start off a numeric literal
 						return gobbleNumericLiteral();
-					} else if(ch === SQUOTE_CODE || ch === DQUOTE_CODE) {
+					}
+
+					if(ch === SQUOTE_CODE || ch === DQUOTE_CODE) {
 						// Single or double quotes
-						return gobbleStringLiteral();
+						node = gobbleStringLiteral();
 					} else if (ch === OBRACK_CODE) {
-						return gobbleArray();
+						node = gobbleArray();
 					} else {
 						to_check = expr.substr(index, max_unop_len);
 						tc_len = to_check.length;
@@ -291,13 +294,62 @@
 							to_check = to_check.substr(0, --tc_len);
 						}
 
-						if (isIdentifierStart(ch) || ch === OPAREN_CODE) { // open parenthesis
-							// `foo`, `bar.baz`
-							return gobbleVariable();
+						if (isIdentifierStart(ch)) {
+							node = gobbleIdentifier();
+						} else if (ch === OPAREN_CODE) { // open parenthesis
+							node = gobbleGroup();
 						}
 					}
 
-					return false;
+					if (!node) {
+						return false;
+					}
+
+					gobbleSpaces();
+
+					ch = exprICode(index);
+
+					// Gobble properties of of identifiers/strings/arrays/groups.
+					// e.g. `foo`, `bar.baz`, `foo['bar'].baz`
+					// It also gobbles function calls:
+					// e.g. `Math.acos(obj.angle)`
+
+					while(ch === PERIOD_CODE || ch === OBRACK_CODE || ch === OPAREN_CODE) {
+						index++;
+						if(ch === PERIOD_CODE) {
+							gobbleSpaces();
+							node = {
+								type: MEMBER_EXP,
+								computed: false,
+								object: node,
+								property: gobbleIdentifier()
+							};
+						} else if(ch === OBRACK_CODE) {
+							node = {
+								type: MEMBER_EXP,
+								computed: true,
+								object: node,
+								property: gobbleExpression()
+							};
+							gobbleSpaces();
+							ch = exprICode(index);
+							if(ch !== CBRACK_CODE) {
+								throwError('Unclosed [', index);
+							}
+							index++;
+						} else if(ch === OPAREN_CODE) {
+							// A function call is being made; gobble all the arguments
+							node = {
+								type: CALL_EXP,
+								'arguments': gobbleArguments(CPAREN_CODE),
+								callee: node
+							};
+						}
+						gobbleSpaces();
+						ch = exprICode(index);
+					}
+
+					return node;
 				},
 				// Parse simple numeric literals: `12`, `3.4`, `.5`. Do this by using a string to
 				// keep track of everything in the numeric literal and then calling `parseFloat` on that string
@@ -467,58 +519,6 @@
 						throwError('Expected ' + String.fromCharCode(termination), index);
 					}
 					return args;
-				},
-
-				// Gobble a non-literal variable name. This variable name may include properties
-				// e.g. `foo`, `bar.baz`, `foo['bar'].baz`
-				// It also gobbles function calls:
-				// e.g. `Math.acos(obj.angle)`
-				gobbleVariable = function() {
-					var ch_i, node;
-					ch_i = exprICode(index);
-
-					if(ch_i === OPAREN_CODE) {
-						node = gobbleGroup();
-					} else {
-						node = gobbleIdentifier();
-					}
-					gobbleSpaces();
-					ch_i = exprICode(index);
-					while(ch_i === PERIOD_CODE || ch_i === OBRACK_CODE || ch_i === OPAREN_CODE) {
-						index++;
-						if(ch_i === PERIOD_CODE) {
-							gobbleSpaces();
-							node = {
-								type: MEMBER_EXP,
-								computed: false,
-								object: node,
-								property: gobbleIdentifier()
-							};
-						} else if(ch_i === OBRACK_CODE) {
-							node = {
-								type: MEMBER_EXP,
-								computed: true,
-								object: node,
-								property: gobbleExpression()
-							};
-							gobbleSpaces();
-							ch_i = exprICode(index);
-							if(ch_i !== CBRACK_CODE) {
-								throwError('Unclosed [', index);
-							}
-							index++;
-						} else if(ch_i === OPAREN_CODE) {
-							// A function call is being made; gobble all the arguments
-							node = {
-								type: CALL_EXP,
-								'arguments': gobbleArguments(CPAREN_CODE),
-								callee: node
-							};
-						}
-						gobbleSpaces();
-						ch_i = exprICode(index);
-					}
-					return node;
 				},
 
 				// Responsible for parsing a group of things within parentheses `()`
