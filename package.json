@@ -1,26 +1,30 @@
 {
 	"name": "jsep",
-	"version": "0.3.4",
+	"version": "0.3.5",
 	"description": "a tiny JavaScript expression parser",
 	"author": "Stephen Oney <swloney@gmail.com> (http://from.so/)",
-	"homepage": "http://jsep.from.so/",
+	"maintainers": [
+		"Eric Smekens (https://github.com/EricSmekens)",
+		"Lea Verou (https://github.com/LeaVerou)"
+	],
+	"homepage": "https://ericsmekens.github.io/jsep/",
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/soney/jsep.git"
+		"url": "https://github.com/EricSmekens/jsep.git"
 	},
 	"main": "build/jsep.js",
 	"typings": "typings/tsd.d.ts",
 	"private": false,
 	"dependencies": {},
 	"devDependencies": {
-		"grunt": "~1.0.3",
-		"grunt-contrib-jshint": "~2.0.0",
-		"grunt-contrib-qunit": "~2.0.0",
-		"grunt-contrib-uglify": "~4.0.0",
+		"grunt": "~1.3.0",
+		"grunt-contrib-jshint": "~2.1.0",
+		"grunt-contrib-qunit": "~4.0.0",
+		"grunt-contrib-uglify": "~5.0.0",
 		"grunt-contrib-concat": "~1.0.1",
 		"grunt-contrib-watch": "~1.1.0",
-		"grunt-contrib-compress": "~1.4.3",
+		"grunt-contrib-compress": "~1.6.0",
 		"grunt-contrib-clean": "~2.0.0",
 		"grunt-docco": "~0.5.0"
 	},
