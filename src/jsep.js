@@ -16,6 +16,7 @@
 		LITERAL = 'Literal',
 		THIS_EXP = 'ThisExpression',
 		CALL_EXP = 'CallExpression',
+		ARROW_EXP = 'ArrowFunctionExpression',
 		UNARY_EXP = 'UnaryExpression',
 		BINARY_EXP = 'BinaryExpression',
 		LOGICAL_EXP = 'LogicalExpression',
@@ -33,6 +34,8 @@
 		QUMARK_CODE = 63, // ?
 		SEMCOL_CODE = 59, // ;
 		COLON_CODE  = 58, // :
+		EQUAL_CODE  = 61, // =
+		GTHAN_CODE  = 62, // >
 
 		throwError = function(message, index) {
 			var error = new Error(message + ' at character ' + index);
@@ -140,9 +143,10 @@
 				// The main parsing function. Much of this code is dedicated to ternary expressions
 				gobbleExpression = function() {
 					var test = gobbleBinaryExpression(),
-						consequent, alternate;
+						consequent, alternate, ch;
 					gobbleSpaces();
-					if(exprICode(index) === QUMARK_CODE) {
+					ch = exprICode(index);
+					if(ch === QUMARK_CODE) {
 						// Ternary expression: test ? consequent : alternate
 						index++;
 						consequent = gobbleExpression();
@@ -165,6 +169,31 @@
 						} else {
 							throwError('Expected :', index);
 						}
+					} else if(ch === EQUAL_CODE) {
+						// arrow expression: () => expr
+						index++;
+						if(exprICode(index) === GTHAN_CODE) {
+							index++;
+							return {
+								type: ARROW_EXP,
+								params: test ? [test] : null,
+								body: gobbleExpression(),
+							};
+						}
+					} else if (test && ch === PERIOD_CODE) {
+						// Array method: [...].method()
+						index++;
+						alternate = gobbleVariable();
+						if (alternate.type !== CALL_EXP) {
+							throwError('Expected (', index);
+						}
+						alternate.callee = {
+							type: MEMBER_EXP,
+							computed: false,
+							object: test,
+							property: alternate.callee,
+						};
+						return alternate;
 					} else {
 						return test;
 					}
@@ -528,10 +557,21 @@
 				// then the expression probably doesn't have a `)`
 				gobbleGroup = function() {
 					index++;
-					var node = gobbleExpression();
+					var node = gobbleExpression(), params;
 					gobbleSpaces();
 					if(exprICode(index) === CPAREN_CODE) {
 						index++;
+						return node;
+					} else if (exprICode(index) === COMMA_CODE) {
+						// arrow function arguments:
+						index++;
+						params = gobbleArguments(CPAREN_CODE);
+						params.unshift(node);
+						node = gobbleExpression();
+						if (!node || node.type !== ARROW_EXP) {
+							throwError('Unclosed (', index);
+						}
+						node.params = params;
 						return node;
 					} else {
 						throwError('Unclosed (', index);
