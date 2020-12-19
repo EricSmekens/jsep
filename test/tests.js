@@ -73,10 +73,13 @@ QUnit.test('Function Calls', function(assert) {
 	//test_parser("a(b, c(d,e), f)", {});
 	test_parser("a b + c", {}, assert);
 	test_parser(";", {}, assert);
+	test_parser("a().b(1)", {}, assert);
+	test_parser("(['a', 'b'].find(v => v === 'b').length > 1 || 2) === true", {}, assert);
 	test_parser('a.find((val, key) => key === "abc")', {}, assert);
 	test_parser('a.find(val => key === "abc")', {}, assert);
 	test_parser('a.find(() => true)', {}, assert);
-	test_parser('[1, 2].find(v => v === 2)', {}, assert);
+	test_parser("a.find(() => []).length > 2", {}, assert);
+	test_parser('[1, 2].find(v => v === 2) >= 0', {}, assert);
 });
 
 QUnit.test('Arrays', function(assert) {

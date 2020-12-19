@@ -180,20 +180,6 @@
 								body: gobbleExpression(),
 							};
 						}
-					} else if (test && ch === PERIOD_CODE) {
-						// Array method: [...].method()
-						index++;
-						alternate = gobbleVariable();
-						if (alternate.type !== CALL_EXP) {
-							throwError('Expected (', index);
-						}
-						alternate.callee = {
-							type: MEMBER_EXP,
-							computed: false,
-							object: test,
-							property: alternate.callee,
-						};
-						return alternate;
 					} else {
 						return test;
 					}
@@ -285,7 +271,7 @@
 				// An individual part of a binary expression:
 				// e.g. `foo.bar(baz)`, `1`, `"abc"`, `(a % 2)` (because it's in parenthesis)
 				gobbleToken = function() {
-					var ch, to_check, tc_len;
+					var ch, to_check, tc_len, node;
 
 					gobbleSpaces();
 					ch = exprICode(index);
@@ -297,7 +283,12 @@
 						// Single or double quotes
 						return gobbleStringLiteral();
 					} else if (ch === OBRACK_CODE) {
-						return gobbleArray();
+						node = gobbleArray();
+						ch = exprICode(index);
+						if (ch === PERIOD_CODE || ch === OBRACK_CODE || ch === OPAREN_CODE) {
+							node = gobbleVariable(node);
+						}
+						return node;
 					} else {
 						to_check = expr.substr(index, max_unop_len);
 						tc_len = to_check.length;
@@ -502,11 +493,13 @@
 				// e.g. `foo`, `bar.baz`, `foo['bar'].baz`
 				// It also gobbles function calls:
 				// e.g. `Math.acos(obj.angle)`
-				gobbleVariable = function() {
-					var ch_i, node;
+				// optional node argument is for chaining from [].
+				gobbleVariable = function(node) {
+					var ch_i;
 					ch_i = exprICode(index);
 
-					if(ch_i === OPAREN_CODE) {
+					if (node) {}
+					else if(ch_i === OPAREN_CODE) {
 						node = gobbleGroup();
 					} else {
 						node = gobbleIdentifier();
