@@ -1,3 +1,7 @@
+## 0.3.5 - 2018-08-23
+### Updated
+- Development dependencies update for audit fixes.
+
 ## 0.3.4 - 2018-03-29
 ### Fixed
 - Fixed identifiers as custom ops (#68,#83)

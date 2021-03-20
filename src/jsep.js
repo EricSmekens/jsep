@@ -1,6 +1,6 @@
-//	 JavaScript Expression Parser (JSEP) <%= version %>
-//	 JSEP may be freely distributed under the MIT License
-//	 http://jsep.from.so/
+//     JavaScript Expression Parser (JSEP) <%= version %>
+//     JSEP may be freely distributed under the MIT License
+//     https://ericsmekens.github.io/jsep/
 
 /*global module: true, exports: true, console: true */
 (function (root) {
