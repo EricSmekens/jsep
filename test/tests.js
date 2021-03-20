@@ -72,6 +72,8 @@ QUnit.test('Variables', function(assert) {
 QUnit.test('Function Calls', function(assert) {
 	//test_parser("a(b, c(d,e), f)", {});
 	test_parser("a b + c", {}, assert);
+	test_parser("'a'.toString()", {}, assert);
+	test_parser("[1].length", {}, assert);
 	test_parser(";", {}, assert);
 });
 
