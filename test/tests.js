@@ -170,7 +170,7 @@ QUnit.test('Custom alphanumeric operators', function(assert) {
 	test_parser("notes", {type: "Identifier", name: "notes"}, assert);
 });
 
-QUnit.test('Custom identifier characters', function() {
+QUnit.test('Custom identifier characters', function(assert) {
 	jsep.addIdentifierChar("@");
 	test_parser("@asd", {
 		type: "Identifier",
