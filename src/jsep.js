@@ -60,6 +60,8 @@
 			'+': 9, '-': 9,
 			'*': 10, '/': 10, '%': 10
 		},
+	// Additional valid identifier chars, apart from a-z, A-Z and 0-9 (except on the starting char)
+		additional_identifier_chars = {'$': t, '_': t},
 	// Get return the longest key length of any object
 		getMaxKeyLen = function(obj) {
 			var max_len = 0, len;
@@ -102,17 +104,17 @@
 			return (ch >= 48 && ch <= 57); // 0...9
 		},
 		isIdentifierStart = function(ch) {
-			return (ch === 36) || (ch === 95) || // `$` and `_`
-					(ch >= 65 && ch <= 90) || // A...Z
+			return  (ch >= 65 && ch <= 90) || // A...Z
 					(ch >= 97 && ch <= 122) || // a...z
-					(ch >= 128 && !binary_ops[String.fromCharCode(ch)]); // any non-ASCII that is not an operator
+					(ch >= 128 && !binary_ops[String.fromCharCode(ch)]) || // any non-ASCII that is not an operator
+					(additional_identifier_chars.hasOwnProperty(String.fromCharCode(ch))); // additional characters
 		},
 		isIdentifierPart = function(ch) {
-			return (ch === 36) || (ch === 95) || // `$` and `_`
-					(ch >= 65 && ch <= 90) || // A...Z
+			return 	(ch >= 65 && ch <= 90) || // A...Z
 					(ch >= 97 && ch <= 122) || // a...z
 					(ch >= 48 && ch <= 57) || // 0...9
-					(ch >= 128 && !binary_ops[String.fromCharCode(ch)]); // any non-ASCII that is not an operator
+					(ch >= 128 && !binary_ops[String.fromCharCode(ch)])|| // any non-ASCII that is not an operator
+					(additional_identifier_chars.hasOwnProperty(String.fromCharCode(ch))); // additional characters
 		},
 
 		// Parsing
@@ -608,6 +610,15 @@
 	};
 
 	/**
+	 * @method jsep.addIdentifierChar
+	 * @param {string} char The additional character to treat as a valid part of an identifier
+	 * @return jsep
+	 */
+	jsep.addIdentifierChar = function(char) {
+		additional_identifier_chars[char] = t; return this;
+	};
+
+	/**
 	 * @method jsep.addLiteral
 	 * @param {string} literal_name The name of the literal to add
 	 * @param {*} literal_value The value of the literal
@@ -641,6 +652,17 @@
 
 		return this;
 	};
+
+	/**
+	 * @method jsep.removeIdentifierChar
+	 * @param {string} char The additional character to stop treating as a valid part of an identifier
+	 * @return jsep
+	 */
+	jsep.removeIdentifierChar = function(char) {
+		delete additional_identifier_chars[char];
+		return this;
+	};
+
 
 	/**
 	 * @method jsep.removeBinaryOp
