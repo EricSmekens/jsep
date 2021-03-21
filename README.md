@@ -44,6 +44,16 @@ jsep.removeBinaryOp(">>>");
 jsep.removeUnaryOp("~");
 ```
 
+#### Custom Identifiers
+You can add or remove additional valid identifier chars. ('_' and '$' are already treated like this.)
+```javascript
+// Add a custom @ identifier
+jsep.addIdentifierChar("@");
+
+// Removes a custom @ identifier
+jsep.removeIdentifierChar('@');
+```
+
 ### License
 jsep is under the MIT license. See LICENSE file.
 
