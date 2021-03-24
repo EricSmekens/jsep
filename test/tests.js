@@ -185,6 +185,12 @@ QUnit.test('Bad Numbers', function(assert) {
 	});
 });
 
+QUnit.test('UnaryExpression without argument', function(assert) {
+	assert.throws(function(){
+		var x = jsep("+*21");
+	}, "detects no arguments for unary operators");
+});
+
 QUnit.test('Missing arguments', function(assert) {
     assert.throws(function(){
 		var x = jsep("check(,)");
