@@ -72,6 +72,8 @@ QUnit.test('Variables', function(assert) {
 QUnit.test('Function Calls', function(assert) {
 	//test_parser("a(b, c(d,e), f)", {});
 	test_parser("a b + c", {}, assert);
+	test_parser("'a'.toString()", {}, assert);
+	test_parser("[1].length", {}, assert);
 	test_parser(";", {}, assert);
 	test_parser("a().b(1)", {}, assert);
 	test_parser("(['a', 'b'].find(v => v === 'b').length > 1 || 2) === true", {}, assert);
@@ -175,9 +177,16 @@ QUnit.test('Custom alphanumeric operators', function(assert) {
 	test_parser("notes", {type: "Identifier", name: "notes"}, assert);
 });
 
+QUnit.test('Custom identifier characters', function(assert) {
+	jsep.addIdentifierChar("@");
+	test_parser("@asd", {
+		type: "Identifier",
+		name: "@asd",
+	}, assert);
+});
+
 QUnit.test('Bad Numbers', function(assert) {
 	test_parser("1.", {type: "Literal", value: 1, raw: "1."}, assert);
-
     assert.throws(function(){
 		var x = jsep("1.2.3");
 	});

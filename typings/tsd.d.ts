@@ -81,6 +81,10 @@ declare module 'jsep' {
 
         function removeUnaryOp(operatorName: string): void;
 
+        function addIdentifierChar(identifierName: string): void;
+
+        function removeIdentifierChar(identifierName: string): void;
+
         const version: string;
     }
 
