@@ -286,10 +286,14 @@
 								(index+to_check.length < expr.length && !isIdentifierPart(exprICode(index+to_check.length)))
 							)) {
 								index += tc_len;
+								var argument = gobbleToken();
+								if(!argument) {
+									throwError("Expected an argument after "+ to_check, index);
+								}
 								return {
 									type: UNARY_EXP,
 									operator: to_check,
-									argument: gobbleToken(),
+									argument: argument,
 									prefix: true
 								};
 							}
