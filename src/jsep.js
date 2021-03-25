@@ -65,6 +65,47 @@
 		},
 	// Additional valid identifier chars, apart from a-z, A-Z and 0-9 (except on the starting char)
 		additional_identifier_chars = {'$': t, '_': t},
+	// Expression Parsers, keyed by starting character. See ExpressionParser
+	// { [key: string]: (node) => node }
+	  expression_parsers = {
+			'?': function ternary(test) {
+				// Ternary expression: test ? consequent : alternate
+				var consequent, alternate;
+				consequent = this.gobbleExpression();
+				if (!consequent) {
+					throwError('Expected expression', this.index);
+				}
+				this.gobbleSpaces();
+				if (this.exprICode(this.index) === COLON_CODE) {
+					this.index++;
+					alternate = this.gobbleExpression();
+					if (!alternate) {
+						throwError('Expected expression', this.index);
+					}
+					return {
+						type: CONDITIONAL_EXP,
+						test: test,
+						consequent: consequent,
+						alternate: alternate
+					};
+				} else {
+					this.throwError('Expected :', this.index);
+				}
+			},
+			'=': function arrow(node) {
+				// arrow expression: () => expr
+				if (this.exprICode(this.index) === GTHAN_CODE) {
+					this.index++;
+					return {
+						type: ARROW_EXP,
+						params: node ? [node] : null,
+						body: this.gobbleExpression(),
+					};
+				} else {
+					this.throwError('Expected >', this.index);
+				}
+			},
+		},
 	// Get return the longest key length of any object
 		getMaxKeyLen = function(obj) {
 			var max_len = 0, len;
@@ -142,47 +183,16 @@
 					}
 				},
 
-				// The main parsing function. Much of this code is dedicated to ternary expressions
+				// The main parsing function
 				gobbleExpression = function() {
 					var test = gobbleBinaryExpression(),
-						consequent, alternate, ch;
+						ch;
 					gobbleSpaces();
 
-					ch = exprICode(index);
-					if(ch === QUMARK_CODE) {
-						// Ternary expression: test ? consequent : alternate
+					ch = exprI(index);
+					if (expression_parsers.hasOwnProperty(ch)) {
 						index++;
-						consequent = gobbleExpression();
-						if(!consequent) {
-							throwError('Expected expression', index);
-						}
-						gobbleSpaces();
-						if(exprICode(index) === COLON_CODE) {
-							index++;
-							alternate = gobbleExpression();
-							if(!alternate) {
-								throwError('Expected expression', index);
-							}
-							return {
-								type: CONDITIONAL_EXP,
-								test: test,
-								consequent: consequent,
-								alternate: alternate
-							};
-						} else {
-							throwError('Expected :', index);
-						}
-					} else if(ch === EQUAL_CODE) {
-						// arrow expression: () => expr
-						index++;
-						if(exprICode(index) === GTHAN_CODE) {
-							index++;
-							return {
-								type: ARROW_EXP,
-								params: test ? [test] : null,
-								body: gobbleExpression(),
-							};
-						}
+						return expression_parsers[ch].bind(expression_parser_scope)(test, expression_parser_scope);
 					} else {
 						return test;
 					}
@@ -577,6 +587,16 @@
 					};
 				},
 
+				expression_parser_scope = {
+					get index() { return index; },
+					set index(v) { index = v; },
+					exprI: exprI,
+					exprICode: exprICode,
+					gobbleSpaces: gobbleSpaces,
+					gobbleExpression: gobbleExpression,
+					throwError: throwError,
+				},
+
 				nodes = [], ch_i, node;
 
 			while(index < length) {
@@ -645,6 +665,24 @@
 	};
 
 	/**
+	 * This callback is an expression parser
+	 * @callback ExpressionParser
+	 * @this {{ index: number, exprI: function, exprICode: function, gobbleSpaces: function, gobbleExpression: function, throwError: function}}
+	 * @param {*} node
+	 * @param {*} thisAsArg - same as @this
+	 * @returns {*} node
+	 */
+	/**
+	 * @method jsep.addExpressionParser
+	 * @param {string} char The additional character to treat as the start of an expression
+	 * @param {ExpressionParser} fn
+	 * @return jsep
+	 */
+	jsep.addExpressionParser = function(char, fn) {
+		expression_parsers[char] = fn; return this;
+	};
+
+	/**
 	 * @method jsep.addLiteral
 	 * @param {string} literal_name The name of the literal to add
 	 * @param {*} literal_value The value of the literal
@@ -689,6 +727,24 @@
 		return this;
 	};
 
+	/**
+	 * @method jsep.removeExpressionParser
+	 * @param {string} char The character to stop treating as a valid part of an expression
+	 * @return jsep
+	 */
+	jsep.removeExpressionParser = function(char) {
+		delete expression_parsers[char];
+		return this;
+	};
+
+	/**
+	 * @method jsep.removeAllExpressionParsers
+	 * @return jsep
+	 */
+	jsep.removeAllExpressionParsers = function() {
+		expression_parsers = {};
+		return this;
+	};
 
 	/**
 	 * @method jsep.removeBinaryOp

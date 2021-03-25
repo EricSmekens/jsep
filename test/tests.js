@@ -82,6 +82,7 @@ QUnit.test('Function Calls', function(assert) {
 	test_parser('a.find(() => true)', {}, assert);
 	test_parser("a.find(() => []).length > 2", {}, assert);
 	test_parser('[1, 2].find(v => v === 2) >= 0', {}, assert);
+	test_parser('(a || b).find(v => v(1))', {}, assert);
 });
 
 QUnit.test('Arrays', function(assert) {
@@ -182,6 +183,31 @@ QUnit.test('Custom identifier characters', function(assert) {
 	test_parser("@asd", {
 		type: "Identifier",
 		name: "@asd",
+	}, assert);
+});
+
+QUnit.test('Custom identifier characters', function(assert) {
+	jsep.addExpressionParser('~', function(node){
+		return {
+			type: 'CUSTOM',
+			index: this.index,
+			val: node.value,
+		};
+	});
+	test_parser("1 ~ 2", {
+		type: 'Compound',
+		body: [
+			{
+				type: 'CUSTOM',
+				index: 3,
+				val: 1,
+			},
+			{
+				type: 'Literal',
+				value: 2,
+				raw: '2',
+			},
+		],
 	}, assert);
 });
 
