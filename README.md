@@ -24,7 +24,7 @@ The jsep built files will be in the build/ directory.
 #### Client-side
 
 ```javascript
-<script src="/PATH/TO/jsep.min.js" type="text/javascript"></script>
+<script src="/PATH/TO/jsep.min.js"></script>
 ...
 let parse_tree = jsep("1 + 1");
 ```
@@ -32,6 +32,7 @@ let parse_tree = jsep("1 + 1");
 #### Node.JS
 
 First, run `npm install jsep`. Then, in your source file:
+
 ```javascript
 let jsep = require("jsep");
 let parse_tree = jsep("1 + 1");
