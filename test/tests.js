@@ -1,3 +1,5 @@
+import jsep from "../src/jsep.js";
+
 (function() {
 var binops = {
 	"+" : function(a, b) { return a + b; },
