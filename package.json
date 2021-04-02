@@ -41,10 +41,10 @@
 		"test": "test"
 	},
 	"scripts": {
+		"default": "npm run build & npm run test & npm run docco",
 		"build": "npx rollup -c",
 		"build:watch": "npx rollup -c --watch",
 		"test": "npx http-server -p 49649 --silent & npx node-qunit-puppeteer http://localhost:49649/test/unit_tests.html",
-		"package": "node ./node_modules/grunt/bin/grunt package",
 		"docco": "npx docco src/jsep.js --css=src/docco.css --output=annotated_source/"
 	}
 }
