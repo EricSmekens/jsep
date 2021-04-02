@@ -9,3 +9,4 @@ annotated_source/
 
 #Build files
 [Bb]uild/
+dist/
