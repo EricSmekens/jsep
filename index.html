@@ -79,7 +79,7 @@
 						<h1>jsep</h1>
 						<p>a tiny JavaScript expression parser</p>
 						<div>
-							<a href="jsep-0.3.5.zip" class="btn btn-primary btn-lg">Download <small>v0.3.5</small></a>
+							<a href="https://github.com/EricSmekens/jsep/archive/refs/tags/v0.4.0.zip" class="btn btn-primary btn-lg">Download <small>v0.4.0</small></a>
 							<span class="size-info">1kb minified &amp; gzipped</span>
 						</div>
 						<div>
@@ -96,14 +96,15 @@
 					<div class="page-header">
 						<h2>Build from source</h2>
 					</div>
-					The easiest way to use jsep is to use the download link above. To build the latest version from code, you'll first need <a href="http://nodejs.org/">node.js</a>, <a href="http://npmjs.org/">npm</a>, <a href="http://git-scm.com/">git</a>, and <a href="http://gruntjs.com/">grunt</a>. Then, run the following command in your terminal:
+					The easiest way to use jsep is to use the download link above. To build the latest version from code, you'll first need <a href="http://nodejs.org/">node.js</a>, <a href="http://npmjs.org/">npm</a>, <a href="http://git-scm.com/">git</a>.
+					Then, run the following command in your terminal:
 <pre>
-git clone git@github.com:soney/jsep.git;
-cd jsep;
-npm install .;
-grunt
+git clone https://github.com/EricSmekens/jsep.git
+cd jsep
+npm install
+npm run build
 </pre>
-					The output will be in the build/ directory.
+					The output will be in the <code>dist/</code> directory.
 				</div>
 				<div class="col-md-6">
 					<div class="page-header">
@@ -111,24 +112,42 @@ grunt
 					</div>
 					<h4>Including jsep:</h4>
 					<h5 style="text-align: right">Client-side</h5>
+
+
+					<p>The simplest way to use jsep is to import it in your JS code:
 <pre>
-&lt;script src="PATH/TO/jsep.min.js"&gt;&lt;/script&gt;
+import jsep from "PATH/TO/dist/jsep.min.js";
+
+// Use jsep:
+jsep("1 + 1");
 </pre>
+					<p>Please note that for this to work, your the <code>&lt;script></code>
+						element with your code needs to have <code>type="module"</code></p>
+
+					<p>Note that you don't need to name the import <code>jsep</code>, you can name it anything you want.
+						E.g. this works just as well:</p>
+<pre>
+import parse from "PATH/TO/dist/jsep.min.js";
+
+// Use jsep:
+parse("1 + 1");
+</pre>
+					<p>If you want to use <code>jsep</code> as a global (legacy style):
+<pre>
+&lt;script src="PATH/TO/dist/jsep.iife.min.js"&gt;&lt;/script&gt;
+</pre>
+
+
 					<h5 style="text-align: right">Node.js</h5>
 <pre>
 // After running npm install jsep
-var jsep = require("jsep");
+let jsep = require("jsep");
 </pre>
 					<h4>Parsing:</h4>
 <pre>
-var parse_tree = jsep("1 + 1");
+let parse_tree = jsep("1 + 1");
 </pre>
-<h4>Ninja Mode:</h4>
-<pre>
-var ninja_jsep = jsep.noConflict();
-// The previous value of window.jsep restored
-ninja_jsep("'hello'")
-</pre>
+
 <h4>Custom Operators:</h4>
 <p>jsep also allows user-defined operators to be created.</p>
 <pre>
@@ -146,11 +165,11 @@ jsep.removeUnaryOp("~");
 </pre>
 				</div>
 			</div>
-			
+
 			<div class="row">
 				<div class="col-md-6">
-					
-				</div>		
+
+				</div>
 				<div class="col-md-6">
 
 				</div>
@@ -199,7 +218,7 @@ jsep.removeUnaryOp("~");
 			for(var prop in obj) {
 				if(obj.hasOwnProperty(prop)) {
 					var value = obj[prop];
-					
+
 					var li = $("<li />").appendTo(rv);
 					var prop_name = $("<span />")	.addClass("prop_name")
 													.appendTo(li)
@@ -207,9 +226,9 @@ jsep.removeUnaryOp("~");
 													;
 					var prop_val = $("<span />")	.addClass("prop_val")
 													.appendTo(li);
-													
+
 					if(typeof value === "string") {
-						prop_val.addClass("string").text("'" + value + "'");	
+						prop_val.addClass("string").text("'" + value + "'");
 					} else if(typeof value === "number") {
 						prop_val.addClass("number").text(value);
 					} else if(typeof value === "boolean") {
@@ -247,7 +266,7 @@ jsep.removeUnaryOp("~");
 					queued_call = true;
 					window.setTimeout(function() {
 						reeval_demo();
-						queued_call = false;				
+						queued_call = false;
 					}, 1);
 				}
 			};
