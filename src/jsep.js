@@ -16,7 +16,6 @@ let COMPOUND = 'Compound',
 	CALL_EXP = 'CallExpression',
 	UNARY_EXP = 'UnaryExpression',
 	BINARY_EXP = 'BinaryExpression',
-	LOGICAL_EXP = 'LogicalExpression',
 	CONDITIONAL_EXP = 'ConditionalExpression',
 	ARRAY_EXP = 'ArrayExpression';
 
@@ -95,11 +94,9 @@ let binaryPrecedence = function(op_val) {
 	};
 
 // Utility function (gets called from multiple places)
-// Also note that `a && b` and `a || b` are *logical* expressions, not binary expressions
 let createBinaryExpression = function (operator, left, right) {
-		var type = (operator === '||' || operator === '&&') ? LOGICAL_EXP : BINARY_EXP;
 		return {
-			type: type,
+			type: BINARY_EXP,
 			operator: operator,
 			left: left,
 			right: right
