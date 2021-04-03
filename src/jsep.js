@@ -67,8 +67,8 @@ let additional_identifier_chars = {'$': t, '_': t};
 // Get return the longest key length of any object
 let getMaxKeyLen = function(obj) {
 		var max_len = 0, len;
-		for(var key in obj) {
-			if((len = key.length) > max_len && obj.hasOwnProperty(key)) {
+		for (var key in obj) {
+			if ((len = key.length) > max_len && obj.hasOwnProperty(key)) {
 				max_len = len;
 			}
 		}
@@ -135,15 +135,19 @@ let isIdentifierPart = function(ch) {
 		var index = 0,
 			charAtFunc = expr.charAt,
 			charCodeAtFunc = expr.charCodeAt,
-			exprI = function(i) { return charAtFunc.call(expr, i); },
-			exprICode = function(i) { return charCodeAtFunc.call(expr, i); },
+			exprI = function(i) {
+				return charAtFunc.call(expr, i);
+			},
+			exprICode = function(i) {
+				return charCodeAtFunc.call(expr, i);
+			},
 			length = expr.length,
 
 			// Push `index` up to the next non-space character
 			gobbleSpaces = function() {
 				var ch = exprICode(index);
 				// space or tab
-				while(ch === 32 || ch === 9 || ch === 10 || ch === 13) {
+				while (ch === 32 || ch === 9 || ch === 10 || ch === 13) {
 					ch = exprICode(++index);
 				}
 			},
@@ -154,18 +158,22 @@ let isIdentifierPart = function(ch) {
 					consequent, alternate;
 				gobbleSpaces();
 
-				if(exprICode(index) === QUMARK_CODE) {
+				if (exprICode(index) === QUMARK_CODE) {
 					// Ternary expression: test ? consequent : alternate
 					index++;
 					consequent = gobbleExpression();
-					if(!consequent) {
+
+					if (!consequent) {
 						throwError('Expected expression', index);
 					}
+
 					gobbleSpaces();
-					if(exprICode(index) === COLON_CODE) {
+
+					if (exprICode(index) === COLON_CODE) {
 						index++;
 						alternate = gobbleExpression();
-						if(!alternate) {
+
+						if (!alternate) {
 							throwError('Expected expression', index);
 						}
 						return {
@@ -174,10 +182,12 @@ let isIdentifierPart = function(ch) {
 							consequent: consequent,
 							alternate: alternate
 						};
-					} else {
+					}
+					else {
 						throwError('Expected :', index);
 					}
-				} else {
+				}
+				else {
 					return test;
 				}
 			},
@@ -189,11 +199,11 @@ let isIdentifierPart = function(ch) {
 			gobbleBinaryOp = function() {
 				gobbleSpaces();
 				var biop, to_check = expr.substr(index, max_binop_len), tc_len = to_check.length;
-				while(tc_len > 0) {
+				while (tc_len > 0) {
 					// Don't accept a binary op when it is an identifier.
 					// Binary ops that start with a identifier-valid character must be followed
 					// by a non identifier-part valid character
-					if(binary_ops.hasOwnProperty(to_check) && (
+					if (binary_ops.hasOwnProperty(to_check) && (
 						!isIdentifierStart(exprICode(index)) ||
 						(index+to_check.length< expr.length && !isIdentifierPart(exprICode(index+to_check.length)))
 					)) {
@@ -216,7 +226,7 @@ let isIdentifierPart = function(ch) {
 				biop = gobbleBinaryOp();
 
 				// If there wasn't a binary operator, just return the leftmost node
-				if(!biop) {
+				if (!biop) {
 					return left;
 				}
 
@@ -225,21 +235,24 @@ let isIdentifierPart = function(ch) {
 				biop_info = { value: biop, prec: binaryPrecedence(biop)};
 
 				right = gobbleToken();
-				if(!right) {
+
+				if (!right) {
 					throwError("Expected expression after " + biop, index);
 				}
+
 				stack = [left, biop_info, right];
 
 				// Properly deal with precedence using [recursive descent](http://www.engr.mun.ca/~theo/Misc/exp_parsing.htm)
-				while((biop = gobbleBinaryOp())) {
+				while ((biop = gobbleBinaryOp())) {
 					prec = binaryPrecedence(biop);
 
-					if(prec === 0) {
+					if (prec === 0) {
 						break;
 					}
 					biop_info = { value: biop, prec: prec };
 
 					cur_biop = biop;
+
 					// Reduce: make a binary expression from the three topmost entries.
 					while ((stack.length > 2) && (prec <= stack[stack.length - 2].prec)) {
 						right = stack.pop();
@@ -250,18 +263,22 @@ let isIdentifierPart = function(ch) {
 					}
 
 					node = gobbleToken();
-					if(!node) {
+
+					if (!node) {
 						throwError("Expected expression after " + cur_biop, index);
 					}
+
 					stack.push(biop_info, node);
 				}
 
 				i = stack.length - 1;
 				node = stack[i];
-				while(i > 1) {
+
+				while (i > 1) {
 					node = createBinaryExpression(stack[i - 1].value, stack[i - 2], node);
 					i -= 2;
 				}
+
 				return node;
 			},
 
@@ -273,24 +290,27 @@ let isIdentifierPart = function(ch) {
 				gobbleSpaces();
 				ch = exprICode(index);
 
-				if(isDecimalDigit(ch) || ch === PERIOD_CODE) {
+				if (isDecimalDigit(ch) || ch === PERIOD_CODE) {
 					// Char code 46 is a dot `.` which can start off a numeric literal
 					return gobbleNumericLiteral();
 				}
 
-				if(ch === SQUOTE_CODE || ch === DQUOTE_CODE) {
+				if (ch === SQUOTE_CODE || ch === DQUOTE_CODE) {
 					// Single or double quotes
 					node = gobbleStringLiteral();
-				} else if (ch === OBRACK_CODE) {
+				}
+				else if (ch === OBRACK_CODE) {
 					node = gobbleArray();
-				} else {
+				}
+				else {
 					to_check = expr.substr(index, max_unop_len);
 					tc_len = to_check.length;
-					while(tc_len > 0) {
+
+					while (tc_len > 0) {
 					// Don't accept an unary op when it is an identifier.
 					// Unary ops that start with a identifier-valid character must be followed
 					// by a non identifier-part valid character
-						if(unary_ops.hasOwnProperty(to_check) && (
+						if (unary_ops.hasOwnProperty(to_check) && (
 							!isIdentifierStart(exprICode(index)) ||
 							(index+to_check.length < expr.length && !isIdentifierPart(exprICode(index+to_check.length)))
 						)) {
@@ -302,12 +322,14 @@ let isIdentifierPart = function(ch) {
 								prefix: true
 							};
 						}
+
 						to_check = to_check.substr(0, --tc_len);
 					}
 
 					if (isIdentifierStart(ch)) {
 						node = gobbleIdentifier();
-					} else if (ch === OPAREN_CODE) { // open parenthesis
+					}
+					else if (ch === OPAREN_CODE) { // open parenthesis
 						node = gobbleGroup();
 					}
 				}
@@ -325,9 +347,10 @@ let isIdentifierPart = function(ch) {
 				// It also gobbles function calls:
 				// e.g. `Math.acos(obj.angle)`
 
-				while(ch === PERIOD_CODE || ch === OBRACK_CODE || ch === OPAREN_CODE) {
+				while (ch === PERIOD_CODE || ch === OBRACK_CODE || ch === OPAREN_CODE) {
 					index++;
-					if(ch === PERIOD_CODE) {
+
+					if (ch === PERIOD_CODE) {
 						gobbleSpaces();
 						node = {
 							type: MEMBER_EXP,
@@ -335,7 +358,8 @@ let isIdentifierPart = function(ch) {
 							object: node,
 							property: gobbleIdentifier()
 						};
-					} else if(ch === OBRACK_CODE) {
+					}
+					else if (ch === OBRACK_CODE) {
 						node = {
 							type: MEMBER_EXP,
 							computed: true,
@@ -344,11 +368,12 @@ let isIdentifierPart = function(ch) {
 						};
 						gobbleSpaces();
 						ch = exprICode(index);
-						if(ch !== CBRACK_CODE) {
+						if (ch !== CBRACK_CODE) {
 							throwError('Unclosed [', index);
 						}
 						index++;
-					} else if(ch === OPAREN_CODE) {
+					}
+					else if (ch === OPAREN_CODE) {
 						// A function call is being made; gobble all the arguments
 						node = {
 							type: CALL_EXP,
@@ -366,40 +391,42 @@ let isIdentifierPart = function(ch) {
 			// keep track of everything in the numeric literal and then calling `parseFloat` on that string
 			gobbleNumericLiteral = function() {
 				var number = '', ch, chCode;
-				while(isDecimalDigit(exprICode(index))) {
+				while (isDecimalDigit(exprICode(index))) {
 					number += exprI(index++);
 				}
 
-				if(exprICode(index) === PERIOD_CODE) { // can start with a decimal marker
+				if (exprICode(index) === PERIOD_CODE) { // can start with a decimal marker
 					number += exprI(index++);
 
-					while(isDecimalDigit(exprICode(index))) {
+					while (isDecimalDigit(exprICode(index))) {
 						number += exprI(index++);
 					}
 				}
 
 				ch = exprI(index);
-				if(ch === 'e' || ch === 'E') { // exponent marker
+
+				if (ch === 'e' || ch === 'E') { // exponent marker
 					number += exprI(index++);
 					ch = exprI(index);
-					if(ch === '+' || ch === '-') { // exponent sign
+					if (ch === '+' || ch === '-') { // exponent sign
 						number += exprI(index++);
 					}
-					while(isDecimalDigit(exprICode(index))) { //exponent itself
+					while (isDecimalDigit(exprICode(index))) { // exponent itself
 						number += exprI(index++);
 					}
-					if(!isDecimalDigit(exprICode(index-1)) ) {
+					if (!isDecimalDigit(exprICode(index-1)) ) {
 						throwError('Expected exponent (' + number + exprI(index) + ')', index);
 					}
 				}
 
-
 				chCode = exprICode(index);
+
 				// Check to make sure this isn't a variable name that start with a number (123abc)
-				if(isIdentifierStart(chCode)) {
+				if (isIdentifierStart(chCode)) {
 					throwError('Variable names cannot start with a number (' +
 								number + exprI(index) + ')', index);
-				} else if(chCode === PERIOD_CODE) {
+				}
+				else if (chCode === PERIOD_CODE) {
 					throwError('Unexpected period', index);
 				}
 
@@ -415,15 +442,16 @@ let isIdentifierPart = function(ch) {
 			gobbleStringLiteral = function() {
 				var str = '', quote = exprI(index++), closed = false, ch;
 
-				while(index < length) {
+				while (index < length) {
 					ch = exprI(index++);
-					if(ch === quote) {
+					if (ch === quote) {
 						closed = true;
 						break;
-					} else if(ch === '\\') {
+					}
+					else if (ch === '\\') {
 						// Check for all of the common escape codes
 						ch = exprI(index++);
-						switch(ch) {
+						switch (ch) {
 							case 'n': str += '\n'; break;
 							case 'r': str += '\r'; break;
 							case 't': str += '\t'; break;
@@ -432,12 +460,13 @@ let isIdentifierPart = function(ch) {
 							case 'v': str += '\x0B'; break;
 							default : str += ch;
 						}
-					} else {
+					}
+					else {
 						str += ch;
 					}
 				}
 
-				if(!closed) {
+				if (!closed) {
 					throwError('Unclosed quote after "'+str+'"', index);
 				}
 
@@ -455,31 +484,36 @@ let isIdentifierPart = function(ch) {
 			gobbleIdentifier = function() {
 				var ch = exprICode(index), start = index, identifier;
 
-				if(isIdentifierStart(ch)) {
+				if (isIdentifierStart(ch)) {
 					index++;
-				} else {
+				}
+				else {
 					throwError('Unexpected ' + exprI(index), index);
 				}
 
-				while(index < length) {
+				while (index < length) {
 					ch = exprICode(index);
-					if(isIdentifierPart(ch)) {
+
+					if (isIdentifierPart(ch)) {
 						index++;
-					} else {
+					}
+					else {
 						break;
 					}
 				}
 				identifier = expr.slice(start, index);
 
-				if(literals.hasOwnProperty(identifier)) {
+				if (literals.hasOwnProperty(identifier)) {
 					return {
 						type: LITERAL,
 						value: literals[identifier],
 						raw: identifier
 					};
-				} else if(identifier === this_str) {
+				}
+				else if (identifier === this_str) {
 					return { type: THIS_EXP };
-				} else {
+				}
+				else {
 					return {
 						type: IDENTIFIER,
 						name: identifier
@@ -495,32 +529,34 @@ let isIdentifierPart = function(ch) {
 			gobbleArguments = function(termination) {
 				var ch_i, args = [], node, closed = false;
 				var separator_count = 0;
-				while(index < length) {
+				while (index < length) {
 					gobbleSpaces();
 					ch_i = exprICode(index);
-					if(ch_i === termination) { // done parsing
+					if (ch_i === termination) { // done parsing
 						closed = true;
 						index++;
-						if(termination === CPAREN_CODE && separator_count && separator_count >= args.length){
+						if (termination === CPAREN_CODE && separator_count && separator_count >= args.length){
 							throwError('Unexpected token ' + String.fromCharCode(termination), index);
 						}
 						break;
-					} else if (ch_i === COMMA_CODE) { // between expressions
+					}
+					else if (ch_i === COMMA_CODE) { // between expressions
 						index++;
 						separator_count++;
-						if(separator_count !== args.length) { // missing argument
-							if(termination === CPAREN_CODE) {
+						if (separator_count !== args.length) { // missing argument
+							if (termination === CPAREN_CODE) {
 								throwError('Unexpected token ,', index);
 							}
-							else if(termination === CBRACK_CODE) {
-								for(var arg = args.length; arg< separator_count; arg++) {
+							else if (termination === CBRACK_CODE) {
+								for (var arg = args.length; arg< separator_count; arg++) {
 									args.push(null);
 								}
 							}
 						}
-					} else {
+					}
+					else {
 						node = gobbleExpression();
-						if(!node || node.type === COMPOUND) {
+						if (!node || node.type === COMPOUND) {
 							throwError('Expected comma', index);
 						}
 						args.push(node);
@@ -541,10 +577,12 @@ let isIdentifierPart = function(ch) {
 				index++;
 				var node = gobbleExpression();
 				gobbleSpaces();
-				if(exprICode(index) === CPAREN_CODE) {
+
+				if (exprICode(index) === CPAREN_CODE) {
 					index++;
 					return node;
-				} else {
+				}
+				else {
 					throwError('Unclosed (', index);
 				}
 			},
@@ -562,29 +600,32 @@ let isIdentifierPart = function(ch) {
 
 			nodes = [], ch_i, node;
 
-		while(index < length) {
+		while (index < length) {
 			ch_i = exprICode(index);
 
 			// Expressions can be separated by semicolons, commas, or just inferred without any
 			// separators
-			if(ch_i === SEMCOL_CODE || ch_i === COMMA_CODE) {
+			if (ch_i === SEMCOL_CODE || ch_i === COMMA_CODE) {
 				index++; // ignore separators
-			} else {
+			}
+			else {
 				// Try to gobble each expression individually
-				if((node = gobbleExpression())) {
+				if (node = gobbleExpression()) {
 					nodes.push(node);
 				// If we weren't able to find a binary expression and are out of room, then
 				// the expression passed in probably has too much
-				} else if(index < length) {
+				}
+				else if (index < length) {
 					throwError('Unexpected "' + exprI(index) + '"', index);
 				}
 			}
 		}
 
 		// If there's only one expression just try returning the expression
-		if(nodes.length === 1) {
+		if (nodes.length === 1) {
 			return nodes[0];
-		} else {
+		}
+		else {
 			return {
 				type: COMPOUND,
 				body: nodes
@@ -594,7 +635,9 @@ let isIdentifierPart = function(ch) {
 
 // To be filled in by the template
 jsep.version = '<%= version %>';
-jsep.toString = function() { return 'JavaScript Expression Parser (JSEP) v' + jsep.version; };
+jsep.toString = function() {
+	return 'JavaScript Expression Parser (JSEP) v' + jsep.version;
+};
 
 /**
  * @method jsep.addUnaryOp
@@ -645,7 +688,7 @@ jsep.addLiteral = function(literal_name, literal_value) {
  */
 jsep.removeUnaryOp = function(op_name) {
 	delete unary_ops[op_name];
-	if(op_name.length === max_unop_len) {
+	if (op_name.length === max_unop_len) {
 		max_unop_len = getMaxKeyLen(unary_ops);
 	}
 	return this;
@@ -680,9 +723,11 @@ jsep.removeIdentifierChar = function(char) {
  */
 jsep.removeBinaryOp = function(op_name) {
 	delete binary_ops[op_name];
-	if(op_name.length === max_binop_len) {
+
+	if (op_name.length === max_binop_len) {
 		max_binop_len = getMaxKeyLen(binary_ops);
 	}
+
 	return this;
 };
 
