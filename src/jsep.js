@@ -32,7 +32,7 @@ let PERIOD_CODE = 46, // '.'
 	COLON_CODE  = 58; // :
 
 let throwError = function(message, index) {
-		var error = new Error(message + ' at character ' + index);
+		let error = new Error(message + ' at character ' + index);
 		error.index = index;
 		error.description = message;
 		throw error;
@@ -67,12 +67,15 @@ let additional_identifier_chars = {'$': 1, '_': 1};
 
 // Get return the longest key length of any object
 let getMaxKeyLen = function(obj) {
-		var max_len = 0, len;
-		for (var key in obj) {
+		let max_len = 0;
+		let len;
+
+		for (let key in obj) {
 			if ((len = key.length) > max_len && obj.hasOwnProperty(key)) {
 				max_len = len;
 			}
 		}
+
 		return max_len;
 	};
 let max_unop_len = getMaxKeyLen(unary_ops);
@@ -131,30 +134,31 @@ let isIdentifierPart = function(ch) {
 	let jsep = function(expr) {
 		// `index` stores the character number we are currently at while `length` is a constant
 		// All of the gobbles below will modify `index` as we move along
-		var index = 0,
-			charAtFunc = expr.charAt,
-			charCodeAtFunc = expr.charCodeAt,
-			exprI = function(i) {
+		let index = 0;
+		let charAtFunc = expr.charAt;
+		let charCodeAtFunc = expr.charCodeAt;
+		let exprI = function(i) {
 				return charAtFunc.call(expr, i);
-			},
-			exprICode = function(i) {
+			};
+		let exprICode = function(i) {
 				return charCodeAtFunc.call(expr, i);
-			},
-			length = expr.length,
+			};
+		let length = expr.length;
 
 			// Push `index` up to the next non-space character
-			gobbleSpaces = function() {
-				var ch = exprICode(index);
+		let gobbleSpaces = function() {
+				let ch = exprICode(index);
 				// space or tab
 				while (ch === 32 || ch === 9 || ch === 10 || ch === 13) {
 					ch = exprICode(++index);
 				}
-			},
+			};
 
 			// The main parsing function. Much of this code is dedicated to ternary expressions
-			gobbleExpression = function() {
-				var test = gobbleBinaryExpression(),
-					consequent, alternate;
+		let gobbleExpression = function() {
+				let test = gobbleBinaryExpression();
+				let consequent, alternate;
+				
 				gobbleSpaces();
 
 				if (exprICode(index) === QUMARK_CODE) {
@@ -189,15 +193,17 @@ let isIdentifierPart = function(ch) {
 				else {
 					return test;
 				}
-			},
+			};
 
 			// Search for the operation portion of the string (e.g. `+`, `===`)
 			// Start by taking the longest possible binary operations (3 characters: `===`, `!==`, `>>>`)
 			// and move down from 3 to 2 to 1 character until a matching binary operation is found
 			// then, return that binary operation
-			gobbleBinaryOp = function() {
+		let gobbleBinaryOp = function() {
 				gobbleSpaces();
-				var biop, to_check = expr.substr(index, max_binop_len), tc_len = to_check.length;
+				let biop, to_check = expr.substr(index, max_binop_len);
+				let tc_len = to_check.length;
+
 				while (tc_len > 0) {
 					// Don't accept a binary op when it is an identifier.
 					// Binary ops that start with a identifier-valid character must be followed
@@ -212,12 +218,12 @@ let isIdentifierPart = function(ch) {
 					to_check = to_check.substr(0, --tc_len);
 				}
 				return false;
-			},
+			};
 
 			// This function is responsible for gobbling an individual expression,
 			// e.g. `1`, `1+2`, `a+(b*2)-Math.sqrt(2)`
-			gobbleBinaryExpression = function() {
-				var ch_i, node, biop, prec, stack, biop_info, left, right, i, cur_biop;
+		let gobbleBinaryExpression = function() {
+				let ch_i, node, biop, prec, stack, biop_info, left, right, i, cur_biop;
 
 				// First, try to get the leftmost thing
 				// Then, check to see if there's a binary operator operating on that leftmost thing
@@ -279,12 +285,12 @@ let isIdentifierPart = function(ch) {
 				}
 
 				return node;
-			},
+			};
 
 			// An individual part of a binary expression:
 			// e.g. `foo.bar(baz)`, `1`, `"abc"`, `(a % 2)` (because it's in parenthesis)
-			gobbleToken = function() {
-				var ch, to_check, tc_len, node;
+			let gobbleToken = function() {
+				let ch, to_check, tc_len, node;
 
 				gobbleSpaces();
 				ch = exprICode(index);
@@ -385,11 +391,13 @@ let isIdentifierPart = function(ch) {
 				}
 
 				return node;
-			},
+			};
+
 			// Parse simple numeric literals: `12`, `3.4`, `.5`. Do this by using a string to
 			// keep track of everything in the numeric literal and then calling `parseFloat` on that string
-			gobbleNumericLiteral = function() {
-				var number = '', ch, chCode;
+			let gobbleNumericLiteral = function() {
+				let number = '', ch, chCode;
+
 				while (isDecimalDigit(exprICode(index))) {
 					number += exprI(index++);
 				}
@@ -434,15 +442,18 @@ let isIdentifierPart = function(ch) {
 					value: parseFloat(number),
 					raw: number
 				};
-			},
+			};
 
 			// Parses a string literal, staring with single or double quotes with basic support for escape codes
 			// e.g. `"hello world"`, `'this is\nJSEP'`
-			gobbleStringLiteral = function() {
-				var str = '', quote = exprI(index++), closed = false, ch;
+			let gobbleStringLiteral = function() {
+				let str = '';
+				let quote = exprI(index++);
+				let closed = false;
 
 				while (index < length) {
-					ch = exprI(index++);
+					let ch = exprI(index++);
+
 					if (ch === quote) {
 						closed = true;
 						break;
@@ -450,6 +461,7 @@ let isIdentifierPart = function(ch) {
 					else if (ch === '\\') {
 						// Check for all of the common escape codes
 						ch = exprI(index++);
+
 						switch (ch) {
 							case 'n': str += '\n'; break;
 							case 'r': str += '\r'; break;
@@ -474,14 +486,14 @@ let isIdentifierPart = function(ch) {
 					value: str,
 					raw: quote + str + quote
 				};
-			},
+			};
 
 			// Gobbles only identifiers
 			// e.g.: `foo`, `_value`, `$x1`
 			// Also, this function checks if that identifier is a literal:
 			// (e.g. `true`, `false`, `null`) or `this`
-			gobbleIdentifier = function() {
-				var ch = exprICode(index), start = index, identifier;
+			let gobbleIdentifier = function() {
+				let ch = exprICode(index), start = index, identifier;
 
 				if (isIdentifierStart(ch)) {
 					index++;
@@ -518,63 +530,73 @@ let isIdentifierPart = function(ch) {
 						name: identifier
 					};
 				}
-			},
+			};
 
 			// Gobbles a list of arguments within the context of a function call
 			// or array literal. This function also assumes that the opening character
 			// `(` or `[` has already been gobbled, and gobbles expressions and commas
 			// until the terminator character `)` or `]` is encountered.
 			// e.g. `foo(bar, baz)`, `my_func()`, or `[bar, baz]`
-			gobbleArguments = function(termination) {
-				var ch_i, args = [], node, closed = false;
-				var separator_count = 0;
+			let gobbleArguments = function(termination) {
+				let args = [];
+				let closed = false;
+				let separator_count = 0;
+
 				while (index < length) {
 					gobbleSpaces();
-					ch_i = exprICode(index);
+					let ch_i = exprICode(index);
+
 					if (ch_i === termination) { // done parsing
 						closed = true;
 						index++;
+
 						if (termination === CPAREN_CODE && separator_count && separator_count >= args.length){
 							throwError('Unexpected token ' + String.fromCharCode(termination), index);
 						}
+
 						break;
 					}
 					else if (ch_i === COMMA_CODE) { // between expressions
 						index++;
 						separator_count++;
+
 						if (separator_count !== args.length) { // missing argument
 							if (termination === CPAREN_CODE) {
 								throwError('Unexpected token ,', index);
 							}
 							else if (termination === CBRACK_CODE) {
-								for (var arg = args.length; arg< separator_count; arg++) {
+								for (let arg = args.length; arg < separator_count; arg++) {
 									args.push(null);
 								}
 							}
 						}
 					}
 					else {
-						node = gobbleExpression();
+						let node = gobbleExpression();
+
 						if (!node || node.type === COMPOUND) {
 							throwError('Expected comma', index);
 						}
+
 						args.push(node);
 					}
 				}
+
 				if (!closed) {
 					throwError('Expected ' + String.fromCharCode(termination), index);
 				}
+
 				return args;
-			},
+			};
 
 			// Responsible for parsing a group of things within parentheses `()`
 			// This function assumes that it needs to gobble the opening parenthesis
 			// and then tries to gobble everything within that parenthesis, assuming
 			// that the next thing it should see is the close parenthesis. If not,
 			// then the expression probably doesn't have a `)`
-			gobbleGroup = function() {
+			let gobbleGroup = function() {
 				index++;
-				var node = gobbleExpression();
+				let node = gobbleExpression();
 				gobbleSpaces();
 
 				if (exprICode(index) === CPAREN_CODE) {
@@ -584,20 +606,21 @@ let isIdentifierPart = function(ch) {
 				else {
 					throwError('Unclosed (', index);
 				}
-			},
+			};
 
 			// Responsible for parsing Array literals `[1, 2, 3]`
 			// This function assumes that it needs to gobble the opening bracket
 			// and then tries to gobble the expressions as arguments.
-			gobbleArray = function() {
+			let gobbleArray = function() {
 				index++;
+
 				return {
 					type: ARRAY_EXP,
 					elements: gobbleArguments(CBRACK_CODE)
 				};
-			},
+			};
 
-			nodes = [], ch_i, node;
+			let nodes = [], ch_i, node;
 
 		while (index < length) {
 			ch_i = exprICode(index);
