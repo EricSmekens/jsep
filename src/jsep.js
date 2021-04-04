@@ -67,16 +67,7 @@ let additional_identifier_chars = {'$': 1, '_': 1};
 
 // Get return the longest key length of any object
 let getMaxKeyLen = function(obj) {
-	let max_len = 0;
-	let len;
-
-	for (let key in obj) {
-		if ((len = key.length) > max_len && obj.hasOwnProperty(key)) {
-			max_len = len;
-		}
-	}
-
-	return max_len;
+	return Math.max(0, ...Object.keys(obj).map(k => k.length));
 };
 
 let max_unop_len = getMaxKeyLen(unary_ops);
