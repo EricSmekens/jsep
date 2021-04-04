@@ -8,28 +8,32 @@
 
 // This is the full set of types that any JSEP node can be.
 // Store them here to save space when minified
-let COMPOUND = 'Compound',
-	IDENTIFIER = 'Identifier',
-	MEMBER_EXP = 'MemberExpression',
-	LITERAL = 'Literal',
-	THIS_EXP = 'ThisExpression',
-	CALL_EXP = 'CallExpression',
-	UNARY_EXP = 'UnaryExpression',
-	BINARY_EXP = 'BinaryExpression',
-	CONDITIONAL_EXP = 'ConditionalExpression',
-	ARRAY_EXP = 'ArrayExpression';
+const COMPOUND = 'Compound',
+      IDENTIFIER = 'Identifier',
+      MEMBER_EXP = 'MemberExpression',
+      LITERAL = 'Literal',
+      THIS_EXP = 'ThisExpression',
+      CALL_EXP = 'CallExpression',
+      UNARY_EXP = 'UnaryExpression',
+      BINARY_EXP = 'BinaryExpression',
+      CONDITIONAL_EXP = 'ConditionalExpression',
+      ARRAY_EXP = 'ArrayExpression';
 
-let PERIOD_CODE = 46, // '.'
-	COMMA_CODE  = 44, // ','
-	SQUOTE_CODE = 39, // single quote
-	DQUOTE_CODE = 34, // double quotes
-	OPAREN_CODE = 40, // (
-	CPAREN_CODE = 41, // )
-	OBRACK_CODE = 91, // [
-	CBRACK_CODE = 93, // ]
-	QUMARK_CODE = 63, // ?
-	SEMCOL_CODE = 59, // ;
-	COLON_CODE  = 58; // :
+const TAB_CODE    = 9,
+      LF_CODE     = 10,
+      CR_CODE     = 13,
+      SPACE_CODE  = 32,
+      PERIOD_CODE = 46, // '.'
+      COMMA_CODE  = 44, // ','
+      SQUOTE_CODE = 39, // single quote
+      DQUOTE_CODE = 34, // double quotes
+      OPAREN_CODE = 40, // (
+      CPAREN_CODE = 41, // )
+      OBRACK_CODE = 91, // [
+      CBRACK_CODE = 93, // ]
+      QUMARK_CODE = 63, // ?
+      SEMCOL_CODE = 59, // ;
+      COLON_CODE  = 58; // :
 
 let throwError = function(message, index) {
 	let error = new Error(message + ' at character ' + index);
@@ -136,8 +140,8 @@ let jsep = function(expr) {
 	// Push `index` up to the next non-space character
 	let gobbleSpaces = function() {
 		let ch = exprICode(index);
-		// space or tab
-		while (ch === 32 || ch === 9 || ch === 10 || ch === 13) {
+		// Whitespace
+		while (ch === SPACE_CODE || ch === TAB_CODE || ch === LF_CODE || ch === CR_CODE) {
 			ch = exprICode(++index);
 		}
 	};
