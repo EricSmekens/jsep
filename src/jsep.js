@@ -102,9 +102,9 @@ let binaryPrecedence = function(op_val) {
 let createBinaryExpression = function (operator, left, right) {
 		return {
 			type: BINARY_EXP,
-			operator: operator,
-			left: left,
-			right: right
+			operator,
+			left,
+			right
 		};
 	};
 
@@ -158,7 +158,7 @@ let isIdentifierPart = function(ch) {
 		let gobbleExpression = function() {
 				let test = gobbleBinaryExpression();
 				let consequent, alternate;
-				
+
 				gobbleSpaces();
 
 				if (exprICode(index) === QUMARK_CODE) {
@@ -181,9 +181,9 @@ let isIdentifierPart = function(ch) {
 						}
 						return {
 							type: CONDITIONAL_EXP,
-							test: test,
-							consequent: consequent,
-							alternate: alternate
+							test,
+							consequent,
+							alternate
 						};
 					}
 					else {
@@ -254,7 +254,8 @@ let isIdentifierPart = function(ch) {
 					if (prec === 0) {
 						break;
 					}
-					biop_info = { value: biop, prec: prec };
+					
+					biop_info = { value: biop, prec };
 
 					cur_biop = biop;
 
