@@ -67,7 +67,7 @@ let binary_ops = {
 };
 
 // Additional valid identifier chars, apart from a-z, A-Z and 0-9 (except on the starting char)
-let additional_identifier_chars = {'$': 1, '_': 1};
+let additional_identifier_chars = new Set('$', '_');
 
 // Get return the longest key length of any object
 let getMaxKeyLen = function(obj) {
@@ -113,7 +113,7 @@ let isIdentifierStart = function(ch) {
 	return  (ch >= 65 && ch <= 90) || // A...Z
 			(ch >= 97 && ch <= 122) || // a...z
 			(ch >= 128 && !binary_ops[String.fromCharCode(ch)]) || // any non-ASCII that is not an operator
-			(additional_identifier_chars.hasOwnProperty(String.fromCharCode(ch))); // additional characters
+			(additional_identifier_chars.has(String.fromCharCode(ch))); // additional characters
 };
 
 let isIdentifierPart = function(ch) {
@@ -686,7 +686,7 @@ jsep.addBinaryOp = function(op_name, precedence) {
  * @return jsep
  */
 jsep.addIdentifierChar = function(char) {
-	additional_identifier_chars[char] = 1;
+	additional_identifier_chars.add(char);
 	return this;
 };
 
@@ -731,7 +731,7 @@ jsep.removeAllUnaryOps = function() {
  * @return jsep
  */
 jsep.removeIdentifierChar = function(char) {
-	delete additional_identifier_chars[char];
+	additional_identifier_chars.delete(char);
 	return this;
 };
 
