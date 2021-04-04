@@ -41,12 +41,14 @@ let throwError = function(message, index) {
 // Operations
 // ----------
 
-// Set `t` to `true` to save space (when minified, not gzipped)
-let t = true;
-
 // Use a quickly-accessible map to store all of the unary operators
-// Values are set to `true` (it really doesn't matter)
-let unary_ops = {'-': t, '!': t, '~': t, '+': t};
+// Values are set to `1` (it really doesn't matter)
+let unary_ops = {
+	'-': 1,
+	'!': 1,
+	'~': 1,
+	'+': 1
+};
 
 // Also use a map for the binary operations but set their values to their
 // binary precedence for quick reference:
@@ -61,7 +63,7 @@ let binary_ops = {
 	};
 
 // Additional valid identifier chars, apart from a-z, A-Z and 0-9 (except on the starting char)
-let additional_identifier_chars = {'$': t, '_': t};
+let additional_identifier_chars = {'$': 1, '_': 1};
 
 // Get return the longest key length of any object
 let getMaxKeyLen = function(obj) {
@@ -643,7 +645,8 @@ jsep.toString = function() {
  */
 jsep.addUnaryOp = function(op_name) {
 	max_unop_len = Math.max(op_name.length, max_unop_len);
-	unary_ops[op_name] = t; return this;
+	unary_ops[op_name] = 1;
+	return this;
 };
 
 /**
@@ -664,7 +667,8 @@ jsep.addBinaryOp = function(op_name, precedence) {
  * @return jsep
  */
 jsep.addIdentifierChar = function(char) {
-	additional_identifier_chars[char] = t; return this;
+	additional_identifier_chars[char] = 1;
+	return this;
 };
 
 /**
