@@ -1,3 +1,5 @@
+import jsep from "../src/jsep.js";
+
 (function() {
 var binops = {
 	"+" : function(a, b) { return a + b; },
@@ -8,7 +10,7 @@ var binops = {
 };
 var unops = {
 	"-" : function(a) { return -a; },
-	"+" : function(a) { return -a; }
+	"+" : function(a) { return +a; }
 };
 
 var do_eval = function(node) {

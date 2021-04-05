@@ -2,10 +2,9 @@
 .idea
 .vscode
 .DS_Store
-node_modules
+node_modules/
 *.zip
+
+# Build files
 annotated_source/
-
-
-#Build files
-[Bb]uild/
+dist/
