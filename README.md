@@ -66,6 +66,60 @@ jsep.addIdentifierChar("@");
 jsep.removeIdentifierChar('@');
 ```
 
+### Plugins
+jsep supports defining custom hooks for extending or modifying the expression parsing.
+All hooks are called with a single argument and return void.
+The hook argument provides access to the internal parsing methods of jsep
+to allow reuse as needed.
+
+#### Hook Argument
+```typescript
+export interface HookScope {
+    index: number;
+    expr: string;
+    exprI: string;
+    exprICode: () => number;
+    gobbleSpaces: () => void;
+    gobbleExpression: () => Expression;
+    gobbleBinaryOp: () => PossibleExpression;
+    gobbleBinaryExpression: () => PossibleExpression;
+    gobbleToken: () =>  PossibleExpression;
+    gobbleNumericLiteral: () => PossibleExpression;
+    gobbleStringLiteral: () => PossibleExpression;
+    gobbleIdentifier: () => PossibleExpression;
+    gobbleArguments: (number) => PossibleExpression;
+    gobbleGroup: () => Expression;
+    gobbleArray: () => PossibleExpression;
+    throwError: (string) => void;
+    nodes: Expression[];
+    node: PossibleExpression;
+}
+```
+
+#### Hook Types
+* `before-all`: called just before starting expression parsing
+* `after-all`: called just before returning from parsing
+* `before-expression`: called just before attempting to parse an expression
+* `after-expression`: called just after parsing an expression
+* `before-binary`: called just before attempting to parse a binary expression
+* `after-binary`: called just after parsing a binary expression
+* `before-token`: called just before parsing attempting to parse a token
+* `after-token`: called just after parsing a token
+
+#### How to add plugins:
+```javascript
+const jsep = require('jsep');
+const plugins = require('jsep/plugins');
+plugins.forEach(p => p(jsep));
+```
+
+#### Optional Plugins:
+* `arrowFunction`: Adds arrow-function support, `(a) => x`, `x => x`
+* `assignment`: Adds support for assignment expressions
+* `new`: Adds support for the `new` operator
+* `object`: Adds support for object literals and object expressions
+* `ternary`: Built-in by default, adds support for ternary `a ? b : c` expressions
+
 ### License
 
 jsep is under the MIT license. See LICENSE file.

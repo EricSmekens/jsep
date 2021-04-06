@@ -1,3 +1,5 @@
+import { Expression } from 'jsep';
+
 declare module 'jsep' {
 
     namespace jsep {
@@ -71,7 +73,90 @@ declare module 'jsep' {
             prefix: boolean;
         }
 
-        type ExpressionType = 'Compound' | 'Identifier' | 'MemberExpression' | 'Literal' | 'ThisExpression' | 'CallExpression' | 'UnaryExpression' | 'BinaryExpression' | 'LogicalExpression' | 'ConditionalExpression' | 'ArrayExpression';
+        // plugin types:
+        export interface ArrowFunctionExpression extends Expression {
+            type: 'ArrowFunctionExpression',
+            params?: Expression[];
+            body: Expression;
+        }
+
+        export interface SpreadElement extends Expression {
+            type: 'SpreadElement';
+            argument: Expression;
+        }
+
+        export interface AssignmentExpression extends Expression {
+            type: 'AssignmentExpression',
+            operator: string;
+            left: Expression;
+            right: Expression;
+        }
+
+        export interface NewExpression extends Expression {
+            type: 'NewExpression';
+            node: Expression;
+        }
+
+        export interface ObjectExpression extends Expression {
+            type: 'ObjectExpression';
+            properties: Array<Property | Identifier | SpreadElement>;
+        }
+
+        export interface ObjectPatterson extends Expression {
+            type: 'ObjectPattern';
+            properties: Array<Property | Identifier | SpreadElement>;
+        }
+
+        export interface Property extends Expression {
+            type: 'Property';
+            computed: boolean;
+            key: Expression;
+            value: Expression;
+            shorthand: boolean;
+        }
+
+        type ExpressionType = 'Compound'
+          | 'Identifier'
+          | 'MemberExpression'
+          | 'Literal'
+          | 'ThisExpression'
+          | 'CallExpression'
+          | 'UnaryExpression'
+          | 'BinaryExpression'
+          | 'LogicalExpression'
+          | 'ConditionalExpression'
+          | 'ArrayExpression'
+          | 'ArrowFunctionExpression'
+          | 'SpreadElement'
+          | 'AssignmentExpression'
+          | 'NewExpression'
+          | 'ObjectExpression'
+          | 'ObjectPattern'
+          | 'Property';
+
+        export type PossibleExpression = Expression | false;
+        export interface HookScope {
+            index: number;
+            expr: string;
+            exprI: string;
+            exprICode: () => number;
+            gobbleSpaces: () => void;
+            gobbleExpression: () => Expression;
+            gobbleBinaryOp: () => PossibleExpression;
+            gobbleBinaryExpression: () => PossibleExpression;
+            gobbleToken: () =>  PossibleExpression;
+            gobbleNumericLiteral: () => PossibleExpression;
+            gobbleStringLiteral: () => PossibleExpression;
+            gobbleIdentifier: () => PossibleExpression;
+            gobbleArguments: (number) => PossibleExpression;
+            gobbleGroup: () => Expression;
+            gobbleArray: () => PossibleExpression;
+            throwError: (string) => void;
+            nodes: Expression[];
+            node: PossibleExpression;
+        }
+
+        export type HookCallback = (env: HookScope) => void;
 
         function addBinaryOp(operatorName: string, precedence: number): void;
 
@@ -84,6 +169,17 @@ declare module 'jsep' {
         function addIdentifierChar(identifierName: string): void;
 
         function removeIdentifierChar(identifierName: string): void;
+
+        const hooks: {
+            'before-all'?: HookCallback;
+            'after-all'?: HookCallback;
+            'before-expression'?: HookCallback;
+            'after-expression'?: HookCallback;
+            'before-binary'?: HookCallback;
+            'after-binary'?: HookCallback;
+            'before-token'?: HookCallback;
+            'after-token'?: HookCallback;
+        };
 
         const version: string;
     }

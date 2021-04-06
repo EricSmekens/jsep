@@ -14,7 +14,6 @@ const COMPOUND = 'Compound',
       LITERAL = 'Literal',
       THIS_EXP = 'ThisExpression',
       CALL_EXP = 'CallExpression',
-      ARROW_EXP = 'ArrowFunctionExpression',
       UNARY_EXP = 'UnaryExpression',
       BINARY_EXP = 'BinaryExpression',
       CONDITIONAL_EXP = 'ConditionalExpression',
@@ -34,9 +33,7 @@ const TAB_CODE    = 9,
       CBRACK_CODE = 93, // ]
       QUMARK_CODE = 63, // ?
       SEMCOL_CODE = 59, // ;
-      COLON_CODE  = 58, // :
-      EQUAL_CODE  = 61, // =
-	    GTHAN_CODE  = 62; // >
+      COLON_CODE  = 58; // :
 
 let throwError = function(message, index) {
 	let error = new Error(message + ' at character ' + index);
@@ -71,48 +68,6 @@ let binary_ops = {
 
 // Additional valid identifier chars, apart from a-z, A-Z and 0-9 (except on the starting char)
 let additional_identifier_chars = new Set('$', '_');
-
-// Expression Parsers, keyed by starting character. See ExpressionParser
-// { [key: string]: (node) => node }
-let expression_parsers = {
-	'?': function ternary(test) {
-		// Ternary expression: test ? consequent : alternate
-		let consequent, alternate;
-		consequent = this.gobbleExpression();
-		if (!consequent) {
-			throwError('Expected expression', this.index);
-		}
-		this.gobbleSpaces();
-		if (this.exprICode(this.index) === COLON_CODE) {
-			this.index++;
-			alternate = this.gobbleExpression();
-			if (!alternate) {
-				throwError('Expected expression', this.index);
-			}
-			return {
-				type: CONDITIONAL_EXP,
-				test: test,
-				consequent: consequent,
-				alternate: alternate
-			};
-		} else {
-			this.throwError('Expected :', this.index);
-		}
-	},
-	'=': function arrow(node) {
-		// arrow expression: () => expr
-		if (this.exprICode(this.index) === GTHAN_CODE) {
-			this.index++;
-			return {
-				type: ARROW_EXP,
-				params: node ? [node] : null,
-				body: this.gobbleExpression(),
-			};
-		} else {
-			this.throwError('Expected >', this.index);
-		}
-	},
-};
 
 // Get return the longest key length of any object
 let getMaxKeyLen = function(obj) {
@@ -181,6 +136,7 @@ let jsep = function(expr) {
 		return charCodeAtFunc.call(expr, i);
 	};
 	let length = expr.length;
+	const hooks = jsep.hooks;
 
 	// Push `index` up to the next non-space character
 	let gobbleSpaces = function() {
@@ -193,16 +149,13 @@ let jsep = function(expr) {
 
 	// The main parsing function. Much of this code is dedicated to ternary expressions
 	let gobbleExpression = function() {
-		let test = gobbleBinaryExpression();
+		hooks.run('before-expression', hookScope);
+
+		hookScope.node = gobbleBinaryExpression();
 		gobbleSpaces();
 
-		let ch = exprI(index);
-		if (expression_parsers.hasOwnProperty(ch)) {
-			index++;
-			return expression_parsers[ch].bind(expression_parser_scope)(test, expression_parser_scope);
-		} else {
-			return test;
-		}
+		hooks.run('after-expression', hookScope);
+		return hookScope.node;
 	};
 
 	// Search for the operation portion of the string (e.g. `+`, `===`)
@@ -211,7 +164,7 @@ let jsep = function(expr) {
 	// then, return that binary operation
 	let gobbleBinaryOp = function() {
 		gobbleSpaces();
-		let biop, to_check = expr.substr(index, max_binop_len);
+		let to_check = expr.substr(index, max_binop_len);
 		let tc_len = to_check.length;
 
 		while (tc_len > 0) {
@@ -233,7 +186,13 @@ let jsep = function(expr) {
 	// This function is responsible for gobbling an individual expression,
 	// e.g. `1`, `1+2`, `a+(b*2)-Math.sqrt(2)`
 	let gobbleBinaryExpression = function() {
-		let ch_i, node, biop, prec, stack, biop_info, left, right, i, cur_biop;
+		hookScope.node = false;
+		hooks.run('before-binary', hookScope);
+		if (hookScope.node) {
+			return hookScope.node;
+		}
+
+		let node, biop, prec, stack, biop_info, left, right, i, cur_biop;
 
 		// First, try to get the leftmost thing
 		// Then, check to see if there's a binary operator operating on that leftmost thing
@@ -295,7 +254,9 @@ let jsep = function(expr) {
 			i -= 2;
 		}
 
-		return node;
+		hookScope.node = node;
+		hooks.run('after-binary', hookScope);
+		return hookScope.node;
 	};
 
 	// An individual part of a binary expression:
@@ -304,6 +265,12 @@ let jsep = function(expr) {
 		let ch, to_check, tc_len, node;
 
 		gobbleSpaces();
+		hookScope.node = null;
+		hooks.run('before-token', hookScope);
+		if (hookScope.node) {
+			return hookScope.node;
+		}
+
 		ch = exprICode(index);
 
 		if (isDecimalDigit(ch) || ch === PERIOD_CODE) {
@@ -331,12 +298,14 @@ let jsep = function(expr) {
 					(index+to_check.length < expr.length && !isIdentifierPart(exprICode(index+to_check.length)))
 				)) {
 					index += tc_len;
-					return {
+					hookScope.node = {
 						type: UNARY_EXP,
 						operator: to_check,
 						argument: gobbleToken(),
 						prefix: true
 					};
+					hooks.run('after-token', hookScope);
+					return hookScope.node;
 				}
 
 				to_check = to_check.substr(0, --tc_len);
@@ -351,7 +320,9 @@ let jsep = function(expr) {
 		}
 
 		if (!node) {
-			return false;
+			hookScope.node = false;
+			hooks.run('after-token', hookScope);
+			return hookScope.node;
 		}
 
 		gobbleSpaces();
@@ -401,7 +372,9 @@ let jsep = function(expr) {
 			ch = exprICode(index);
 		}
 
-		return node;
+		hookScope.node = node;
+		hooks.run('after-token', hookScope);
+		return hookScope.node;
 	};
 
 	// Parse simple numeric literals: `12`, `3.4`, `.5`. Do this by using a string to
@@ -616,18 +589,20 @@ let jsep = function(expr) {
 		if (exprICode(index) === CPAREN_CODE) {
 			index++;
 			return node;
-		} else if (exprICode(index) === COMMA_CODE) {
+		}
+		else if (exprICode(index) === COMMA_CODE) {
 			// arrow function arguments:
 			index++;
 			let params = gobbleArguments(CPAREN_CODE);
 			params.unshift(node);
 			node = gobbleExpression();
-			if (!node || node.type !== ARROW_EXP) {
+			if (!node) {
 				throwError('Unclosed (', index);
 			}
 			node.params = params;
 			return node;
-		} else {
+		}
+		else {
 			throwError('Unclosed (', index);
 		}
 	};
@@ -644,19 +619,39 @@ let jsep = function(expr) {
 		};
 	};
 
-	let expression_parser_scope = {
-		get index() { return index; },
-		set index(v) { index = v; },
-		exprI: exprI,
-		exprICode: exprICode,
-		gobbleSpaces: gobbleSpaces,
-		gobbleExpression: gobbleExpression,
-		throwError: throwError,
-	};
-
 	let nodes = [], ch_i, node;
 
+	const hookScope = {
+		get index() {
+			return index;
+		},
+		set index(v) {
+			index = v;
+		},
+		expr,
+		exprI,
+		exprICode,
+		gobbleSpaces,
+		gobbleExpression,
+		gobbleBinaryOp,
+		gobbleBinaryExpression,
+		gobbleToken,
+		gobbleNumericLiteral,
+		gobbleStringLiteral,
+		gobbleIdentifier,
+		gobbleArguments,
+		gobbleGroup,
+		gobbleArray,
+		throwError: (e) => throwError(e, index),
+		nodes,
+		node,
+	};
+
+	hooks.run('before-all', hookScope);
+
 	while (index < length) {
+		hooks.run('before-expression', hookScope);
+
 		ch_i = exprICode(index);
 
 		// Expressions can be separated by semicolons, commas, or just inferred without any
@@ -677,6 +672,8 @@ let jsep = function(expr) {
 		}
 	}
 
+	hooks.run('after-all', hookScope);
+
 	// If there's only one expression just try returning the expression
 	if (nodes.length === 1) {
 		return nodes[0];
@@ -693,6 +690,50 @@ let jsep = function(expr) {
 jsep.version = '<%= version %>';
 jsep.toString = function() {
 	return 'JavaScript Expression Parser (JSEP) v' + jsep.version;
+};
+
+jsep.hooks = {
+	all: {},
+
+	/**
+	 * Adds the given callback to the list of callbacks for the given hook.
+	 *
+	 * The callback will be invoked when the hook it is registered for is run.
+	 *
+	 * One callback function can be registered to multiple hooks and the same hook multiple times.
+	 *
+	 * @param {string} name The name of the hook.
+	 * @param {HookCallback} callback The callback function which is given environment variables.
+	 * @public
+	 */
+	add: function (name, callback) {
+		let hooks = jsep.hooks.all;
+
+		hooks[name] = hooks[name] || [];
+
+		hooks[name].push(callback);
+	},
+
+	/**
+	 * Runs a hook invoking all registered callbacks with the given environment variables.
+	 *
+	 * Callbacks will be invoked synchronously and in the order in which they were registered.
+	 *
+	 * @param {string} name The name of the hook.
+	 * @param {Object<string, any>} env The environment variables of the hook passed to all callbacks registered.
+	 * @public
+	 */
+	run: function (name, env) {
+		let callbacks = jsep.hooks.all[name];
+
+		if (!callbacks || !callbacks.length) {
+			return;
+		}
+
+		for (let i = 0, callback; callback = callbacks[i++];) {
+			callback(env);
+		}
+	}
 };
 
 /**
@@ -726,24 +767,6 @@ jsep.addBinaryOp = function(op_name, precedence) {
 jsep.addIdentifierChar = function(char) {
 	additional_identifier_chars.add(char);
 	return this;
-};
-
-/**
- * This callback is an expression parser
- * @callback ExpressionParser
- * @this {{ index: number, exprI: function, exprICode: function, gobbleSpaces: function, gobbleExpression: function, throwError: function}}
- * @param {*} node
- * @param {*} thisAsArg - same as @this
- * @returns {*} node
- */
-/**
- * @method jsep.addExpressionParser
- * @param {string} char The additional character to treat as the start of an expression
- * @param {ExpressionParser} fn
- * @return jsep
- */
-jsep.addExpressionParser = function(char, fn) {
-	expression_parsers[char] = fn; return this;
 };
 
 /**
@@ -792,25 +815,6 @@ jsep.removeIdentifierChar = function(char) {
 };
 
 /**
- * @method jsep.removeExpressionParser
- * @param {string} char The character to stop treating as a valid part of an expression
- * @return jsep
- */
-jsep.removeExpressionParser = function(char) {
-	delete expression_parsers[char];
-	return this;
-};
-
-/**
- * @method jsep.removeAllExpressionParsers
- * @return jsep
- */
-jsep.removeAllExpressionParsers = function() {
-	expression_parsers = {};
-	return this;
-};
-
-/**
  * @method jsep.removeBinaryOp
  * @param {string} op_name The name of the binary op to remove
  * @return jsep
@@ -855,5 +859,43 @@ jsep.removeAllLiterals = function() {
 
 	return this;
 };
+
+// ternary support as a plugin:
+jsep.hooks.add('after-expression', function gobbleTernary(env) {
+	if (env.exprICode(env.index) === QUMARK_CODE) {
+		// Ternary expression: test ? consequent : alternate
+		env.index++;
+		const test = env.node;
+		let consequent, alternate;
+		consequent = env.gobbleExpression();
+		if (!consequent) {
+			env.throwError('Expected expression');
+		}
+
+		env.gobbleSpaces();
+		if (env.exprICode(env.index) === COLON_CODE) {
+			env.index++;
+			alternate = env.gobbleExpression();
+			if (!alternate) {
+				env.throwError('Expected expression');
+			}
+		}
+		else if (consequent.operator === ':') {
+			// (object support is enabled)
+			alternate = consequent.right;
+			consequent = consequent.left;
+		}
+		else {
+			env.throwError('Expected :');
+		}
+
+		env.node = {
+			type: CONDITIONAL_EXP,
+			test,
+			consequent,
+			alternate,
+		};
+	}
+});
 
 export default jsep;

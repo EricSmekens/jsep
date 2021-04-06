@@ -1,6 +1,9 @@
 import jsep from "../src/jsep.js";
+import plugins from '../plugins/index.js';
 
 (function() {
+plugins.forEach(p => p(jsep));
+
 var binops = {
 	"+" : function(a, b) { return a + b; },
 	"-" : function(a, b) { return a - b; },
@@ -32,7 +35,7 @@ var filter_props = function(larger, smaller) {
 	var prop_val;
 	for(var prop_name in smaller) {
 		prop_val  = smaller[prop_name];
-		if(typeof prop_val === 'string' || typeof prop_val === 'number') {
+		if(typeof prop_val === 'string' || typeof prop_val === 'number' || typeof prop_val === 'boolean' || prop_val === null) {
 			rv[prop_name] = larger[prop_name];
 		} else {
 			rv[prop_name] = filter_props(larger[prop_name], prop_val);
@@ -43,7 +46,9 @@ var filter_props = function(larger, smaller) {
 
 var parse = jsep;
 var test_parser = function(inp, out, assert) {
+	// console.log('input', inp);
 	var parse_val = parse(inp);
+	// console.log('output', JSON.stringify(parse_val, null, 2));
 	return assert.deepEqual(filter_props(parse_val, out), out);
 };
 var esprima_comparison_test = function(str, assert) {
@@ -72,89 +77,394 @@ QUnit.test('Variables', function(assert) {
 });
 
 QUnit.test('Function Calls', function(assert) {
-	//test_parser("a(b, c(d,e), f)", {});
-	test_parser("a b + c", {}, assert);
-	test_parser("'a'.toString()", {}, assert);
-	test_parser("[1].length", {}, assert);
-	test_parser(";", {}, assert);
-	test_parser("a().b(1)", {}, assert);
-	test_parser("(['a', 'b'].find(v => v === 'b').length > 1 || 2) === true", {}, assert);
-	test_parser('a.find((val, key) => key === "abc")', {}, assert);
-	test_parser('a.find(val => key === "abc")', {}, assert);
-	test_parser('a.find(() => true)', {}, assert);
-	test_parser("a.find(() => []).length > 2", {}, assert);
-	test_parser('[1, 2].find(v => v === 2) >= 0', {}, assert);
-	test_parser('(a || b).find(v => v(1))', {}, assert);
-});
-
-QUnit.test('Arrays', function(assert) {
-	test_parser("[]", {type: 'ArrayExpression', elements: []}, assert);
-
-	test_parser("[a]", {
-		type: 'ArrayExpression',
-		elements: [{type: 'Identifier', name: 'a'}]
-	}, assert);
-});
-
-QUnit.test('Ops', function(assert) {
-	test_op_expession("1", assert);
-	test_op_expession("1+2", assert);
-	test_op_expession("1*2", assert);
-	test_op_expession("1*(2+3)", assert);
-	test_op_expession("(1+2)*3", assert);
-	test_op_expession("(1+2)*3+4-2-5+2/2*3", assert);
-	test_op_expession("1 + 2-   3*	4 /8", assert);
-	test_op_expession("\n1\r\n+\n2\n", assert);
-});
-
-QUnit.test('Custom operators', function(assert) {
-	jsep.addBinaryOp("^", 10);
-	test_parser("a^b", {}, assert);
-
-    jsep.addBinaryOp("×", 9);
-    test_parser("a×b", {
-        type: 'BinaryExpression',
-        left: {name: 'a'},
-        right: {name: 'b'}
-    }, assert);
-
-	jsep.addBinaryOp("or", 1);
-	test_parser("oneWord ordering anotherWord", {
+	// test_parser("a(b, c(d,e), f)", {});
+	test_parser("a b + c", {
 		type: 'Compound',
 		body: [
 			{
 				type: 'Identifier',
-				name: 'oneWord'
+				name: 'a',
 			},
 			{
+				type: 'BinaryExpression',
+				operator: '+',
+				left: {
+					type: 'Identifier',
+					name: 'b',
+				},
+				right: {
+					type: 'Identifier',
+					name: 'c',
+				},
+			},
+		],
+	}, assert);
+	test_parser("'a'.toString()", {
+		type: 'CallExpression',
+		arguments: [],
+		callee: {
+			type: 'MemberExpression',
+			computed: false,
+			object: {
+				type: 'Literal',
+				value: 'a',
+				raw: '\'a\'',
+			},
+			property: {
 				type: 'Identifier',
-				name: 'ordering'
+				name: 'toString',
+			},
+		},
+	}, assert);
+	test_parser("[1].length", {
+		type: "MemberExpression",
+		computed: false,
+		object: {
+			type: "ArrayExpression",
+			elements: [
+				{
+					type: "Literal",
+					value: 1,
+					raw: "1"
+				}
+			]
+		},
+		property: {
+			type: "Identifier",
+			name: "length"
+		}
+	}, assert);
+	test_parser(";", {
+		type: "Compound",
+		body: []
+	}, assert);
+	test_parser("a().b(1)", {
+		type: "CallExpression",
+		arguments: [
+			{
+				type: "Literal",
+				value: 1,
+				raw: "1"
+			}
+		],
+		callee: {
+			type: "MemberExpression",
+			computed: false,
+			object: {
+				type: "CallExpression",
+				arguments: [],
+				callee: {
+					type: "Identifier",
+					name: "a"
+				}
+			},
+			property: {
+				type: "Identifier",
+				name: "b"
+			}
+		}
+	}, assert);
+});
+
+QUnit.test('Plugins', function(assert) {
+	// arrow functions:
+	test_parser('a.find(() => true)', {
+		type: "CallExpression",
+		arguments: [
+			{
+				type: "ArrowFunctionExpression",
+				params: null,
+				body: {
+					type: "Literal",
+					value: true,
+					raw: "true"
+				}
+			}
+		],
+		callee: {
+			type: "MemberExpression",
+			computed: false,
+			object: {
+				type: "Identifier",
+				name: "a"
+			},
+			property: {
+				type: "Identifier",
+				name: "find"
+			}
+		}
+	}, assert);
+
+	test_parser('[1, 2].find(v => v === 2)', {
+		type: "CallExpression",
+		arguments: [
+			{
+				type: "ArrowFunctionExpression",
+				params: [
+					{
+						type: "Identifier",
+						name: "v"
+					}
+				],
+				body: {
+					type: "BinaryExpression",
+					operator: "===",
+					left: {
+						type: "Identifier",
+						name: "v"
+					},
+					right: {
+						type: "Literal",
+						value: 2,
+						raw: "2"
+					}
+				}
+			}
+		],
+		callee: {
+			type: "MemberExpression",
+			computed: false,
+			object: {
+				type: "ArrayExpression",
+				elements: [
+					{
+						type: "Literal",
+						value: 1,
+						raw: "1"
+					},
+					{
+						type: "Literal",
+						value: 2,
+						raw: "2"
+					}
+				]
+			},
+			property: {
+				type: "Identifier",
+				name: "find"
+			}
+		}
+	}, assert);
+
+	test_parser('a.find((val, key) => key === "abc")', {
+		type: "CallExpression",
+		arguments: [
+			{
+				type: "ArrowFunctionExpression",
+				params: [
+					{
+						type: "Identifier",
+						name: "val"
+					},
+					{
+						type: "Identifier",
+						name: "key"
+					}
+				],
+				body: {
+					type: "BinaryExpression",
+					operator: "===",
+					left: {
+						type: "Identifier",
+						name: "key"
+					},
+					right: {
+						type: "Literal",
+						value: "abc",
+						raw: "\"abc\""
+					}
+				}
+			}
+		],
+		callee: {
+			type: "MemberExpression",
+			computed: false,
+			object: {
+				type: "Identifier",
+				name: "a"
+			},
+			property: {
+				type: "Identifier",
+				name: "find"
+			}
+		}
+	}, assert);
+	test_parser("(['a', 'b'].find(v => v === 'b').length > 1 || 2) === true", {}, assert);
+	test_parser('a.find(val => key === "abc")', {}, assert);
+	test_parser("a.find(() => []).length > 2", {}, assert);
+	test_parser('(a || b).find(v => v(1))', {}, assert);
+
+	// object expression/literal:
+	test_parser('({ a: 1, b: 2 })', {
+		type: "ObjectPattern",
+		properties: [
+			{
+				type: "Property",
+				computed: false,
+				key: {
+					type: "Identifier",
+					name: "a"
+				},
+				value: {
+					type: "Literal",
+					value: 1,
+					raw: "1"
+				},
+				shorthand: false
 			},
 			{
-				type: 'Identifier',
-				name: 'anotherWord'
+				type: "Property",
+				computed: false,
+				key: {
+					type: "Identifier",
+					name: "b"
+				},
+				value: {
+					type: "Literal",
+					value: 2,
+					raw: "2"
+				},
+				shorthand: false
 			}
 		]
-    }, assert);
-
-	jsep.addUnaryOp("#");
-	test_parser("#a", {
-		type: "UnaryExpression",
-		operator: "#",
-		argument: {type: "Identifier", name: "a"}
 	}, assert);
 
-	jsep.addUnaryOp("not");
-	test_parser("not a", {
-		type: "UnaryExpression",
-		operator: "not",
-		argument: {type: "Identifier", name: "a"}
+	test_parser('{ [key || key2]: { a: 0 } }', {
+		type: "ObjectPattern",
+		properties: [
+			{
+				type: "Property",
+				computed: true,
+				key: {
+					type: "BinaryExpression",
+					operator: "||",
+					left: {
+						type: "Identifier",
+						name: "key"
+					},
+					right: {
+						type: "Identifier",
+						name: "key2"
+					}
+				},
+				value: {
+					type: "ObjectPattern",
+					properties: [
+						{
+							type: "Property",
+							computed: false,
+							key: {
+								type: "Identifier",
+								name: "a"
+							},
+							value: {
+								type: "Literal",
+								value: 0,
+								raw: "0"
+							},
+							shorthand: false
+						}
+					]
+				},
+				shorthand: false
+			}
+		]
 	}, assert);
 
-	jsep.addUnaryOp("notes");
-	test_parser("notes", {
-		type: "Identifier",
-		name: "notes"
+	test_parser('{ a: !1, ...b, c, ...(a || b) }',{
+		type: "ObjectPattern",
+		properties: [
+			{
+				type: "Property",
+				computed: false,
+				key: {
+					type: "Identifier",
+					name: "a"
+				},
+				value: {
+					type: "UnaryExpression",
+					operator: "!",
+					argument: {
+						type: "Literal",
+						value: 1,
+						raw: "1"
+					},
+					prefix: true
+				},
+				shorthand: false
+			},
+			{
+				type: "SpreadElement",
+				argument: {
+					type: "Identifier",
+					name: "b"
+				}
+			},
+			{
+				type: "Property",
+				computed: false,
+				key: "c",
+				shorthand: true
+			},
+			{
+				type: "SpreadElement",
+				argument: {
+					type: "BinaryExpression",
+					operator: "||",
+					left: {
+						type: "Identifier",
+						name: "a"
+					},
+					right: {
+						type: "Identifier",
+						name: "b"
+					}
+				}
+			}
+		]
+	}, assert);
+
+	// assignment
+	test_parser('a = 2', {
+		type: "AssignmentExpression",
+		operator: "=",
+		left: {
+			type: "Identifier",
+			name: "a"
+		},
+		right: {
+			type: "Literal",
+			value: 2,
+			raw: "2"
+		}
+	}, assert);
+	test_parser('a += 2', {
+		type: 'AssignmentExpression',
+		operator: '+=',
+	}, assert);
+
+	// new operator
+	test_parser('a = new Date(123)', {
+		type: "AssignmentExpression",
+		operator: "=",
+		left: {
+			type: "Identifier",
+			name: "a"
+		},
+		right: {
+			type: "NewExpression",
+			arguments: [
+				{
+					type: "Literal",
+					value: 123,
+					raw: "123"
+				}
+			],
+			callee: {
+				type: "Identifier",
+				name: "Date"
+			}
+		}
 	}, assert);
 });
 
@@ -185,31 +495,6 @@ QUnit.test('Custom identifier characters', function(assert) {
 	test_parser("@asd", {
 		type: "Identifier",
 		name: "@asd",
-	}, assert);
-});
-
-QUnit.test('Custom identifier characters', function(assert) {
-	jsep.addExpressionParser('~', function(node){
-		return {
-			type: 'CUSTOM',
-			index: this.index,
-			val: node.value,
-		};
-	});
-	test_parser("1 ~ 2", {
-		type: 'Compound',
-		body: [
-			{
-				type: 'CUSTOM',
-				index: 3,
-				val: 1,
-			},
-			{
-				type: 'Literal',
-				value: 2,
-				raw: '2',
-			},
-		],
 	}, assert);
 });
 
@@ -274,10 +559,22 @@ QUnit.test('Esprima Comparison', function(assert) {
 });
 
 QUnit.test('Ternary', function(assert) {
-	var val = jsep('a ? b : c');
-    assert.equal(val.type, 'ConditionalExpression');
-	val = jsep('a||b ? c : d');
-    assert.equal(val.type, 'ConditionalExpression');
+	test_parser('a ? b : c', {
+		type: "ConditionalExpression",
+		test: {
+			type: 'Identifier',
+			name: 'a',
+		},
+		consequent: {
+			type: 'Identifier',
+			name: 'b',
+		},
+		alternate: {
+			name: 'c',
+		},
+	}, assert);
+
+	test_parser('a||b ? c : d', { type: 'ConditionalExpression' }, assert);
 });
 
 }());
