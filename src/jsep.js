@@ -67,7 +67,7 @@ let binary_ops = {
 };
 
 // Additional valid identifier chars, apart from a-z, A-Z and 0-9 (except on the starting char)
-let additional_identifier_chars = new Set('$', '_');
+let additional_identifier_chars = new Set(['$', '_']);
 
 // Get return the longest key length of any object
 let getMaxKeyLen = function(obj) {
@@ -244,6 +244,7 @@ let jsep = function(expr) {
 			prec = binaryPrecedence(biop);
 
 			if (prec === 0) {
+				index -= biop.length;
 				break;
 			}
 
