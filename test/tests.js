@@ -46,9 +46,7 @@ var filter_props = function(larger, smaller) {
 
 var parse = jsep;
 var test_parser = function(inp, out, assert) {
-	// console.log('input', inp);
 	var parse_val = parse(inp);
-	// console.log('output', JSON.stringify(parse_val, null, 2));
 	return assert.deepEqual(filter_props(parse_val, out), out);
 };
 var esprima_comparison_test = function(str, assert) {
@@ -73,7 +71,7 @@ QUnit.test('Variables', function(assert) {
 			type: "MemberExpression"
 		}
 	}, assert);
-    test_parser("Δέλτα", {name: "Δέλτα"}, assert);
+	test_parser("Δέλτα", {name: "Δέλτα"}, assert);
 });
 
 QUnit.test('Function Calls', function(assert) {
@@ -296,7 +294,7 @@ QUnit.test('Plugins', function(assert) {
 
 	// object expression/literal:
 	test_parser('({ a: 1, b: 2 })', {
-		type: "ObjectPattern",
+		type: "ObjectExpression",
 		properties: [
 			{
 				type: "Property",
@@ -330,7 +328,7 @@ QUnit.test('Plugins', function(assert) {
 	}, assert);
 
 	test_parser('{ [key || key2]: { a: 0 } }', {
-		type: "ObjectPattern",
+		type: "ObjectExpression",
 		properties: [
 			{
 				type: "Property",
@@ -348,7 +346,7 @@ QUnit.test('Plugins', function(assert) {
 					}
 				},
 				value: {
-					type: "ObjectPattern",
+					type: "ObjectExpression",
 					properties: [
 						{
 							type: "Property",
@@ -371,8 +369,8 @@ QUnit.test('Plugins', function(assert) {
 		]
 	}, assert);
 
-	test_parser('{ a: !1, ...b, c, ...(a || b) }',{
-		type: "ObjectPattern",
+	test_parser('{ a: !1, ...b, c, ...(a || b) }', {
+		type: "ObjectExpression",
 		properties: [
 			{
 				type: "Property",
@@ -443,6 +441,14 @@ QUnit.test('Plugins', function(assert) {
 		operator: '+=',
 	}, assert);
 
+	// ignore comments
+	test_parser('a /* ignore this */ > 1 // ignore this too', {
+		type: 'BinaryExpression',
+		operator: '>',
+		left: { name: 'a' },
+		right: { value: 1 },
+	}, assert);
+
 	// new operator
 	test_parser('a = new Date(123)', {
 		type: "AssignmentExpression",
@@ -466,6 +472,90 @@ QUnit.test('Plugins', function(assert) {
 			}
 		}
 	}, assert);
+	assert.throws(function(){
+		jsep("new A");
+	}, /new function/i, "detects invalid new");
+
+	// template literals
+	test_parser('abc`token ${`nested ${`deeply` + "str"} blah`}`', {
+		type: "TaggedTemplateExpression",
+		tag: {
+			type: "Identifier",
+			name: "abc"
+		},
+		quasi: {
+			type: "TemplateLiteral",
+			quasis: [
+				{
+					type: "TemplateElement",
+					value: {
+						raw: "token ",
+						cooked: "token "
+					},
+					tail: false
+				},
+				{
+					type: "TemplateElement",
+					value: {
+						raw: "",
+						cooked: ""
+					},
+					tail: true
+				}
+			],
+			expressions: [
+				{
+					type: "TemplateLiteral",
+					quasis: [
+						{
+							type: "TemplateElement",
+							value: {
+								raw: "nested ",
+								cooked: "nested "
+							},
+							tail: false
+						},
+						{
+							type: "TemplateElement",
+							value: {
+								raw: " blah",
+								cooked: " blah"
+							},
+							tail: true
+						}
+					],
+					expressions: [
+						{
+							type: "BinaryExpression",
+							operator: "+",
+							left: {
+								type: "TemplateLiteral",
+								quasis: [
+									{
+										type: "TemplateElement",
+										value: {
+											raw: "deeply",
+											cooked: "deeply"
+										},
+										tail: true
+									}
+								],
+								expressions: []
+							},
+							right: {
+								type: "Literal",
+								value: "str",
+								raw: "\"str\""
+							}
+						}
+					]
+				}
+			]
+		}
+	}, assert);
+	assert.throws(function(){
+		jsep("`abc ${ `");
+	}, /unclosed/i, "detects unclosed template");
 });
 
 QUnit.test('Custom alphanumeric operators', function(assert) {

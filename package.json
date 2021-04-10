@@ -38,6 +38,6 @@
 		"build:watch": "npx rollup -c --watch",
 		"test": "npx http-server -p 49649 --silent & npx node-qunit-puppeteer http://localhost:49649/test/unit_tests.html",
 		"docco": "npx docco src/jsep.js --css=src/docco.css --output=annotated_source/",
-		"lint": "npx eslint src/jsep.js"
+		"lint": "npx eslint src/jsep.js plugins/**/*.js"
 	}
 }

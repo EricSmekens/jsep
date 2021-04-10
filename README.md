@@ -73,38 +73,57 @@ The hook argument provides access to the internal parsing methods of jsep
 to allow reuse as needed.
 
 #### Hook Argument
+
 ```typescript
+import { PossibleExpression } from 'jsep';
+
 export interface HookScope {
-    index: number;
-    expr: string;
-    exprI: string;
-    exprICode: () => number;
-    gobbleSpaces: () => void;
-    gobbleExpression: () => Expression;
-    gobbleBinaryOp: () => PossibleExpression;
-    gobbleBinaryExpression: () => PossibleExpression;
-    gobbleToken: () =>  PossibleExpression;
-    gobbleNumericLiteral: () => PossibleExpression;
-    gobbleStringLiteral: () => PossibleExpression;
-    gobbleIdentifier: () => PossibleExpression;
-    gobbleArguments: (number) => PossibleExpression;
-    gobbleGroup: () => Expression;
-    gobbleArray: () => PossibleExpression;
-    throwError: (string) => void;
-    nodes: Expression[];
-    node: PossibleExpression;
+	index: number;
+	expr: string;
+	exprI: string;
+	exprICode: () => number;
+	gobbleSpaces: () => void;
+	gobbleExpression: () => Expression;
+	gobbleBinaryOp: () => PossibleExpression;
+	gobbleBinaryExpression: () => PossibleExpression;
+	gobbleToken: () => PossibleExpression;
+	gobbleNumericLiteral: () => PossibleExpression;
+	gobbleStringLiteral: () => PossibleExpression;
+	gobbleIdentifier: () => PossibleExpression;
+	gobbleArguments: (number) => PossibleExpression;
+	gobbleGroup: () => Expression;
+	gobbleArray: () => PossibleExpression;
+	throwError: (string) => void;
+	nodes?: PossibleExpression[];
+	node?: PossibleExpression;
 }
 ```
 
 #### Hook Types
-* `before-all`: called just before starting expression parsing
+* `before-all`: called just before starting all expression parsing
 * `after-all`: called just before returning from parsing
-* `before-expression`: called just before attempting to parse an expression
+* `gobble-expression`: called just before attempting to parse an expression
 * `after-expression`: called just after parsing an expression
-* `before-binary`: called just before attempting to parse a binary expression
-* `after-binary`: called just after parsing a binary expression
-* `before-token`: called just before parsing attempting to parse a token
+* `gobble-token`: called just before attempting to parse a token
 * `after-token`: called just after parsing a token
+* `gobble-spaces`: called when gobbling spaces
+
+### How to add Hooks
+```javascript
+// single:
+jsep.hooks.add('after-expression', function(env) {
+	console.log('got expression', JSON.stringify(env.node, null, 2));
+});
+// last argument will add to the top of the array, instead of the bottom by default
+jsep.hooks.add('after-all', () => console.log('done'), true);
+
+// multi:
+const myHooks = {
+  'before-all': env => console.log(`parsing ${env.expr}`),
+	'after-all': env => console.log(`found ${env.nodes.length} nodes`);
+};
+jsep.hooks.add(myHooks);
+```
 
 #### How to add plugins:
 ```javascript
@@ -116,8 +135,10 @@ plugins.forEach(p => p(jsep));
 #### Optional Plugins:
 * `arrowFunction`: Adds arrow-function support, `(a) => x`, `x => x`
 * `assignment`: Adds support for assignment expressions
+* `ignoreComments`: Adds support for ignoring comments: `// comment` and `/* comment */`
 * `new`: Adds support for the `new` operator
-* `object`: Adds support for object literals and object expressions
+* `object`: Adds support for object expressions
+* `templateLiteral`: Adds support for template literals, `` `this ${value + `${nested}}` ``
 * `ternary`: Built-in by default, adds support for ternary `a ? b : c` expressions
 
 ### License

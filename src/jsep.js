@@ -145,13 +145,48 @@ let jsep = function(expr) {
 		while (ch === SPACE_CODE || ch === TAB_CODE || ch === LF_CODE || ch === CR_CODE) {
 			ch = exprICode(++index);
 		}
+		hooks.run('gobble-spaces', hookScope);
+	};
+
+	let gobbleExpressions = function(untilICode) {
+		let nodes = [], ch_i, node;
+
+		while (index < length) {
+			hooks.run('before-expression', hookScope);
+
+			ch_i = exprICode(index);
+
+			// Expressions can be separated by semicolons, commas, or just inferred without any
+			// separators
+			if (ch_i === SEMCOL_CODE || ch_i === COMMA_CODE) {
+				index++; // ignore separators
+			}
+			else {
+				// Try to gobble each expression individually
+				if (node = gobbleExpression()) {
+					nodes.push(node);
+					// If we weren't able to find a binary expression and are out of room, then
+					// the expression passed in probably has too much
+				}
+				else if (index < length) {
+					if (untilICode && ch_i === untilICode) {
+						break;
+					}
+					throwError('Unexpected "' + exprI(index) + '"', index);
+				}
+			}
+		}
+
+		return nodes;
 	};
 
 	// The main parsing function. Much of this code is dedicated to ternary expressions
 	let gobbleExpression = function() {
-		hooks.run('before-expression', hookScope);
-
-		hookScope.node = gobbleBinaryExpression();
+		hookScope.node = false;
+		hooks.run('gobble-expression', hookScope);
+		if (!hookScope.node) {
+			hookScope.node = gobbleBinaryExpression();
+		}
 		gobbleSpaces();
 
 		hooks.run('after-expression', hookScope);
@@ -186,12 +221,6 @@ let jsep = function(expr) {
 	// This function is responsible for gobbling an individual expression,
 	// e.g. `1`, `1+2`, `a+(b*2)-Math.sqrt(2)`
 	let gobbleBinaryExpression = function() {
-		hookScope.node = false;
-		hooks.run('before-binary', hookScope);
-		if (hookScope.node) {
-			return hookScope.node;
-		}
-
 		let node, biop, prec, stack, biop_info, left, right, i, cur_biop;
 
 		// First, try to get the leftmost thing
@@ -254,10 +283,7 @@ let jsep = function(expr) {
 			node = createBinaryExpression(stack[i - 1].value, stack[i - 2], node);
 			i -= 2;
 		}
-
-		hookScope.node = node;
-		hooks.run('after-binary', hookScope);
-		return hookScope.node;
+		return node;
 	};
 
 	// An individual part of a binary expression:
@@ -267,8 +293,9 @@ let jsep = function(expr) {
 
 		gobbleSpaces();
 		hookScope.node = null;
-		hooks.run('before-token', hookScope);
+		hooks.run('gobble-token', hookScope);
 		if (hookScope.node) {
+			hooks.run('after-token', hookScope);
 			return hookScope.node;
 		}
 
@@ -620,8 +647,6 @@ let jsep = function(expr) {
 		};
 	};
 
-	let nodes = [], ch_i, node;
-
 	const hookScope = {
 		get index() {
 			return index;
@@ -633,6 +658,7 @@ let jsep = function(expr) {
 		exprI,
 		exprICode,
 		gobbleSpaces,
+		gobbleExpressions,
 		gobbleExpression,
 		gobbleBinaryOp,
 		gobbleBinaryExpression,
@@ -644,45 +670,23 @@ let jsep = function(expr) {
 		gobbleGroup,
 		gobbleArray,
 		throwError: (e) => throwError(e, index),
-		nodes,
-		node,
+		// node,
+		// nodes,
 	};
 
+
 	hooks.run('before-all', hookScope);
-
-	while (index < length) {
-		hooks.run('before-expression', hookScope);
-
-		ch_i = exprICode(index);
-
-		// Expressions can be separated by semicolons, commas, or just inferred without any
-		// separators
-		if (ch_i === SEMCOL_CODE || ch_i === COMMA_CODE) {
-			index++; // ignore separators
-		}
-		else {
-			// Try to gobble each expression individually
-			if (node = gobbleExpression()) {
-				nodes.push(node);
-			// If we weren't able to find a binary expression and are out of room, then
-			// the expression passed in probably has too much
-			}
-			else if (index < length) {
-				throwError('Unexpected "' + exprI(index) + '"', index);
-			}
-		}
-	}
-
+	hookScope.nodes = gobbleExpressions();
 	hooks.run('after-all', hookScope);
 
 	// If there's only one expression just try returning the expression
-	if (nodes.length === 1) {
-		return nodes[0];
+	if (hookScope.nodes.length === 1) {
+		return hookScope.nodes[0];
 	}
 	else {
 		return {
 			type: COMPOUND,
-			body: nodes
+			body: hookScope.nodes,
 		};
 	}
 };
@@ -694,8 +698,6 @@ jsep.toString = function() {
 };
 
 jsep.hooks = {
-	all: {},
-
 	/**
 	 * Adds the given callback to the list of callbacks for the given hook.
 	 *
@@ -703,16 +705,27 @@ jsep.hooks = {
 	 *
 	 * One callback function can be registered to multiple hooks and the same hook multiple times.
 	 *
-	 * @param {string} name The name of the hook.
-	 * @param {HookCallback} callback The callback function which is given environment variables.
+	 * @param {string|object} name The name of the hook, or an object of callbacks keyed by name
+	 * @param {HookCallback|boolean} callback The callback function which is given environment variables.
+	 * @param {?boolean} [first=false] Will add the hook to the top of the list (defaults to the bottom)
 	 * @public
 	 */
-	add: function (name, callback) {
-		let hooks = jsep.hooks.all;
+	add: function(name, callback, first) {
+		if (typeof arguments[0] != 'string') {
+			// Multiple hook callbacks, keyed by name
+			for (let name in arguments[0]) {
+				this.add(name, arguments[0][name], arguments[1]);
+			}
+		}
+		else {
+			(Array.isArray(name) ? name : [name]).forEach(function(name) {
+				this[name] = this[name] || [];
 
-		hooks[name] = hooks[name] || [];
-
-		hooks[name].push(callback);
+				if (callback) {
+					this[name][first ? 'unshift' : 'push'](callback);
+				}
+			}, this);
+		}
 	},
 
 	/**
@@ -724,17 +737,12 @@ jsep.hooks = {
 	 * @param {Object<string, any>} env The environment variables of the hook passed to all callbacks registered.
 	 * @public
 	 */
-	run: function (name, env) {
-		let callbacks = jsep.hooks.all[name];
-
-		if (!callbacks || !callbacks.length) {
-			return;
-		}
-
-		for (let i = 0, callback; callback = callbacks[i++];) {
-			callback(env);
-		}
-	}
+	run: function(name, env) {
+		this[name] = this[name] || [];
+		this[name].forEach(function (callback) {
+			callback.call(env && env.context ? env.context : env, env);
+		});
+	},
 };
 
 /**
