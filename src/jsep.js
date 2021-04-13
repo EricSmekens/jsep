@@ -9,6 +9,7 @@
 // This is the full set of types that any JSEP node can be.
 // Store them here to save space when minified
 const COMPOUND = 'Compound',
+      SEQUENCE_EXP = 'SequenceExpression',
       IDENTIFIER = 'Identifier',
       MEMBER_EXP = 'MemberExpression',
       LITERAL = 'Literal',
@@ -144,6 +145,37 @@ let jsep = function(expr) {
 		while (ch === SPACE_CODE || ch === TAB_CODE || ch === LF_CODE || ch === CR_CODE) {
 			ch = exprICode(++index);
 		}
+	};
+
+	// top-level parser (but can be reused within as well)
+	let gobbleExpressions = function(untilICode) {
+		let nodes = [], ch_i, node;
+
+		while (index < length) {
+			ch_i = exprICode(index);
+
+			// Expressions can be separated by semicolons, commas, or just inferred without any
+			// separators
+			if (ch_i === SEMCOL_CODE || ch_i === COMMA_CODE) {
+				index++; // ignore separators
+			}
+			else {
+				// Try to gobble each expression individually
+				if (node = gobbleExpression()) {
+					nodes.push(node);
+					// If we weren't able to find a binary expression and are out of room, then
+					// the expression passed in probably has too much
+				}
+				else if (index < length) {
+					if (untilICode && ch_i === untilICode) {
+						break;
+					}
+					throwError('Unexpected "' + exprI(index) + '"', index);
+				}
+			}
+		}
+
+		return nodes;
 	};
 
 	// The main parsing function. Much of this code is dedicated to ternary expressions
@@ -587,18 +619,25 @@ let jsep = function(expr) {
 	};
 
 	// Responsible for parsing a group of things within parentheses `()`
+	// that have no identifier in front (so not a function call)
 	// This function assumes that it needs to gobble the opening parenthesis
 	// and then tries to gobble everything within that parenthesis, assuming
 	// that the next thing it should see is the close parenthesis. If not,
 	// then the expression probably doesn't have a `)`
 	let gobbleGroup = function() {
 		index++;
-		let node = gobbleExpression();
-		gobbleSpaces();
-
+		let nodes = gobbleExpressions(CPAREN_CODE);
 		if (exprICode(index) === CPAREN_CODE) {
 			index++;
-			return node;
+			if (nodes.length === 1) {
+				return nodes[0];
+			}
+			else {
+				return {
+					type: SEQUENCE_EXP,
+					expressions: nodes,
+				};
+			}
 		}
 		else {
 			throwError('Unclosed (', index);
@@ -617,28 +656,7 @@ let jsep = function(expr) {
 		};
 	};
 
-	let nodes = [], ch_i, node;
-
-	while (index < length) {
-		ch_i = exprICode(index);
-
-		// Expressions can be separated by semicolons, commas, or just inferred without any
-		// separators
-		if (ch_i === SEMCOL_CODE || ch_i === COMMA_CODE) {
-			index++; // ignore separators
-		}
-		else {
-			// Try to gobble each expression individually
-			if (node = gobbleExpression()) {
-				nodes.push(node);
-			// If we weren't able to find a binary expression and are out of room, then
-			// the expression passed in probably has too much
-			}
-			else if (index < length) {
-				throwError('Unexpected "' + exprI(index) + '"', index);
-			}
-		}
-	}
+	let nodes = gobbleExpressions();
 
 	// If there's only one expression just try returning the expression
 	if (nodes.length === 1) {
