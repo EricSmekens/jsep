@@ -237,6 +237,7 @@ QUnit.test('Esprima Comparison', function(assert) {
 		"(1,2)",
 		"(a, a + b > 2)",
 		"a((1 + 2), (e > 0 ? f : g))",
+		"(((1)))",
 		"(Object.variable.toLowerCase()).length == 3",
 		"(Object.variable.toLowerCase())  .  length == 3",
 		"[1] + [2]"
