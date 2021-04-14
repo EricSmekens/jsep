@@ -235,6 +235,8 @@ QUnit.test('Esprima Comparison', function(assert) {
 		"$foo[ bar][ baz]    (a, bb ,   c  )   .other12 ['lawl'][12]",
 		"(a(b(c[!d]).e).f+'hi'==2) === true",
 		"(1,2)",
+		"(a, a + b > 2)",
+		"a((1 + 2), (e > 0 ? f : g))",
 		"(Object.variable.toLowerCase()).length == 3",
 		"(Object.variable.toLowerCase())  .  length == 3",
 		"[1] + [2]"
