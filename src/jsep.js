@@ -167,7 +167,7 @@ let jsep = function(expr) {
 					// the expression passed in probably has too much
 				}
 				else if (index < length) {
-					if (untilICode && ch_i === untilICode) {
+					if (ch_i === untilICode) {
 						break;
 					}
 					throwError('Unexpected "' + exprI(index) + '"', index);
@@ -631,6 +631,9 @@ let jsep = function(expr) {
 			index++;
 			if (nodes.length === 1) {
 				return nodes[0];
+			}
+			else if (!nodes.length) {
+				return false;
 			}
 			else {
 				return {
