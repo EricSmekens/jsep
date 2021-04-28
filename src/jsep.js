@@ -829,7 +829,7 @@ export class Jsep {
 }
 
 // Backward Compatibility (before adding the static fields):
-const jsep = Jsep.parse;
+const jsep = expr => (new Jsep(expr)).parse();
 const staticMethods = Object.getOwnPropertyNames(Jsep);
 staticMethods
 	.slice(staticMethods.indexOf('version'), staticMethods.indexOf('removeAllLiterals') + 1)
