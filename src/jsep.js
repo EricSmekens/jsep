@@ -147,14 +147,14 @@ export class Jsep {
 	/**
 	 * @returns {string}
 	 */
-	get currentChar() {
+	get char() {
 		return this.expr.charAt(this.index);
 	}
 
 	/**
 	 * @returns {number}
 	 */
-	get currentCharCode() {
+	get code() {
 		return this.expr.charCodeAt(this.index);
 	};
 
@@ -171,41 +171,20 @@ export class Jsep {
 	}
 
 	/**
+	 * static top-level parser
+	 * @returns {jsep.Expression}
+	 */
+	static parse(expr) {
+		return (new Jsep(expr)).parse();
+	}
+
+	/**
 	 * Get the longest key length of any object
 	 * @param {object} obj
 	 * @returns {number}
 	 */
 	static getMaxKeyLen(obj) {
 		return Math.max(0, ...Object.keys(obj).map(k => k.length));
-	}
-
-	/**
-	 * throw error at index of the expression
-	 * @param {string} message
-	 * @param {number} index
-	 * @throws
-	 */
-	static throwError(message, index) {
-		const error = new Error(message + ' at character ' + index);
-		error.index = index;
-		error.description = message;
-		throw error;
-	}
-
-	/**
-	 * Utility function (gets called from multiple places)
-	 * @param {string} operator
-	 * @param {jsep.Expression} left
-	 * @param {jsep.Expression} right
-	 * @returns {jsep.BinaryExpression}
-	 */
-	static createBinaryExpression(operator, left, right) {
-		return {
-			type: Jsep.BINARY_EXP,
-			operator,
-			left,
-			right
-		};
 	}
 
 	/**
@@ -218,35 +197,11 @@ export class Jsep {
 	}
 
 	/**
-	 * @param {number} [index=this.index]
-	 * @returns {string}
-	 */
-	charAt(index = this.index) {
-		return this.expr.charAt(index);
-	}
-
-	/**
-	 * @param {number} [index=this.index]
-	 * @returns {number}
-	 */
-	charCodeAt(index = this.index) {
-		return this.expr.charCodeAt(index);
-	}
-
-	/**
-	 * throw error at index of the expression
-	 * @param {string} message
-	 */
-	throwError(message, index = this.index) {
-		Jsep.throwError(message, index);
-	}
-
-	/**
 	 * Returns the precedence of a binary operator or `0` if it isn't a binary operator. Can be float.
 	 * @param {string} op_val
 	 * @returns {number}
 	 */
-	binaryPrecedence(op_val) {
+	static binaryPrecedence(op_val) {
 		return Jsep.binary_ops[op_val] || 0;
 	}
 
@@ -255,7 +210,7 @@ export class Jsep {
 	 * @param {number} ch
 	 * @returns {boolean}
 	 */
-	isIdentifierStart(ch) {
+	static isIdentifierStart(ch) {
 		return  (ch >= 65 && ch <= 90) || // A...Z
 			(ch >= 97 && ch <= 122) || // a...z
 			(ch >= 128 && !Jsep.binary_ops[String.fromCharCode(ch)]) || // any non-ASCII that is not an operator
@@ -266,26 +221,38 @@ export class Jsep {
 	 * @param {number} ch
 	 * @returns {boolean}
 	 */
-	isIdentifierPart(ch) {
-		return this.isIdentifierStart(ch) || Jsep.isDecimalDigit(ch);
+	static isIdentifierPart(ch) {
+		return Jsep.isIdentifierStart(ch) || Jsep.isDecimalDigit(ch);
+	}
+
+	/**
+	 * throw error at index of the expression
+	 * @param {string} message
+	 * @throws
+	 */
+	throwError(message) {
+		const error = new Error(message + ' at character ' + this.index);
+		error.index = this.index;
+		error.description = message;
+		throw error;
 	}
 
 	/**
 	 * Push `index` up to the next non-space character
 	 */
 	gobbleSpaces() {
-		let ch = this.currentCharCode;
+		let ch = this.code;
 		// Whitespace
 		while (ch === Jsep.SPACE_CODE
 		|| ch === Jsep.TAB_CODE
 		|| ch === Jsep.LF_CODE
 		|| ch === Jsep.CR_CODE) {
-			ch = this.charCodeAt(++this.index);
+			ch = this.expr.charCodeAt(++this.index);
 		}
 	}
 
 	/**
-	 * Top-level method to parse all expressions and returns compound or singl
+	 * Top-level method to parse all expressions and returns compound or single node
 	 * @returns {jsep.Expression}
 	 */
 	parse() {
@@ -312,7 +279,7 @@ export class Jsep {
 		let nodes = [], ch_i, node;
 
 		while (this.index < this.expr.length) {
-			ch_i = this.currentCharCode;
+			ch_i = this.code;
 
 			// Expressions can be separated by semicolons, commas, or just inferred without any
 			// separators
@@ -330,7 +297,7 @@ export class Jsep {
 					if (ch_i === untilICode) {
 						break;
 					}
-					this.throwError('Unexpected "' + this.currentChar + '"');
+					this.throwError('Unexpected "' + this.char + '"');
 				}
 			}
 		}
@@ -348,7 +315,7 @@ export class Jsep {
 
 		this.gobbleSpaces();
 
-		if (this.currentCharCode === Jsep.QUMARK_CODE) {
+		if (this.code === Jsep.QUMARK_CODE) {
 			// Ternary expression: test ? consequent : alternate
 			this.index++;
 			const consequent = this.gobbleExpression();
@@ -359,7 +326,7 @@ export class Jsep {
 
 			this.gobbleSpaces();
 
-			if (this.currentCharCode === Jsep.COLON_CODE) {
+			if (this.code === Jsep.COLON_CODE) {
 				this.index++;
 				const alternate = this.gobbleExpression();
 
@@ -399,8 +366,8 @@ export class Jsep {
 			// Binary ops that start with a identifier-valid character must be followed
 			// by a non identifier-part valid character
 			if (Jsep.binary_ops.hasOwnProperty(to_check) && (
-				!this.isIdentifierStart(this.currentCharCode) ||
-				(this.index + to_check.length < this.expr.length && !this.isIdentifierPart(this.charCodeAt(this.index + to_check.length)))
+				!Jsep.isIdentifierStart(this.code) ||
+				(this.index + to_check.length < this.expr.length && !Jsep.isIdentifierPart(this.expr.charCodeAt(this.index + to_check.length)))
 			)) {
 				this.index += tc_len;
 				return to_check;
@@ -430,7 +397,7 @@ export class Jsep {
 
 		// Otherwise, we need to start a stack to properly place the binary operations in their
 		// precedence structure
-		biop_info = { value: biop, prec: this.binaryPrecedence(biop)};
+		biop_info = { value: biop, prec: Jsep.binaryPrecedence(biop)};
 
 		right = this.gobbleToken();
 
@@ -442,7 +409,7 @@ export class Jsep {
 
 		// Properly deal with precedence using [recursive descent](http://www.engr.mun.ca/~theo/Misc/exp_parsing.htm)
 		while ((biop = this.gobbleBinaryOp())) {
-			prec = this.binaryPrecedence(biop);
+			prec = Jsep.binaryPrecedence(biop);
 
 			if (prec === 0) {
 				this.index -= biop.length;
@@ -458,7 +425,12 @@ export class Jsep {
 				right = stack.pop();
 				biop = stack.pop().value;
 				left = stack.pop();
-				node = Jsep.createBinaryExpression(biop, left, right);
+				node = {
+					type: Jsep.BINARY_EXP,
+					operator: biop,
+					left,
+					right
+				};
 				stack.push(node);
 			}
 
@@ -475,7 +447,12 @@ export class Jsep {
 		node = stack[i];
 
 		while (i > 1) {
-			node = Jsep.createBinaryExpression(stack[i - 1].value, stack[i - 2], node);
+			node = {
+				type: Jsep.BINARY_EXP,
+				operator: stack[i - 1].value,
+				left: stack[i - 2],
+				right: node
+			};
 			i -= 2;
 		}
 
@@ -485,13 +462,13 @@ export class Jsep {
 	/**
 	 * An individual part of a binary expression:
 	 * e.g. `foo.bar(baz)`, `1`, `"abc"`, `(a % 2)` (because it's in parenthesis)
-	 * @returns {boolean|{jsep.Expression}}
+	 * @returns {boolean|jsep.Expression}
 	 */
 	gobbleToken() {
 		let ch, to_check, tc_len, node;
 
 		this.gobbleSpaces();
-		ch = this.currentCharCode;
+		ch = this.code;
 
 		if (Jsep.isDecimalDigit(ch) || ch === Jsep.PERIOD_CODE) {
 			// Char code 46 is a dot `.` which can start off a numeric literal
@@ -514,8 +491,8 @@ export class Jsep {
 				// Unary ops that start with a identifier-valid character must be followed
 				// by a non identifier-part valid character
 				if (Jsep.unary_ops.hasOwnProperty(to_check) && (
-					!this.isIdentifierStart(this.currentCharCode) ||
-					(this.index + to_check.length < this.expr.length && !this.isIdentifierPart(this.charCodeAt(this.index + to_check.length)))
+					!Jsep.isIdentifierStart(this.code) ||
+					(this.index + to_check.length < this.expr.length && !Jsep.isIdentifierPart(this.expr.charCodeAt(this.index + to_check.length)))
 				)) {
 					this.index += tc_len;
 					return {
@@ -529,7 +506,7 @@ export class Jsep {
 				to_check = to_check.substr(0, --tc_len);
 			}
 
-			if (this.isIdentifierStart(ch)) {
+			if (Jsep.isIdentifierStart(ch)) {
 				node = this.gobbleIdentifier();
 			}
 			else if (ch === Jsep.OPAREN_CODE) { // open parenthesis
@@ -543,7 +520,7 @@ export class Jsep {
 
 		this.gobbleSpaces();
 
-		ch = this.currentCharCode;
+		ch = this.code;
 
 		// Gobble properties of of identifiers/strings/arrays/groups.
 		// e.g. `foo`, `bar.baz`, `foo['bar'].baz`
@@ -570,7 +547,7 @@ export class Jsep {
 					property: this.gobbleExpression()
 				};
 				this.gobbleSpaces();
-				ch = this.currentCharCode;
+				ch = this.code;
 				if (ch !== Jsep.CBRACK_CODE) {
 					this.throwError('Unclosed [');
 				}
@@ -585,7 +562,7 @@ export class Jsep {
 				};
 			}
 			this.gobbleSpaces();
-			ch = this.currentCharCode;
+			ch = this.code;
 		}
 
 		return node;
@@ -599,43 +576,43 @@ export class Jsep {
 	gobbleNumericLiteral() {
 		let number = '', ch, chCode;
 
-		while (Jsep.isDecimalDigit(this.currentCharCode)) {
-			number += this.charAt(this.index++);
+		while (Jsep.isDecimalDigit(this.code)) {
+			number += this.expr.charAt(this.index++);
 		}
 
-		if (this.currentCharCode === Jsep.PERIOD_CODE) { // can start with a decimal marker
-			number += this.charAt(this.index++);
+		if (this.code === Jsep.PERIOD_CODE) { // can start with a decimal marker
+			number += this.expr.charAt(this.index++);
 
-			while (Jsep.isDecimalDigit(this.currentCharCode)) {
-				number += this.charAt(this.index++);
+			while (Jsep.isDecimalDigit(this.code)) {
+				number += this.expr.charAt(this.index++);
 			}
 		}
 
-		ch = this.currentChar;
+		ch = this.char;
 
 		if (ch === 'e' || ch === 'E') { // exponent marker
-			number += this.charAt(this.index++);
-			ch = this.currentChar;
+			number += this.expr.charAt(this.index++);
+			ch = this.char;
 
 			if (ch === '+' || ch === '-') { // exponent sign
-				number += this.charAt(this.index++);
+				number += this.expr.charAt(this.index++);
 			}
 
-			while (Jsep.isDecimalDigit(this.currentCharCode)) { // exponent itself
-				number += this.charAt(this.index++);
+			while (Jsep.isDecimalDigit(this.code)) { // exponent itself
+				number += this.expr.charAt(this.index++);
 			}
 
-			if (!Jsep.isDecimalDigit(this.charCodeAt(this.index - 1)) ) {
-				this.throwError('Expected exponent (' + number + this.currentChar + ')');
+			if (!Jsep.isDecimalDigit(this.expr.charCodeAt(this.index - 1)) ) {
+				this.throwError('Expected exponent (' + number + this.char + ')');
 			}
 		}
 
-		chCode = this.currentCharCode;
+		chCode = this.code;
 
 		// Check to make sure this isn't a variable name that start with a number (123abc)
-		if (this.isIdentifierStart(chCode)) {
+		if (Jsep.isIdentifierStart(chCode)) {
 			this.throwError('Variable names cannot start with a number (' +
-				number + this.currentChar + ')');
+				number + this.char + ')');
 		}
 		else if (chCode === Jsep.PERIOD_CODE) {
 			this.throwError('Unexpected period');
@@ -655,11 +632,11 @@ export class Jsep {
 	 */
 	gobbleStringLiteral() {
 		let str = '';
-		let quote = this.charAt(this.index++);
+		let quote = this.expr.charAt(this.index++);
 		let closed = false;
 
 		while (this.index < this.expr.length) {
-			let ch = this.charAt(this.index++);
+			let ch = this.expr.charAt(this.index++);
 
 			if (ch === quote) {
 				closed = true;
@@ -667,7 +644,7 @@ export class Jsep {
 			}
 			else if (ch === '\\') {
 				// Check for all of the common escape codes
-				ch = this.charAt(this.index++);
+				ch = this.expr.charAt(this.index++);
 
 				switch (ch) {
 					case 'n': str += '\n'; break;
@@ -703,19 +680,19 @@ export class Jsep {
 	 * @returns {jsep.Expression}
 	 */
 	gobbleIdentifier() {
-		let ch = this.currentCharCode, start = this.index, identifier;
+		let ch = this.code, start = this.index, identifier;
 
-		if (this.isIdentifierStart(ch)) {
+		if (Jsep.isIdentifierStart(ch)) {
 			this.index++;
 		}
 		else {
-			this.throwError('Unexpected ' + this.currentChar);
+			this.throwError('Unexpected ' + this.char);
 		}
 
 		while (this.index < this.expr.length) {
-			ch = this.currentCharCode;
+			ch = this.code;
 
-			if (this.isIdentifierPart(ch)) {
+			if (Jsep.isIdentifierPart(ch)) {
 				this.index++;
 			}
 			else {
@@ -758,7 +735,7 @@ export class Jsep {
 
 		while (this.index < this.expr.length) {
 			this.gobbleSpaces();
-			let ch_i = this.currentCharCode;
+			let ch_i = this.code;
 
 			if (ch_i === termination) { // done parsing
 				closed = true;
@@ -815,7 +792,7 @@ export class Jsep {
 	gobbleGroup() {
 		this.index++;
 		let nodes = this.gobbleExpressions(Jsep.CPAREN_CODE);
-		if (this.currentCharCode === Jsep.CPAREN_CODE) {
+		if (this.code === Jsep.CPAREN_CODE) {
 			this.index++;
 			if (nodes.length === 1) {
 				return nodes[0];
@@ -852,13 +829,15 @@ export class Jsep {
 }
 
 // Backward Compatibility (before adding the static fields):
-const jsep = expr => (new Jsep(expr)).parse();
+const jsep = Jsep.parse;
 const staticMethods = Object.getOwnPropertyNames(Jsep);
 staticMethods
 	.slice(staticMethods.indexOf('version'), staticMethods.indexOf('removeAllLiterals') + 1)
 	.forEach((m) => {
 		jsep[m] = Jsep[m];
 	});
+export default jsep;
+
 
 // Static fields:
 Object.assign(Jsep, {
@@ -935,6 +914,3 @@ Object.assign(Jsep, {
 });
 Jsep.max_unop_len = Jsep.getMaxKeyLen(Jsep.unary_ops);
 Jsep.max_binop_len = Jsep.getMaxKeyLen(Jsep.binary_ops);
-
-
-export default jsep;
