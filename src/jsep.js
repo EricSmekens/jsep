@@ -1,97 +1,174 @@
 //     JavaScript Expression Parser (JSEP) <%= version %>
 //     JSEP may be freely distributed under the MIT License
 //     https://ericsmekens.github.io/jsep/
-
-export class Constants {}
-
-// Node Types
-// ----------
-// This is the full set of types that any JSEP node can be.
-// Store them here to save space when minified
-Constants.COMPOUND = 'Compound';
-Constants.SEQUENCE_EXP = 'SequenceExpression';
-Constants.IDENTIFIER = 'Identifier';
-Constants.MEMBER_EXP = 'MemberExpression';
-Constants.LITERAL = 'Literal';
-Constants.THIS_EXP = 'ThisExpression';
-Constants.CALL_EXP = 'CallExpression';
-Constants.UNARY_EXP = 'UnaryExpression';
-Constants.BINARY_EXP = 'BinaryExpression';
-Constants.CONDITIONAL_EXP = 'ConditionalExpression';
-Constants.ARRAY_EXP = 'ArrayExpression';
-
-Constants.TAB_CODE    = 9;
-Constants.LF_CODE     = 10;
-Constants.CR_CODE     = 13;
-Constants.SPACE_CODE  = 32;
-Constants.PERIOD_CODE = 46; // '.'
-Constants.COMMA_CODE  = 44; // ','
-Constants.SQUOTE_CODE = 39; // single quote
-Constants.DQUOTE_CODE = 34; // double quotes
-Constants.OPAREN_CODE = 40; // (
-Constants.CPAREN_CODE = 41; // )
-Constants.OBRACK_CODE = 91; // [
-Constants.CBRACK_CODE = 93; // ]
-Constants.QUMARK_CODE = 63; // ?
-Constants.SEMCOL_CODE = 59; // ;
-Constants.COLON_CODE  = 58; // :
-
-
-export class JsepConfig {
-	static get instance() {
-		return JsepConfig._instance || new JsepConfig();
+export class Jsep {
+	/**
+	 * @returns {string}
+	 */
+	static get version() {
+		// To be filled in by the template
+		return '<%= version %>';
 	}
 
-	get Constants() {
-		return Constants;
+	/**
+	 * @returns {string}
+	 */
+	static toString() {
+		return 'JavaScript Expression Parser (JSEP) v' + Jsep.version;
+	};
+
+	// ==================== CONFIG ================================
+	/**
+	 * @method addUnaryOp
+	 * @param {string} op_name The name of the unary op to add
+	 * @returns {Jsep}
+	 */
+	static addUnaryOp(op_name) {
+		Jsep.max_unop_len = Math.max(op_name.length, Jsep.max_unop_len);
+		Jsep.unary_ops[op_name] = 1;
+		return Jsep;
 	}
 
-
-	constructor() {
-		JsepConfig._instance = this;
-
-		// Operations
-		// ----------
-
-		// Use a quickly-accessible map to store all of the unary operators
-		// Values are set to `1` (it really doesn't matter)
-		this.unary_ops = {
-			'-': 1,
-			'!': 1,
-			'~': 1,
-			'+': 1
-		};
-		this.max_unop_len = JsepConfig.getMaxKeyLen(this.unary_ops);
-
-		// Also use a map for the binary operations but set their values to their
-		// binary precedence for quick reference:
-		// see [Order of operations](http://en.wikipedia.org/wiki/Order_of_operations#Programming_language)
-		this.binary_ops = {
-			'||': 1, '&&': 2, '|': 3, '^': 4, '&': 5,
-			'==': 6, '!=': 6, '===': 6, '!==': 6,
-			'<': 7, '>': 7, '<=': 7, '>=': 7,
-			'<<': 8, '>>': 8, '>>>': 8,
-			'+': 9, '-': 9,
-			'*': 10, '/': 10, '%': 10
-		};
-		this.max_binop_len = JsepConfig.getMaxKeyLen(this.binary_ops);
-
-		// Additional valid identifier chars, apart from a-z, A-Z and 0-9 (except on the starting char)
-		this.additional_identifier_chars = new Set(['$', '_']);
-
-		// Literals
-		// ----------
-		// Store the values to return for the various literals we may encounter
-		this.literals = {
-			'true': true,
-			'false': false,
-			'null': null
-		};
-
-		// Except for `this`, which is special. This could be changed to something like `'self'` as well
-		this.this_str = 'this';
+	/**
+	 * @method jsep.addBinaryOp
+	 * @param {string} op_name The name of the binary op to add
+	 * @param {number} precedence The precedence of the binary op (can be a float)
+	 * @returns {Jsep}
+	 */
+	static addBinaryOp(op_name, precedence) {
+		Jsep.max_binop_len = Math.max(op_name.length, Jsep.max_binop_len);
+		Jsep.binary_ops[op_name] = precedence;
+		return Jsep;
 	}
 
+	/**
+	 * @method addIdentifierChar
+	 * @param {string} char The additional character to treat as a valid part of an identifier
+	 * @returns {Jsep}
+	 */
+	static addIdentifierChar(char) {
+		Jsep.additional_identifier_chars.add(char);
+		return Jsep;
+	}
+
+	/**
+	 * @method addLiteral
+	 * @param {string} literal_name The name of the literal to add
+	 * @param {*} literal_value The value of the literal
+	 * @returns {Jsep}
+	 */
+	static addLiteral(literal_name, literal_value) {
+		Jsep.literals[literal_name] = literal_value;
+		return Jsep;
+	}
+
+	/**
+	 * @method removeUnaryOp
+	 * @param {string} op_name The name of the unary op to remove
+	 * @returns {Jsep}
+	 */
+	static removeUnaryOp(op_name) {
+		delete Jsep.unary_ops[op_name];
+		if (op_name.length === Jsep.max_unop_len) {
+			Jsep.max_unop_len = Jsep.getMaxKeyLen(Jsep.unary_ops);
+		}
+		return Jsep;
+	}
+
+	/**
+	 * @method removeAllUnaryOps
+	 * @returns {Jsep}
+	 */
+	static removeAllUnaryOps() {
+		Jsep.unary_ops = {};
+		Jsep.max_unop_len = 0;
+
+		return Jsep;
+	}
+
+	/**
+	 * @method removeIdentifierChar
+	 * @param {string} char The additional character to stop treating as a valid part of an identifier
+	 * @returns {Jsep}
+	 */
+	static removeIdentifierChar(char) {
+		Jsep.additional_identifier_chars.delete(char);
+		return Jsep;
+	}
+
+	/**
+	 * @method removeBinaryOp
+	 * @param {string} op_name The name of the binary op to remove
+	 * @returns {Jsep}
+	 */
+	static removeBinaryOp(op_name) {
+		delete Jsep.binary_ops[op_name];
+
+		if (op_name.length === Jsep.max_binop_len) {
+			Jsep.max_binop_len = Jsep.getMaxKeyLen(Jsep.binary_ops);
+		}
+
+		return Jsep;
+	}
+
+	/**
+	 * @method removeAllBinaryOps
+	 * @returns {Jsep}
+	 */
+	static removeAllBinaryOps() {
+		Jsep.binary_ops = {};
+		Jsep.max_binop_len = 0;
+
+		return Jsep;
+	}
+
+	/**
+	 * @method removeLiteral
+	 * @param {string} literal_name The name of the literal to remove
+	 * @returns {Jsep}
+	 */
+	static removeLiteral(literal_name) {
+		delete Jsep.literals[literal_name];
+		return Jsep;
+	}
+
+	/**
+	 * @method removeAllLiterals
+	 * @returns {Jsep}
+	 */
+	static removeAllLiterals() {
+		Jsep.literals = {};
+
+		return Jsep;
+	}
+	// ==================== END CONFIG ============================
+
+
+	/**
+	 * @returns {string}
+	 */
+	get currentChar() {
+		return this.expr.charAt(this.index);
+	}
+
+	/**
+	 * @returns {number}
+	 */
+	get currentCharCode() {
+		return this.expr.charCodeAt(this.index);
+	};
+
+
+	/**
+	 * @param {string} expr a string with the passed in express
+	 * @returns Jsep
+	 */
+	constructor(expr) {
+		// `index` stores the character number we are currently at
+		// All of the gobbles below will modify `index` as we move along
+		this.expr = expr;
+		this.index = 0;
+	}
 
 	/**
 	 * Get the longest key length of any object
@@ -102,186 +179,11 @@ export class JsepConfig {
 		return Math.max(0, ...Object.keys(obj).map(k => k.length));
 	}
 
-
-	/**
-	 * @method addUnaryOp
-	 * @param {string} op_name The name of the unary op to add
-	 * @return this
-	 */
-	addUnaryOp(op_name) {
-		this.max_unop_len = Math.max(op_name.length, this.max_unop_len);
-		this.unary_ops[op_name] = 1;
-		return this;
-	}
-
-	/**
-	 * @method jsep.addBinaryOp
-	 * @param {string} op_name The name of the binary op to add
-	 * @param {number} precedence The precedence of the binary op (can be a float)
-	 * @return this
-	 */
-	addBinaryOp(op_name, precedence) {
-		this.max_binop_len = Math.max(op_name.length, this.max_binop_len);
-		this.binary_ops[op_name] = precedence;
-		return this;
-	}
-
-	/**
-	 * @method addIdentifierChar
-	 * @param {string} char The additional character to treat as a valid part of an identifier
-	 * @return this
-	 */
-	addIdentifierChar(char) {
-		this.additional_identifier_chars.add(char);
-		return this;
-	}
-
-	/**
-	 * @method addLiteral
-	 * @param {string} literal_name The name of the literal to add
-	 * @param {*} literal_value The value of the literal
-	 * @return this
-	 */
-	addLiteral(literal_name, literal_value) {
-		this.literals[literal_name] = literal_value;
-		return this;
-	}
-
-	/**
-	 * @method removeUnaryOp
-	 * @param {string} op_name The name of the unary op to remove
-	 * @return this
-	 */
-	removeUnaryOp(op_name) {
-		delete this.unary_ops[op_name];
-		if (op_name.length === this.max_unop_len) {
-			this.max_unop_len = JsepConfig.getMaxKeyLen(this.unary_ops);
-		}
-		return this;
-	}
-
-	/**
-	 * @method removeAllUnaryOps
-	 * @return this
-	 */
-	removeAllUnaryOps() {
-		this.unary_ops = {};
-		this.max_unop_len = 0;
-
-		return this;
-	}
-
-	/**
-	 * @method removeIdentifierChar
-	 * @param {string} char The additional character to stop treating as a valid part of an identifier
-	 * @return this
-	 */
-	removeIdentifierChar(char) {
-		this.additional_identifier_chars.delete(char);
-		return this;
-	}
-
-	/**
-	 * @method removeBinaryOp
-	 * @param {string} op_name The name of the binary op to remove
-	 * @return this
-	 */
-	removeBinaryOp(op_name) {
-		delete this.binary_ops[op_name];
-
-		if (op_name.length === this.max_binop_len) {
-			this.max_binop_len = JsepConfig.getMaxKeyLen(this.binary_ops);
-		}
-
-		return this;
-	}
-
-	/**
-	 * @method removeAllBinaryOps
-	 * @return this
-	 */
-	removeAllBinaryOps() {
-		this.binary_ops = {};
-		this.max_binop_len = 0;
-
-		return this;
-	}
-
-	/**
-	 * @method removeLiteral
-	 * @param {string} literal_name The name of the literal to remove
-	 * @return this
-	 */
-	removeLiteral(literal_name) {
-		delete this.literals[literal_name];
-		return this;
-	}
-
-	/**
-	 * @method removeAllLiterals
-	 * @return this
-	 */
-	removeAllLiterals() {
-		this.literals = {};
-
-		return this;
-	}
-}
-
-
-// JavaScript Expression Parser
-export class Jsep {
-	static get version() {
-		// To be filled in by the template
-		return '<%= version %>';
-	}
-
-	/**
-	 * @returns {(pos: number) => string}
-	 */
-	get charAtFunc() {
-		return this.expr.charAt;
-	}
-
-	/**
-	 * @returns {(index: number) => number}
-	 */
-	get charCodeAtFunc() {
-		return this.expr.charCodeAt;
-	}
-
-	get _exprI() {
-		return this.exprI(this.index);
-	}
-
-	get _exprICode() {
-		return this.exprICode(this.index);
-	};
-
-
-	/**
-	 * @param {string} expr a string with the passed in express
-	 * @param {JsepConfig} [config]
-	 * @returns Jsep
-	 */
-	constructor(expr, config = JsepConfig.instance) {
-		// `index` stores the character number we are currently at while `length` is a constant
-		// All of the gobbles below will modify `index` as we move along
-		this.expr = expr;
-		this.config = config;
-		this.index = 0;
-		this.length = expr.length;
-	}
-
-	static toString() {
-		return 'JavaScript Expression Parser (JSEP) v' + Jsep.version;
-	};
-
-
 	/**
 	 * throw error at index of the expression
 	 * @param {string} message
 	 * @param {number} index
+	 * @throws
 	 */
 	static throwError(message, index) {
 		const error = new Error(message + ' at character ' + index);
@@ -299,7 +201,7 @@ export class Jsep {
 	 */
 	static createBinaryExpression(operator, left, right) {
 		return {
-			type: Constants.BINARY_EXP,
+			type: Jsep.BINARY_EXP,
 			operator,
 			left,
 			right
@@ -316,6 +218,22 @@ export class Jsep {
 	}
 
 	/**
+	 * @param {number} [index=this.index]
+	 * @returns {string}
+	 */
+	charAt(index = this.index) {
+		return this.expr.charAt(index);
+	}
+
+	/**
+	 * @param {number} [index=this.index]
+	 * @returns {number}
+	 */
+	charCodeAt(index = this.index) {
+		return this.expr.charCodeAt(index);
+	}
+
+	/**
 	 * throw error at index of the expression
 	 * @param {string} message
 	 */
@@ -329,7 +247,7 @@ export class Jsep {
 	 * @returns {number}
 	 */
 	binaryPrecedence(op_val) {
-		return this.config.binary_ops[op_val] || 0;
+		return Jsep.binary_ops[op_val] || 0;
 	}
 
 	/**
@@ -340,8 +258,8 @@ export class Jsep {
 	isIdentifierStart(ch) {
 		return  (ch >= 65 && ch <= 90) || // A...Z
 			(ch >= 97 && ch <= 122) || // a...z
-			(ch >= 128 && !this.config.binary_ops[String.fromCharCode(ch)]) || // any non-ASCII that is not an operator
-			(this.config.additional_identifier_chars.has(String.fromCharCode(ch))); // additional characters
+			(ch >= 128 && !Jsep.binary_ops[String.fromCharCode(ch)]) || // any non-ASCII that is not an operator
+			(Jsep.additional_identifier_chars.has(String.fromCharCode(ch))); // additional characters
 	}
 
 	/**
@@ -353,32 +271,16 @@ export class Jsep {
 	}
 
 	/**
-	 * @param {number} i
-	 * @returns {string}
-	 */
-	exprI(i) {
-		return this.charAtFunc.call(this.expr, i);
-	}
-
-	/**
-	 * @param {number} i
-	 * @returns {number}
-	 */
-	exprICode(i) {
-		return this.charCodeAtFunc.call(this.expr, i);
-	}
-
-	/**
 	 * Push `index` up to the next non-space character
 	 */
 	gobbleSpaces() {
-		let ch = this._exprICode;
+		let ch = this.currentCharCode;
 		// Whitespace
-		while (ch === Constants.SPACE_CODE
-		|| ch === Constants.TAB_CODE
-		|| ch === Constants.LF_CODE
-		|| ch === Constants.CR_CODE) {
-			ch = this.exprICode(++this.index);
+		while (ch === Jsep.SPACE_CODE
+		|| ch === Jsep.TAB_CODE
+		|| ch === Jsep.LF_CODE
+		|| ch === Jsep.CR_CODE) {
+			ch = this.charCodeAt(++this.index);
 		}
 	}
 
@@ -395,7 +297,7 @@ export class Jsep {
 		}
 		else {
 			return {
-				type: Constants.COMPOUND,
+				type: Jsep.COMPOUND,
 				body: nodes
 			};
 		}
@@ -409,12 +311,12 @@ export class Jsep {
 	gobbleExpressions(untilICode) {
 		let nodes = [], ch_i, node;
 
-		while (this.index < this.length) {
-			ch_i = this._exprICode;
+		while (this.index < this.expr.length) {
+			ch_i = this.currentCharCode;
 
 			// Expressions can be separated by semicolons, commas, or just inferred without any
 			// separators
-			if (ch_i === Constants.SEMCOL_CODE || ch_i === Constants.COMMA_CODE) {
+			if (ch_i === Jsep.SEMCOL_CODE || ch_i === Jsep.COMMA_CODE) {
 				this.index++; // ignore separators
 			}
 			else {
@@ -424,11 +326,11 @@ export class Jsep {
 					// If we weren't able to find a binary expression and are out of room, then
 					// the expression passed in probably has too much
 				}
-				else if (this.index < this.length) {
+				else if (this.index < this.expr.length) {
 					if (ch_i === untilICode) {
 						break;
 					}
-					this.throwError('Unexpected "' + this._exprI + '"');
+					this.throwError('Unexpected "' + this.currentChar + '"');
 				}
 			}
 		}
@@ -446,7 +348,7 @@ export class Jsep {
 
 		this.gobbleSpaces();
 
-		if (this._exprICode === Constants.QUMARK_CODE) {
+		if (this.currentCharCode === Jsep.QUMARK_CODE) {
 			// Ternary expression: test ? consequent : alternate
 			this.index++;
 			const consequent = this.gobbleExpression();
@@ -457,7 +359,7 @@ export class Jsep {
 
 			this.gobbleSpaces();
 
-			if (this._exprICode === Constants.COLON_CODE) {
+			if (this.currentCharCode === Jsep.COLON_CODE) {
 				this.index++;
 				const alternate = this.gobbleExpression();
 
@@ -465,7 +367,7 @@ export class Jsep {
 					this.throwError('Expected expression');
 				}
 				return {
-					type: Constants.CONDITIONAL_EXP,
+					type: Jsep.CONDITIONAL_EXP,
 					test,
 					consequent,
 					alternate
@@ -489,16 +391,16 @@ export class Jsep {
 	 */
 	gobbleBinaryOp() {
 		this.gobbleSpaces();
-		let to_check = this.expr.substr(this.index, this.config.max_binop_len);
+		let to_check = this.expr.substr(this.index, Jsep.max_binop_len);
 		let tc_len = to_check.length;
 
 		while (tc_len > 0) {
 			// Don't accept a binary op when it is an identifier.
 			// Binary ops that start with a identifier-valid character must be followed
 			// by a non identifier-part valid character
-			if (this.config.binary_ops.hasOwnProperty(to_check) && (
-				!this.isIdentifierStart(this._exprICode) ||
-				(this.index + to_check.length < this.length && !this.isIdentifierPart(this.exprICode(this.index + to_check.length)))
+			if (Jsep.binary_ops.hasOwnProperty(to_check) && (
+				!this.isIdentifierStart(this.currentCharCode) ||
+				(this.index + to_check.length < this.expr.length && !this.isIdentifierPart(this.charCodeAt(this.index + to_check.length)))
 			)) {
 				this.index += tc_len;
 				return to_check;
@@ -589,35 +491,35 @@ export class Jsep {
 		let ch, to_check, tc_len, node;
 
 		this.gobbleSpaces();
-		ch = this._exprICode;
+		ch = this.currentCharCode;
 
-		if (Jsep.isDecimalDigit(ch) || ch === Constants.PERIOD_CODE) {
+		if (Jsep.isDecimalDigit(ch) || ch === Jsep.PERIOD_CODE) {
 			// Char code 46 is a dot `.` which can start off a numeric literal
 			return this.gobbleNumericLiteral();
 		}
 
-		if (ch === Constants.SQUOTE_CODE || ch === Constants.DQUOTE_CODE) {
+		if (ch === Jsep.SQUOTE_CODE || ch === Jsep.DQUOTE_CODE) {
 			// Single or double quotes
 			node = this.gobbleStringLiteral();
 		}
-		else if (ch === Constants.OBRACK_CODE) {
+		else if (ch === Jsep.OBRACK_CODE) {
 			node = this.gobbleArray();
 		}
 		else {
-			to_check = this.expr.substr(this.index, this.config.max_unop_len);
+			to_check = this.expr.substr(this.index, Jsep.max_unop_len);
 			tc_len = to_check.length;
 
 			while (tc_len > 0) {
 				// Don't accept an unary op when it is an identifier.
 				// Unary ops that start with a identifier-valid character must be followed
 				// by a non identifier-part valid character
-				if (this.config.unary_ops.hasOwnProperty(to_check) && (
-					!this.isIdentifierStart(this._exprICode) ||
-					(this.index + to_check.length < this.length && !this.isIdentifierPart(this.exprICode(this.index + to_check.length)))
+				if (Jsep.unary_ops.hasOwnProperty(to_check) && (
+					!this.isIdentifierStart(this.currentCharCode) ||
+					(this.index + to_check.length < this.expr.length && !this.isIdentifierPart(this.charCodeAt(this.index + to_check.length)))
 				)) {
 					this.index += tc_len;
 					return {
-						type: Constants.UNARY_EXP,
+						type: Jsep.UNARY_EXP,
 						operator: to_check,
 						argument: this.gobbleToken(),
 						prefix: true
@@ -630,7 +532,7 @@ export class Jsep {
 			if (this.isIdentifierStart(ch)) {
 				node = this.gobbleIdentifier();
 			}
-			else if (ch === Constants.OPAREN_CODE) { // open parenthesis
+			else if (ch === Jsep.OPAREN_CODE) { // open parenthesis
 				node = this.gobbleGroup();
 			}
 		}
@@ -641,49 +543,49 @@ export class Jsep {
 
 		this.gobbleSpaces();
 
-		ch = this._exprICode;
+		ch = this.currentCharCode;
 
 		// Gobble properties of of identifiers/strings/arrays/groups.
 		// e.g. `foo`, `bar.baz`, `foo['bar'].baz`
 		// It also gobbles function calls:
 		// e.g. `Math.acos(obj.angle)`
 
-		while (ch === Constants.PERIOD_CODE || ch === Constants.OBRACK_CODE || ch === Constants.OPAREN_CODE) {
+		while (ch === Jsep.PERIOD_CODE || ch === Jsep.OBRACK_CODE || ch === Jsep.OPAREN_CODE) {
 			this.index++;
 
-			if (ch === Constants.PERIOD_CODE) {
+			if (ch === Jsep.PERIOD_CODE) {
 				this.gobbleSpaces();
 				node = {
-					type: Constants.MEMBER_EXP,
+					type: Jsep.MEMBER_EXP,
 					computed: false,
 					object: node,
 					property: this.gobbleIdentifier()
 				};
 			}
-			else if (ch === Constants.OBRACK_CODE) {
+			else if (ch === Jsep.OBRACK_CODE) {
 				node = {
-					type: Constants.MEMBER_EXP,
+					type: Jsep.MEMBER_EXP,
 					computed: true,
 					object: node,
 					property: this.gobbleExpression()
 				};
 				this.gobbleSpaces();
-				ch = this._exprICode;
-				if (ch !== Constants.CBRACK_CODE) {
+				ch = this.currentCharCode;
+				if (ch !== Jsep.CBRACK_CODE) {
 					this.throwError('Unclosed [');
 				}
 				this.index++;
 			}
-			else if (ch === Constants.OPAREN_CODE) {
+			else if (ch === Jsep.OPAREN_CODE) {
 				// A function call is being made; gobble all the arguments
 				node = {
-					type: Constants.CALL_EXP,
-					'arguments': this.gobbleArguments(Constants.CPAREN_CODE),
+					type: Jsep.CALL_EXP,
+					'arguments': this.gobbleArguments(Jsep.CPAREN_CODE),
 					callee: node
 				};
 			}
 			this.gobbleSpaces();
-			ch = this._exprICode;
+			ch = this.currentCharCode;
 		}
 
 		return node;
@@ -697,50 +599,50 @@ export class Jsep {
 	gobbleNumericLiteral() {
 		let number = '', ch, chCode;
 
-		while (Jsep.isDecimalDigit(this._exprICode)) {
-			number += this.exprI(this.index++);
+		while (Jsep.isDecimalDigit(this.currentCharCode)) {
+			number += this.charAt(this.index++);
 		}
 
-		if (this._exprICode === Constants.PERIOD_CODE) { // can start with a decimal marker
-			number += this.exprI(this.index++);
+		if (this.currentCharCode === Jsep.PERIOD_CODE) { // can start with a decimal marker
+			number += this.charAt(this.index++);
 
-			while (Jsep.isDecimalDigit(this._exprICode)) {
-				number += this.exprI(this.index++);
+			while (Jsep.isDecimalDigit(this.currentCharCode)) {
+				number += this.charAt(this.index++);
 			}
 		}
 
-		ch = this._exprI;
+		ch = this.currentChar;
 
 		if (ch === 'e' || ch === 'E') { // exponent marker
-			number += this.exprI(this.index++);
-			ch = this._exprI;
+			number += this.charAt(this.index++);
+			ch = this.currentChar;
 
 			if (ch === '+' || ch === '-') { // exponent sign
-				number += this.exprI(this.index++);
+				number += this.charAt(this.index++);
 			}
 
-			while (Jsep.isDecimalDigit(this._exprICode)) { // exponent itself
-				number += this.exprI(this.index++);
+			while (Jsep.isDecimalDigit(this.currentCharCode)) { // exponent itself
+				number += this.charAt(this.index++);
 			}
 
-			if (!Jsep.isDecimalDigit(this.exprICode(this.index - 1)) ) {
-				this.throwError('Expected exponent (' + number + this._exprI + ')');
+			if (!Jsep.isDecimalDigit(this.charCodeAt(this.index - 1)) ) {
+				this.throwError('Expected exponent (' + number + this.currentChar + ')');
 			}
 		}
 
-		chCode = this._exprICode;
+		chCode = this.currentCharCode;
 
 		// Check to make sure this isn't a variable name that start with a number (123abc)
 		if (this.isIdentifierStart(chCode)) {
 			this.throwError('Variable names cannot start with a number (' +
-				number + this._exprI + ')');
+				number + this.currentChar + ')');
 		}
-		else if (chCode === Constants.PERIOD_CODE) {
+		else if (chCode === Jsep.PERIOD_CODE) {
 			this.throwError('Unexpected period');
 		}
 
 		return {
-			type: Constants.LITERAL,
+			type: Jsep.LITERAL,
 			value: parseFloat(number),
 			raw: number
 		};
@@ -753,11 +655,11 @@ export class Jsep {
 	 */
 	gobbleStringLiteral() {
 		let str = '';
-		let quote = this.exprI(this.index++);
+		let quote = this.charAt(this.index++);
 		let closed = false;
 
-		while (this.index < this.length) {
-			let ch = this.exprI(this.index++);
+		while (this.index < this.expr.length) {
+			let ch = this.charAt(this.index++);
 
 			if (ch === quote) {
 				closed = true;
@@ -765,7 +667,7 @@ export class Jsep {
 			}
 			else if (ch === '\\') {
 				// Check for all of the common escape codes
-				ch = this.exprI(this.index++);
+				ch = this.charAt(this.index++);
 
 				switch (ch) {
 					case 'n': str += '\n'; break;
@@ -787,7 +689,7 @@ export class Jsep {
 		}
 
 		return {
-			type: Constants.LITERAL,
+			type: Jsep.LITERAL,
 			value: str,
 			raw: quote + str + quote
 		};
@@ -801,17 +703,17 @@ export class Jsep {
 	 * @returns {jsep.Expression}
 	 */
 	gobbleIdentifier() {
-		let ch = this._exprICode, start = this.index, identifier;
+		let ch = this.currentCharCode, start = this.index, identifier;
 
 		if (this.isIdentifierStart(ch)) {
 			this.index++;
 		}
 		else {
-			this.throwError('Unexpected ' + this._exprI);
+			this.throwError('Unexpected ' + this.currentChar);
 		}
 
-		while (this.index < this.length) {
-			ch = this._exprICode;
+		while (this.index < this.expr.length) {
+			ch = this.currentCharCode;
 
 			if (this.isIdentifierPart(ch)) {
 				this.index++;
@@ -822,19 +724,19 @@ export class Jsep {
 		}
 		identifier = this.expr.slice(start, this.index);
 
-		if (this.config.literals.hasOwnProperty(identifier)) {
+		if (Jsep.literals.hasOwnProperty(identifier)) {
 			return {
-				type: Constants.LITERAL,
-				value: this.config.literals[identifier],
+				type: Jsep.LITERAL,
+				value: Jsep.literals[identifier],
 				raw: identifier
 			};
 		}
-		else if (identifier === this.config.this_str) {
-			return { type: Constants.THIS_EXP };
+		else if (identifier === Jsep.this_str) {
+			return { type: Jsep.THIS_EXP };
 		}
 		else {
 			return {
-				type: Constants.IDENTIFIER,
+				type: Jsep.IDENTIFIER,
 				name: identifier
 			};
 		}
@@ -854,29 +756,29 @@ export class Jsep {
 		let closed = false;
 		let separator_count = 0;
 
-		while (this.index < this.length) {
+		while (this.index < this.expr.length) {
 			this.gobbleSpaces();
-			let ch_i = this._exprICode;
+			let ch_i = this.currentCharCode;
 
 			if (ch_i === termination) { // done parsing
 				closed = true;
 				this.index++;
 
-				if (termination === Constants.CPAREN_CODE && separator_count && separator_count >= args.length){
+				if (termination === Jsep.CPAREN_CODE && separator_count && separator_count >= args.length){
 					this.throwError('Unexpected token ' + String.fromCharCode(termination));
 				}
 
 				break;
 			}
-			else if (ch_i === Constants.COMMA_CODE) { // between expressions
+			else if (ch_i === Jsep.COMMA_CODE) { // between expressions
 				this.index++;
 				separator_count++;
 
 				if (separator_count !== args.length) { // missing argument
-					if (termination === Constants.CPAREN_CODE) {
+					if (termination === Jsep.CPAREN_CODE) {
 						this.throwError('Unexpected token ,');
 					}
-					else if (termination === Constants.CBRACK_CODE) {
+					else if (termination === Jsep.CBRACK_CODE) {
 						for (let arg = args.length; arg < separator_count; arg++) {
 							args.push(null);
 						}
@@ -886,7 +788,7 @@ export class Jsep {
 			else {
 				const node = this.gobbleExpression();
 
-				if (!node || node.type === Constants.COMPOUND) {
+				if (!node || node.type === Jsep.COMPOUND) {
 					this.throwError('Expected comma');
 				}
 
@@ -912,8 +814,8 @@ export class Jsep {
 	 */
 	gobbleGroup() {
 		this.index++;
-		let nodes = this.gobbleExpressions(Constants.CPAREN_CODE);
-		if (this._exprICode === Constants.CPAREN_CODE) {
+		let nodes = this.gobbleExpressions(Jsep.CPAREN_CODE);
+		if (this.currentCharCode === Jsep.CPAREN_CODE) {
 			this.index++;
 			if (nodes.length === 1) {
 				return nodes[0];
@@ -923,7 +825,7 @@ export class Jsep {
 			}
 			else {
 				return {
-					type: Constants.SEQUENCE_EXP,
+					type: Jsep.SEQUENCE_EXP,
 					expressions: nodes,
 				};
 			}
@@ -943,24 +845,96 @@ export class Jsep {
 		this.index++;
 
 		return {
-			type: Constants.ARRAY_EXP,
-			elements: this.gobbleArguments(Constants.CBRACK_CODE)
+			type: Jsep.ARRAY_EXP,
+			elements: this.gobbleArguments(Jsep.CBRACK_CODE)
 		};
 	}
 }
 
-
-// Backward Compatibility:
+// Backward Compatibility (before adding the static fields):
 const jsep = expr => (new Jsep(expr)).parse();
-jsep.version = Jsep.version;
-jsep.toString = Jsep.toString;
+const staticMethods = Object.getOwnPropertyNames(Jsep);
+staticMethods
+	.slice(staticMethods.indexOf('version'), staticMethods.indexOf('removeAllLiterals') + 1)
+	.forEach((m) => {
+		jsep[m] = Jsep[m];
+	});
 
-const config = JsepConfig.instance;
-const configMethods = Object.getOwnPropertyNames(Object.getPrototypeOf(config));
-configMethods.forEach((m) => {
-	if (m !== 'constructor') {
-		jsep[m] = config[m].bind(config);
-	}
+// Static fields:
+Object.assign(Jsep, {
+	// Node Types
+	// ----------
+	// This is the full set of types that any JSEP node can be.
+	// Store them here to save space when minified
+	COMPOUND:        'Compound',
+	SEQUENCE_EXP:    'SequenceExpression',
+	IDENTIFIER:      'Identifier',
+	MEMBER_EXP:      'MemberExpression',
+	LITERAL:         'Literal',
+	THIS_EXP:        'ThisExpression',
+	CALL_EXP:        'CallExpression',
+	UNARY_EXP:       'UnaryExpression',
+	BINARY_EXP:      'BinaryExpression',
+	CONDITIONAL_EXP: 'ConditionalExpression',
+	ARRAY_EXP:       'ArrayExpression',
+
+	TAB_CODE:    9,
+	LF_CODE:     10,
+	CR_CODE:     13,
+	SPACE_CODE:  32,
+	PERIOD_CODE: 46, // '.'
+	COMMA_CODE:  44, // ','
+	SQUOTE_CODE: 39, // single quote
+	DQUOTE_CODE: 34, // double quotes
+	OPAREN_CODE: 40, // (
+	CPAREN_CODE: 41, // )
+	OBRACK_CODE: 91, // [
+	CBRACK_CODE: 93, // ]
+	QUMARK_CODE: 63, // ?
+	SEMCOL_CODE: 59, // ;
+	COLON_CODE:  58, // :
+
+
+	// Operations
+	// ----------
+	// Use a quickly-accessible map to store all of the unary operators
+	// Values are set to `1` (it really doesn't matter)
+	unary_ops: {
+		'-': 1,
+		'!': 1,
+		'~': 1,
+		'+': 1
+	},
+
+	// Also use a map for the binary operations but set their values to their
+	// binary precedence for quick reference:
+	// see [Order of operations](http://en.wikipedia.org/wiki/Order_of_operations#Programming_language)
+	binary_ops: {
+		'||': 1, '&&': 2, '|': 3, '^': 4, '&': 5,
+		'==': 6, '!=': 6, '===': 6, '!==': 6,
+		'<': 7, '>': 7, '<=': 7, '>=': 7,
+		'<<': 8, '>>': 8, '>>>': 8,
+		'+': 9, '-': 9,
+		'*': 10, '/': 10, '%': 10
+	},
+
+	// Additional valid identifier chars, apart from a-z, A-Z and 0-9 (except on the starting char)
+	additional_identifier_chars: new Set(['$', '_']),
+
+	// Literals
+	// ----------
+	// Store the values to return for the various literals we may encounter
+	literals: {
+		'true': true,
+		'false': false,
+		'null': null
+	},
+
+	// Except for `this`, which is special. This could be changed to something like `'self'` as well
+	this_str: 'this',
 });
+Jsep.max_unop_len = Jsep.getMaxKeyLen(Jsep.unary_ops);
+Jsep.max_binop_len = Jsep.getMaxKeyLen(Jsep.binary_ops);
+
 
 export default jsep;
