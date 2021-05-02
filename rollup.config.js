@@ -28,7 +28,9 @@ function bundle(type) {
 }
 
 export default {
-	input: "src/jsep.js",
+	input: [
+		"src/index.js",
+	],
 	output: [
 		bundle("esm"),
 		bundle("esm.min"),

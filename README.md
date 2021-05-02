@@ -81,6 +81,37 @@ Jsep.addIdentifierChar("@");
 Jsep.removeIdentifierChar('@');
 ```
 
+### Plugins
+JSEP supports defining custom hooks for extending or modifying the expression parsing.
+All hooks are bound to the jsep instance and called with a single argument and return void.
+Both the hook argument and 'this' provide access to the internal parsing methods of jsep
+to allow reuse as needed.
+
+#### Hook Argument
+```typescript
+export interface HookScope {
+    index: number;
+    expr: string;
+    char: string; // current character of the expression
+    code: number; // current character code of the expression
+    gobbleSpaces: () => void;
+    gobbleExpressions: (number?) => Eexpression[];
+    gobbleExpression: () => Expression;
+    gobbleBinaryOp: () => PossibleExpression;
+    gobbleBinaryExpression: () => PossibleExpression;
+    gobbleToken: () =>  PossibleExpression;
+    gobbleNumericLiteral: () => PossibleExpression;
+    gobbleStringLiteral: () => PossibleExpression;
+    gobbleIdentifier: () => PossibleExpression;
+    gobbleArguments: (number) => PossibleExpression;
+    gobbleGroup: () => Expression;
+    gobbleArray: () => PossibleExpression;
+    throwError: (string) => void;
+    nodes?: Expression[];
+    node?: PossibleExpression;
+}
+```
+
 ### License
 
 jsep is under the MIT license. See LICENSE file.
