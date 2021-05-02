@@ -10,11 +10,11 @@ jsep's output is almost identical to [esprima's](http://esprima.org/doc/index.ht
 
 ### Custom Build
 
-First, install [Grunt](http://gruntjs.com/). While in the jsep project directory, run:
+While in the jsep project directory, run:
 
 ```bash
-npm install .
-grunt
+npm install
+npm run default
 ```
 
 The jsep built files will be in the build/ directory.
@@ -23,10 +23,11 @@ The jsep built files will be in the build/ directory.
 
 #### Client-side
 
-```javascript
-<script src="/PATH/TO/jsep.min.js"></script>
-...
-let parse_tree = jsep("1 + 1");
+```html
+<script type="module">
+import { Jsep } from '/PATH/TO/jsep.min.js';
+const parsed = Jsep.parse('1 + 1');
+</script>
 ```
 
 #### Node.JS
@@ -34,24 +35,38 @@ let parse_tree = jsep("1 + 1");
 First, run `npm install jsep`. Then, in your source file:
 
 ```javascript
-let jsep = require("jsep");
-let parse_tree = jsep("1 + 1");
+// ESM:
+import { Jsep } from 'jsep';
+const parse_tree = Jsep.parse('1 + 1');
+
+// or:
+import jsep from 'jsep';
+const parse_tree = jsep('1 + 1');
+
+
+// CJS:
+const { Jsep } = require('jsep');
+const parse_tree = Jsep.parse('1 + 1');
+
+// or: (NOTE: versions prior to 1.x didn't require `.default`)
+const jsep = require('jsep').default;
+const parsed = jsep('1 + 1');
 ```
 
 #### Custom Operators
 
 ```javascript
 // Add a custom ^ binary operator with precedence 10
-jsep.addBinaryOp("^", 10);
+Jsep.addBinaryOp("^", 10);
 
 // Add a custom @ unary operator
-jsep.addUnaryOp('@');
+Jsep.addUnaryOp('@');
 
 // Remove a binary operator
-jsep.removeBinaryOp(">>>");
+Jsep.removeBinaryOp(">>>");
 
 // Remove a unary operator
-jsep.removeUnaryOp("~");
+Jsep.removeUnaryOp("~");
 ```
 
 #### Custom Identifiers
@@ -60,10 +75,10 @@ You can add or remove additional valid identifier chars. ('_' and '$' are alread
 
 ```javascript
 // Add a custom @ identifier
-jsep.addIdentifierChar("@");
+Jsep.addIdentifierChar("@");
 
 // Removes a custom @ identifier
-jsep.removeIdentifierChar('@');
+Jsep.removeIdentifierChar('@');
 ```
 
 ### License

@@ -1,6 +1,7 @@
 import jsep from "../src/jsep.js";
 
 (function() {
+/* eslint-disable brace-style */
 var binops = {
 	"+" : function(a, b) { return a + b; },
 	"-" : function(a, b) { return a - b; },
@@ -12,13 +13,16 @@ var unops = {
 	"-" : function(a) { return -a; },
 	"+" : function(a) { return +a; }
 };
+/* eslint-enable brace-style */
 
 var do_eval = function(node) {
-	if(node.type === "BinaryExpression") {
+	if (node.type === "BinaryExpression") {
 		return binops[node.operator](do_eval(node.left), do_eval(node.right));
-	} else if(node.type === "UnaryExpression") {
+	}
+	else if (node.type === "UnaryExpression") {
 		return unops[node.operator](do_eval(node.argument));
-	} else if(node.type === "Literal") {
+	}
+	else if (node.type === "Literal") {
 		return node.value;
 	}
 };
@@ -30,11 +34,12 @@ var test_op_expession = function(str, assert) {
 var filter_props = function(larger, smaller) {
 	var rv = (typeof larger.length === 'number') ? [] : {};
 	var prop_val;
-	for(var prop_name in smaller) {
+	for (var prop_name in smaller) {
 		prop_val  = smaller[prop_name];
-		if(typeof prop_val === 'string' || typeof prop_val === 'number') {
+		if (typeof prop_val === 'string' || typeof prop_val === 'number') {
 			rv[prop_name] = larger[prop_name];
-		} else {
+		}
+		else {
 			rv[prop_name] = filter_props(larger[prop_name], prop_val);
 		}
 	}
@@ -72,7 +77,7 @@ QUnit.test('Variables', function(assert) {
 });
 
 QUnit.test('Function Calls', function(assert) {
-	//test_parser("a(b, c(d,e), f)", {});
+	// test_parser("a(b, c(d,e), f)", {});
 	test_parser("a b + c", {}, assert);
 	test_parser("'a'.toString()", {}, assert);
 	test_parser("[1].length", {}, assert);
@@ -188,32 +193,32 @@ QUnit.test('Bad Numbers', function(assert) {
 });
 
 QUnit.test('Missing arguments', function(assert) {
-    assert.throws(function(){
-		var x = jsep("check(,)");
+	assert.throws(function(){
+		jsep("check(,)");
 	}, "detects missing argument (all)");
-    assert.throws(function(){
-		var x = jsep("check(,1,2)");
+	assert.throws(function(){
+		jsep("check(,1,2)");
 	}, "detects missing argument (head)");
-    assert.throws(function(){
-		var x = jsep("check(1,,2)");
+	assert.throws(function(){
+		jsep("check(1,,2)");
 	}, "detects missing argument (intervening)");
-    assert.throws(function(){
-		var x = jsep("check(1,2,)");
+	assert.throws(function(){
+		jsep("check(1,2,)");
 	}, "detects missing argument (tail)");
 });
 
 QUnit.test('Uncompleted expression-call/array', function(assert) {
-    assert.throws(function(){
-		var x = jsep("myFunction(a,b");
+	assert.throws(function() {
+		jsep("myFunction(a,b");
 	}, "detects unfinished expression call");
 
-    assert.throws(function(){
-		var x = jsep("[1,2");
+	assert.throws(function() {
+		jsep("[1,2");
 	}, "detects unfinished array");
 
-    assert.throws(function(){
-        	var x = jsep("-1+2-");
-    	}, /Expected expression after - at character 5/,
+	assert.throws(function() {
+		jsep("-1+2-");
+	}, /Expected expression after - at character 5/,
 	"detects trailing operator");
 });
 
@@ -241,14 +246,14 @@ QUnit.test('Esprima Comparison', function(assert) {
 		"(Object.variable.toLowerCase()).length == 3",
 		"(Object.variable.toLowerCase())  .  length == 3",
 		"[1] + [2]"
-	]).map(function(test) {esprima_comparison_test(test, assert)});
+	]).forEach(function(test) {
+		esprima_comparison_test(test, assert);
+	});
 });
 
 QUnit.test('Ternary', function(assert) {
-	var val = jsep('a ? b : c');
-    assert.equal(val.type, 'ConditionalExpression');
-	val = jsep('a||b ? c : d');
-    assert.equal(val.type, 'ConditionalExpression');
+	test_parser('a ? b : c', { type: 'ConditionalExpression' }, assert);
+	test_parser('a||b ? c : d', { type: 'ConditionalExpression' }, assert);
 });
 
 }());

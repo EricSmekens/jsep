@@ -6,19 +6,17 @@ const { version } = require('./package.json');
 const terserConfig = {
 	compress: true,
 	mangle: true
-}
+};
 
 function bundle(type) {
 	let minify = false;
 	let format = type.replace(".min", () => {
 		minify = true;
-		return ""
+		return "";
 	});
 
-	let suffix = `.${type}`.replace(".esm", "");
-
 	return {
-		file: `dist/jsep${suffix}.js`,
+		file: `dist/${format}/jsep.${type}.js`,
 		name: "jsep",
 		format,
 		sourcemap: type !== "esm",
@@ -48,4 +46,4 @@ export default {
 			delimiters: ['', ''],
 		})
 	]
-}
+};

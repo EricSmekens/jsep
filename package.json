@@ -13,7 +13,15 @@
 		"type": "git",
 		"url": "https://github.com/EricSmekens/jsep.git"
 	},
-	"main": "build/jsep.js",
+	"type": "module",
+	"main": "./dist/cjs/jsep.cjs.js",
+	"module": "./dist/esm/jsep.esm.js",
+	"exports": {
+		".": {
+			"require": "./dist/cjs/jsep.cjs.js",
+			"default": "./dist/esm/jsep.esm.js"
+		}
+	},
 	"typings": "typings/tsd.d.ts",
 	"private": false,
 	"devDependencies": {
@@ -33,11 +41,11 @@
 		"test": "test"
 	},
 	"scripts": {
-		"default": "npm run build & npm run test & npm run docco",
-		"build": "npx rollup -c",
+		"default": "npm run lint && npm run build && npm run test && npm run docco",
+		"build": "npx rollup -c && cp package-cjs.json dist/cjs/package.json",
 		"build:watch": "npx rollup -c --watch",
 		"test": "npx http-server -p 49649 --silent & npx node-qunit-puppeteer http://localhost:49649/test/unit_tests.html",
 		"docco": "npx docco src/jsep.js --css=src/docco.css --output=annotated_source/",
-		"lint": "npx eslint src/jsep.js"
+		"lint": "npx eslint src/**/*.js test/*.js"
 	}
 }
