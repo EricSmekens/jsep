@@ -19,7 +19,7 @@ function bundle(type) {
 	let folder = format === 'esm' ? '' : `${format}/`;
 
 	return {
-		file: `dist/${folder}/jsep${suffix}.js`,
+		file: `dist/${folder}jsep${suffix}.js`,
 		name: "jsep",
 		format,
 		sourcemap: type !== "esm",

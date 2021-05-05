@@ -24,6 +24,11 @@ The jsep built files will be in the build/ directory.
 #### Client-side
 
 ```html
+<script type="module">
+  import jsep from '/PATH/TO/jsep.min.js';
+  const parsed = jsep('1 + 1');
+</script>
+
 <script src="/PATH/TO/jsep.iife.min.js"></script>
   ...
 let parse_tree = jsep("1 + 1");
