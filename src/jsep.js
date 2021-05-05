@@ -828,17 +828,6 @@ export class Jsep {
 	}
 }
 
-// Backward Compatibility (before adding the static fields):
-const jsep = expr => (new Jsep(expr)).parse();
-const staticMethods = Object.getOwnPropertyNames(Jsep);
-staticMethods
-	.slice(staticMethods.indexOf('version'), staticMethods.indexOf('removeAllLiterals') + 1)
-	.forEach((m) => {
-		jsep[m] = Jsep[m];
-	});
-export default jsep;
-
-
 // Static fields:
 Object.assign(Jsep, {
 	// Node Types
@@ -914,3 +903,17 @@ Object.assign(Jsep, {
 });
 Jsep.max_unop_len = Jsep.getMaxKeyLen(Jsep.unary_ops);
 Jsep.max_binop_len = Jsep.getMaxKeyLen(Jsep.binary_ops);
+
+// Backward Compatibility:
+const jsep = expr => (new Jsep(expr)).parse();
+const staticMethods = Object.getOwnPropertyNames(Jsep);
+staticMethods
+	.slice(staticMethods.indexOf('version'))
+	.forEach((m) => {
+		if (m !== 'name') {
+			jsep[m] = Jsep[m];
+		}
+	});
+jsep.Jsep = Jsep; // allows for const { Jsep } = require('jsep');
+export default jsep;
+

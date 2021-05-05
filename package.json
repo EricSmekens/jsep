@@ -15,11 +15,11 @@
 	},
 	"type": "module",
 	"main": "./dist/cjs/jsep.cjs.js",
-	"module": "./dist/esm/jsep.esm.js",
+	"module": "./dist/jsep.js",
 	"exports": {
 		".": {
 			"require": "./dist/cjs/jsep.cjs.js",
-			"default": "./dist/esm/jsep.esm.js"
+			"default": "./dist/jsep.js"
 		}
 	},
 	"typings": "typings/tsd.d.ts",

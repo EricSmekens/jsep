@@ -1,19 +1,17 @@
 import jsep from "../src/jsep.js";
 
 (function() {
-/* eslint-disable brace-style */
 var binops = {
-	"+" : function(a, b) { return a + b; },
-	"-" : function(a, b) { return a - b; },
-	"*" : function(a, b) { return a * b; },
-	"/" : function(a, b) { return a / b; },
-	"%" : function(a, b) { return a % b; }
+	"+" : (a, b) => a + b,
+	"-" : (a, b) => a - b,
+	"*" : (a, b) => a * b,
+	"/" : (a, b) => a / b,
+	"%" : (a, b) => a % b,
 };
 var unops = {
-	"-" : function(a) { return -a; },
-	"+" : function(a) { return +a; }
+	"-" : a => -a,
+	"+" : a => +a,
 };
-/* eslint-enable brace-style */
 
 var do_eval = function(node) {
 	if (node.type === "BinaryExpression") {

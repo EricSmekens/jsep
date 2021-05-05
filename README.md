@@ -24,10 +24,9 @@ The jsep built files will be in the build/ directory.
 #### Client-side
 
 ```html
-<script type="module">
-import { Jsep } from '/PATH/TO/jsep.min.js';
-const parsed = Jsep.parse('1 + 1');
-</script>
+<script src="/PATH/TO/jsep.iife.min.js"></script>
+  ...
+let parse_tree = jsep("1 + 1");
 ```
 
 #### Node.JS
@@ -36,37 +35,37 @@ First, run `npm install jsep`. Then, in your source file:
 
 ```javascript
 // ESM:
-import { Jsep } from 'jsep';
-const parse_tree = Jsep.parse('1 + 1');
-
-// or:
 import jsep from 'jsep';
 const parse_tree = jsep('1 + 1');
 
-
-// CJS:
-const { Jsep } = require('jsep');
+// or:
+import { Jsep } from 'jsep';
 const parse_tree = Jsep.parse('1 + 1');
 
-// or: (NOTE: versions prior to 1.x didn't require `.default`)
+
+// CJS:
 const jsep = require('jsep').default;
 const parsed = jsep('1 + 1');
+
+// or:
+const { Jsep } = require('jsep');
+const parse_tree = Jsep.parse('1 + 1');
 ```
 
 #### Custom Operators
 
 ```javascript
 // Add a custom ^ binary operator with precedence 10
-Jsep.addBinaryOp("^", 10);
+jsep.addBinaryOp("^", 10);
 
 // Add a custom @ unary operator
-Jsep.addUnaryOp('@');
+jsep.addUnaryOp('@');
 
 // Remove a binary operator
-Jsep.removeBinaryOp(">>>");
+jsep.removeBinaryOp(">>>");
 
 // Remove a unary operator
-Jsep.removeUnaryOp("~");
+jsep.removeUnaryOp("~");
 ```
 
 #### Custom Identifiers
@@ -75,10 +74,10 @@ You can add or remove additional valid identifier chars. ('_' and '$' are alread
 
 ```javascript
 // Add a custom @ identifier
-Jsep.addIdentifierChar("@");
+jsep.addIdentifierChar("@");
 
 // Removes a custom @ identifier
-Jsep.removeIdentifierChar('@');
+jsep.removeIdentifierChar('@');
 ```
 
 ### License
