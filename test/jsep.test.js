@@ -225,8 +225,8 @@ QUnit.module('Hooks', (qunit) => {
 
 	QUnit.module('after-all', () => {
 		QUnit.test('should allow manipulating the nodes', (assert) => {
-			jsep.hooks.add('after-all', function() {
-				this.nodes = [{ type: 'test' }];
+			jsep.hooks.add('after-all', function(env) {
+				env.node.type = 'test';
 			});
 			testParser('a + 1', { type: 'test' }, assert);
 		});
@@ -254,10 +254,10 @@ QUnit.module('Hooks', (qunit) => {
 			const expr = 'fn( 4 * 2';
 			assert.throws(() => jsep(expr));
 
-			jsep.hooks.add('gobble-expression', function() {
+			jsep.hooks.add('gobble-expression', function(env) {
 				if (this.char === 'f') {
 					this.index += 4;
-					this.node = { type: 'custom' };
+					env.node = { type: 'custom' };
 				}
 			});
 			testParser(expr, {}, assert);
@@ -266,9 +266,9 @@ QUnit.module('Hooks', (qunit) => {
 
 	QUnit.module('after-expression', () => {
 		QUnit.test('should allow altering an expression', (assert) => {
-			jsep.hooks.add('after-expression', function() {
-				if (this.node) {
-					this.node = { type: 'overruled' };
+			jsep.hooks.add('after-expression', function(env) {
+				if (env.node) {
+					env.node = { type: 'overruled' };
 				}
 			});
 			testParser('1 + 2', { type: 'overruled' }, assert);
@@ -280,10 +280,10 @@ QUnit.module('Hooks', (qunit) => {
 		QUnit.test('should allow overriding gobbleToken', (assert) => {
 			const expr = '...2';
 			assert.throws(() => jsep(expr));
-			jsep.hooks.add('gobble-token', function() {
+			jsep.hooks.add('gobble-token', function(env) {
 				if ([0, 1, 2].every(i => this.expr.charAt(i) === '.')) {
 					this.index += 3;
-					this.node = { type: 'spread' };
+					env.node = { type: 'spread' };
 				}
 			});
 			testParser(expr, {}, assert);
@@ -291,11 +291,11 @@ QUnit.module('Hooks', (qunit) => {
 
 		QUnit.test('should allow manipulating found token', (assert) => {
 			const after = [];
-			jsep.hooks.add('after-token', function() {
-				if (this.node) {
-					this.node.type += ':)';
+			jsep.hooks.add('after-token', function(env) {
+				if (env.node) {
+					env.node.type += ':)';
 				}
-				after.push(this.node && this.node.type);
+				after.push(env.node && env.node.type);
 			});
 			jsep('a + 1 * !c(3) || d.e');
 			assert.equal(after.length, 4);

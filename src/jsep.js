@@ -260,19 +260,21 @@ export class Jsep {
 	 */
 	parse() {
 		Jsep.hooks.run('before-all', this);
-		this.nodes = this.gobbleExpressions();
-		Jsep.hooks.run('after-all', this);
+		const nodes = this.gobbleExpressions();
 
 		// If there's only one expression just try returning the expression
-		if (this.nodes.length === 1) {
-			return this.nodes[0];
+		const env = { context: this };
+		if (nodes.length === 1) {
+			env.node = nodes[0];
 		}
 		else {
-			return {
+			env.node = {
 				type: Jsep.COMPOUND,
-				body: this.nodes
+				body: nodes
 			};
 		}
+		Jsep.hooks.run('after-all', env);
+		return env.node;
 	}
 
 	/**
@@ -315,15 +317,15 @@ export class Jsep {
 	 * @returns {?jsep.Expression}
 	 */
 	gobbleExpression() {
-		this.node = false;
-		Jsep.hooks.run('gobble-expression', this);
-		if (!this.node) {
-			this.node = this.gobbleBinaryExpression();
+		const env = { context: this };
+		Jsep.hooks.run('gobble-expression', env);
+		if (!env.node) {
+			env.node = this.gobbleBinaryExpression();
 		}
 		this.gobbleSpaces();
 
-		Jsep.hooks.run('after-expression', this);
-		return this.node;
+		Jsep.hooks.run('after-expression', env);
+		return env.node;
 	}
 
 	/**
@@ -442,14 +444,14 @@ export class Jsep {
 	 * @returns {boolean|jsep.Expression}
 	 */
 	gobbleToken() {
-		let ch, to_check, tc_len, node;
+		let ch, to_check, tc_len;
 
 		this.gobbleSpaces();
-		this.node = null;
-		Jsep.hooks.run('gobble-token', this);
-		if (this.node) {
-			Jsep.hooks.run('after-token', this);
-			return this.node;
+		const env = { context: this };
+		Jsep.hooks.run('gobble-token', env);
+		if (env.node) {
+			Jsep.hooks.run('after-token', env);
+			return env.node;
 		}
 
 		ch = this.code;
@@ -461,10 +463,10 @@ export class Jsep {
 
 		if (ch === Jsep.SQUOTE_CODE || ch === Jsep.DQUOTE_CODE) {
 			// Single or double quotes
-			node = this.gobbleStringLiteral();
+			env.node = this.gobbleStringLiteral();
 		}
 		else if (ch === Jsep.OBRACK_CODE) {
-			node = this.gobbleArray();
+			env.node = this.gobbleArray();
 		}
 		else {
 			to_check = this.expr.substr(this.index, Jsep.max_unop_len);
@@ -479,31 +481,30 @@ export class Jsep {
 					(this.index + to_check.length < this.expr.length && !Jsep.isIdentifierPart(this.expr.charCodeAt(this.index + to_check.length)))
 				)) {
 					this.index += tc_len;
-					this.node = {
+					env.node = {
 						type: Jsep.UNARY_EXP,
 						operator: to_check,
 						argument: this.gobbleToken(),
 						prefix: true
 					};
-					Jsep.hooks.run('after-token', this);
-					return this.node;
+					Jsep.hooks.run('after-token', env);
+					return env.node;
 				}
 
 				to_check = to_check.substr(0, --tc_len);
 			}
 
 			if (Jsep.isIdentifierStart(ch)) {
-				node = this.gobbleIdentifier();
+				env.node = this.gobbleIdentifier();
 			}
 			else if (ch === Jsep.OPAREN_CODE) { // open parenthesis
-				node = this.gobbleGroup();
+				env.node = this.gobbleGroup();
 			}
 		}
 
-		if (!node) {
-			this.node = false;
-			Jsep.hooks.run('after-token', this);
-			return this.node;
+		if (!env.node) {
+			Jsep.hooks.run('after-token', env);
+			return env.node;
 		}
 
 		this.gobbleSpaces();
@@ -520,18 +521,18 @@ export class Jsep {
 
 			if (ch === Jsep.PERIOD_CODE) {
 				this.gobbleSpaces();
-				node = {
+				env.node = {
 					type: Jsep.MEMBER_EXP,
 					computed: false,
-					object: node,
+					object: env.node,
 					property: this.gobbleIdentifier()
 				};
 			}
 			else if (ch === Jsep.OBRACK_CODE) {
-				node = {
+				env.node = {
 					type: Jsep.MEMBER_EXP,
 					computed: true,
-					object: node,
+					object: env.node,
 					property: this.gobbleExpression()
 				};
 				this.gobbleSpaces();
@@ -543,19 +544,18 @@ export class Jsep {
 			}
 			else if (ch === Jsep.OPAREN_CODE) {
 				// A function call is being made; gobble all the arguments
-				node = {
+				env.node = {
 					type: Jsep.CALL_EXP,
 					'arguments': this.gobbleArguments(Jsep.CPAREN_CODE),
-					callee: node
+					callee: env.node
 				};
 			}
 			this.gobbleSpaces();
 			ch = this.code;
 		}
 
-		this.node = node;
-		Jsep.hooks.run('after-token', this);
-		return this.node;
+		Jsep.hooks.run('after-token', env);
+		return env.node;
 	}
 
 	/**
