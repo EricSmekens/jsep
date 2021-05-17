@@ -10,11 +10,11 @@ jsep's output is almost identical to [esprima's](http://esprima.org/doc/index.ht
 
 ### Custom Build
 
-First, install [Grunt](http://gruntjs.com/). While in the jsep project directory, run:
+While in the jsep project directory, run:
 
 ```bash
-npm install .
-grunt
+npm install
+npm run default
 ```
 
 The jsep built files will be in the build/ directory.
@@ -23,9 +23,14 @@ The jsep built files will be in the build/ directory.
 
 #### Client-side
 
-```javascript
-<script src="/PATH/TO/jsep.min.js"></script>
-...
+```html
+<script type="module">
+  import jsep from '/PATH/TO/jsep.min.js';
+  const parsed = jsep('1 + 1');
+</script>
+
+<script src="/PATH/TO/jsep.iife.min.js"></script>
+  ...
 let parse_tree = jsep("1 + 1");
 ```
 
@@ -34,8 +39,22 @@ let parse_tree = jsep("1 + 1");
 First, run `npm install jsep`. Then, in your source file:
 
 ```javascript
-let jsep = require("jsep");
-let parse_tree = jsep("1 + 1");
+// ESM:
+import jsep from 'jsep';
+const parse_tree = jsep('1 + 1');
+
+// or:
+import { Jsep } from 'jsep';
+const parse_tree = Jsep.parse('1 + 1');
+
+
+// CJS:
+const jsep = require('jsep').default;
+const parsed = jsep('1 + 1');
+
+// or:
+const { Jsep } = require('jsep');
+const parse_tree = Jsep.parse('1 + 1');
 ```
 
 #### Custom Operators

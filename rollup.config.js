@@ -6,46 +6,63 @@ const { version } = require('./package.json');
 const terserConfig = {
 	compress: true,
 	mangle: true
-}
+};
 
 function bundle(type) {
 	let minify = false;
 	let format = type.replace(".min", () => {
 		minify = true;
-		return ""
+		return "";
 	});
 
 	let suffix = `.${type}`.replace(".esm", "");
+	let folder = format === 'esm' ? '' : `${format}/`;
 
 	return {
-		file: `dist/jsep${suffix}.js`,
+		file: `dist/${folder}jsep${suffix}.js`,
 		name: "jsep",
 		format,
 		sourcemap: type !== "esm",
-		exports: "named", /** Disable warning for default imports */
+		exports: format === 'esm' ? 'named' : 'default',
 		plugins: [
-			minify? terser(terserConfig) : undefined
+			minify? terser(terserConfig) : undefined,
 		]
 	};
 }
 
-export default {
-	input: "src/jsep.js",
-	output: [
-		bundle("esm"),
-		bundle("esm.min"),
-		bundle("iife"),
-		bundle("iife.min"),
-		bundle("cjs"),
-		bundle("cjs.min"),
-	],
-	plugins: [
-		replace({
-			"<%= version %>": version,
+const versionPlugin = replace({
+	"<%= version %>": version,
 
-			// Options:
-			preventAssignment: false,
-			delimiters: ['', ''],
-		})
-	]
-}
+	// Options:
+	preventAssignment: false,
+	delimiters: ['', ''],
+});
+
+export default [
+	{
+		input: "src/jsep.js",
+		output: [
+			bundle("esm"),
+			bundle("esm.min"),
+		],
+		plugins: [
+			versionPlugin,
+		],
+	},
+	{
+		input: "src/jsep.js",
+		output: [
+			bundle("iife"),
+			bundle("iife.min"),
+			bundle("cjs"),
+			bundle("cjs.min"),
+		],
+		plugins: [
+			versionPlugin,
+			replace({
+				'export class Jsep': 'class Jsep', // single default export
+				preventAssignment: false,
+			}),
+		],
+	},
+];
