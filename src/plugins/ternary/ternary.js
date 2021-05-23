@@ -1,7 +1,7 @@
 import {Jsep} from '../../jsep.js';
 
 // Ternary expression: test ? consequent : alternate
-Jsep.hooks.add('after-expression', function gobbleTernary(env) {
+Jsep.hooksAdd('after-expression', function gobbleTernary(env) {
 	if (this.code === Jsep.QUMARK_CODE) {
 		this.index++;
 		const test = env.node;

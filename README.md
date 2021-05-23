@@ -116,8 +116,6 @@ export interface HookScope {
 ```
 
 #### Hook Types
-* `before-all`: called just before starting all expression parsing.
-* `after-all`: called after parsing all. Read/Write `arg.node` as required.
 * `gobble-expression`: called just before attempting to parse an expression. Set `arg.node` as required.
 * `after-expression`: called just after parsing an expression. Read/Write `arg.node` as required.
 * `gobble-token`: called just before attempting to parse a token. Set `arg.node` as required.
@@ -137,7 +135,7 @@ import 'jsep/plugins/ternary';
 Refer to the `jsep/plugins` folder for examples. In general, the file should look something like:
 ```javascript
 import { Jsep } from '../../jsep.js';
-Jsep.hooks.add(/* refer to [Hook Types] */, function myPlugin(env) {
+Jsep.hooksAdd(/* refer to [Hook Types] */, function myPlugin(env) {
   if (this.char === '#') {
     env.node = {
       /* add a node type */
