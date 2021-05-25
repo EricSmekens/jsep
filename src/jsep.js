@@ -170,27 +170,6 @@ export class Jsep {
 		// All of the gobbles below will modify `index` as we move along
 		this.expr = expr;
 		this.index = 0;
-
-		// speed optimization for hooks.run() to pre-bind to `this`
-		// also wraps node arg and returns modified/set node
-		[
-			'gobble-spaces',
-			'gobble-expression',
-			'after-expression',
-			'gobble-token',
-			'after-token',
-		]
-			.forEach(name => {
-				const hooks = (Jsep.hooks[name] || [])
-					.map(h => h.bind(this));
-				this[name] = hooks.length
-					? node => {
-						const env = { node };
-						hooks.forEach(h => h(env));
-						return env.node;
-					}
-					: node => node;
-			});
 	}
 
 	/**
@@ -261,6 +240,21 @@ export class Jsep {
 	}
 
 	/**
+	 * Run a given hook
+	 * @param {string} name
+	 * @param {jsep.Expression|false} [node]
+	 * @returns {?jsep.Expression}
+	 */
+	runHook(name, node) {
+		if (Jsep.hooks[name]) {
+			const env = { context: this, node };
+			Jsep.hooks.run(name, env);
+			return env.node;
+		}
+		return node;
+	}
+
+	/**
 	 * Push `index` up to the next non-space character
 	 */
 	gobbleSpaces() {
@@ -272,7 +266,7 @@ export class Jsep {
 		|| ch === Jsep.CR_CODE) {
 			ch = this.expr.charCodeAt(++this.index);
 		}
-		this['gobble-spaces']();
+		this.runHook('gobble-spaces');
 	}
 
 	/**
@@ -280,18 +274,17 @@ export class Jsep {
 	 * @returns {jsep.Expression}
 	 */
 	parse() {
+		this.runHook('before-all');
 		const nodes = this.gobbleExpressions();
 
 		// If there's only one expression just try returning the expression
-		if (nodes.length === 1) {
-			return nodes[0];
-		}
-		else {
-			return {
+		const node = nodes.length === 1
+		  ? nodes[0]
+			: {
 				type: Jsep.COMPOUND,
 				body: nodes
 			};
-		}
+		return this.runHook('after-all', node);
 	}
 
 	/**
@@ -334,10 +327,10 @@ export class Jsep {
 	 * @returns {?jsep.Expression}
 	 */
 	gobbleExpression() {
-		const node = this['gobble-expression']() || this.gobbleBinaryExpression();
+		const node = this.runHook('gobble-expression') || this.gobbleBinaryExpression();
 		this.gobbleSpaces();
 
-		return this['after-expression'](node);
+		return this.runHook('after-expression', node);
 	}
 
 	/**
@@ -459,9 +452,9 @@ export class Jsep {
 		let ch, to_check, tc_len, node;
 
 		this.gobbleSpaces();
-		node = this['gobble-token']();
+		node = this.runHook('gobble-token');
 		if (node) {
-			return this['after-token'](node);
+			return this.runHook('after-token', node);
 		}
 
 		ch = this.code;
@@ -491,7 +484,7 @@ export class Jsep {
 					(this.index + to_check.length < this.expr.length && !Jsep.isIdentifierPart(this.expr.charCodeAt(this.index + to_check.length)))
 				)) {
 					this.index += tc_len;
-					return this['after-token']({
+					return this.runHook('after-token', {
 						type: Jsep.UNARY_EXP,
 						operator: to_check,
 						argument: this.gobbleToken(),
@@ -511,7 +504,7 @@ export class Jsep {
 		}
 
 		if (!node) {
-			return this['after-token'](false);
+			return this.runHook('after-token', false);
 		}
 
 		this.gobbleSpaces();
@@ -561,7 +554,7 @@ export class Jsep {
 			ch = this.code;
 		}
 
-		return this['after-token'](node);
+		return this.runHook('after-token', node);
 	}
 
 	/**

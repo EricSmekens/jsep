@@ -116,6 +116,8 @@ export interface HookScope {
 ```
 
 #### Hook Types
+* `before-all`: called just before starting all expression parsing.
+* `after-all`: called after parsing all. Read/Write `arg.node` as required.
 * `gobble-expression`: called just before attempting to parse an expression. Set `arg.node` as required.
 * `after-expression`: called just after parsing an expression. Read/Write `arg.node` as required.
 * `gobble-token`: called just before attempting to parse a token. Set `arg.node` as required.
