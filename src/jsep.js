@@ -1,6 +1,8 @@
 //     JavaScript Expression Parser (JSEP) <%= version %>
 //     JSEP may be freely distributed under the MIT License
 //     https://ericsmekens.github.io/jsep/
+import Hooks from './hooks.js';
+
 export class Jsep {
 	/**
 	 * @returns {string}
@@ -238,6 +240,21 @@ export class Jsep {
 	}
 
 	/**
+	 * Run a given hook
+	 * @param {string} name
+	 * @param {jsep.Expression|false} [node]
+	 * @returns {?jsep.Expression}
+	 */
+	runHook(name, node) {
+		if (Jsep.hooks[name]) {
+			const env = { context: this, node };
+			Jsep.hooks.run(name, env);
+			return env.node;
+		}
+		return node;
+	}
+
+	/**
 	 * Push `index` up to the next non-space character
 	 */
 	gobbleSpaces() {
@@ -249,6 +266,7 @@ export class Jsep {
 		|| ch === Jsep.CR_CODE) {
 			ch = this.expr.charCodeAt(++this.index);
 		}
+		this.runHook('gobble-spaces');
 	}
 
 	/**
@@ -256,18 +274,17 @@ export class Jsep {
 	 * @returns {jsep.Expression}
 	 */
 	parse() {
+		this.runHook('before-all');
 		const nodes = this.gobbleExpressions();
 
 		// If there's only one expression just try returning the expression
-		if (nodes.length === 1) {
-			return nodes[0];
-		}
-		else {
-			return {
+		const node = nodes.length === 1
+		  ? nodes[0]
+			: {
 				type: Jsep.COMPOUND,
 				body: nodes
 			};
-		}
+		return this.runHook('after-all', node);
 	}
 
 	/**
@@ -305,48 +322,15 @@ export class Jsep {
 		return nodes;
 	}
 
-	//
 	/**
-	 * The main parsing function. Much of this code is dedicated to ternary expressions
+	 * The main parsing function.
 	 * @returns {?jsep.Expression}
 	 */
 	gobbleExpression() {
-		const test = this.gobbleBinaryExpression();
-
+		const node = this.runHook('gobble-expression') || this.gobbleBinaryExpression();
 		this.gobbleSpaces();
 
-		if (this.code === Jsep.QUMARK_CODE) {
-			// Ternary expression: test ? consequent : alternate
-			this.index++;
-			const consequent = this.gobbleExpression();
-
-			if (!consequent) {
-				this.throwError('Expected expression');
-			}
-
-			this.gobbleSpaces();
-
-			if (this.code === Jsep.COLON_CODE) {
-				this.index++;
-				const alternate = this.gobbleExpression();
-
-				if (!alternate) {
-					this.throwError('Expected expression');
-				}
-				return {
-					type: Jsep.CONDITIONAL_EXP,
-					test,
-					consequent,
-					alternate
-				};
-			}
-			else {
-				this.throwError('Expected :');
-			}
-		}
-		else {
-			return test;
-		}
+		return this.runHook('after-expression', node);
 	}
 
 	/**
@@ -468,6 +452,11 @@ export class Jsep {
 		let ch, to_check, tc_len, node;
 
 		this.gobbleSpaces();
+		node = this.runHook('gobble-token');
+		if (node) {
+			return this.runHook('after-token', node);
+		}
+
 		ch = this.code;
 
 		if (Jsep.isDecimalDigit(ch) || ch === Jsep.PERIOD_CODE) {
@@ -495,12 +484,12 @@ export class Jsep {
 					(this.index + to_check.length < this.expr.length && !Jsep.isIdentifierPart(this.expr.charCodeAt(this.index + to_check.length)))
 				)) {
 					this.index += tc_len;
-					return {
+					return this.runHook('after-token', {
 						type: Jsep.UNARY_EXP,
 						operator: to_check,
 						argument: this.gobbleToken(),
 						prefix: true
-					};
+					});
 				}
 
 				to_check = to_check.substr(0, --tc_len);
@@ -515,7 +504,7 @@ export class Jsep {
 		}
 
 		if (!node) {
-			return false;
+			return this.runHook('after-token', false);
 		}
 
 		this.gobbleSpaces();
@@ -565,7 +554,7 @@ export class Jsep {
 			ch = this.code;
 		}
 
-		return node;
+		return this.runHook('after-token', node);
 	}
 
 	/**
@@ -829,7 +818,11 @@ export class Jsep {
 }
 
 // Static fields:
+const hooks = new Hooks();
 Object.assign(Jsep, {
+	hooks,
+	hooksAdd: hooks.add.bind(hooks),
+
 	// Node Types
 	// ----------
 	// This is the full set of types that any JSEP node can be.

@@ -85,6 +85,67 @@ jsep.addIdentifierChar("@");
 jsep.removeIdentifierChar('@');
 ```
 
+### Plugins
+JSEP supports defining custom hooks for extending or modifying the expression parsing.
+All hooks are bound to the jsep instance and called with a single argument and return void.
+The 'this' context provide access to the internal parsing methods of jsep
+to allow reuse as needed. Some hook types will pass an object that allows reading/writing
+the `node` property as needed.
+
+#### Hook 'this' context
+```typescript
+export interface HookScope {
+    index: number;
+    expr: string;
+    char: string; // current character of the expression
+    code: number; // current character code of the expression
+    gobbleSpaces: () => void;
+    gobbleExpressions: (number?) => Eexpression[];
+    gobbleExpression: () => Expression;
+    gobbleBinaryOp: () => PossibleExpression;
+    gobbleBinaryExpression: () => PossibleExpression;
+    gobbleToken: () =>  PossibleExpression;
+    gobbleNumericLiteral: () => PossibleExpression;
+    gobbleStringLiteral: () => PossibleExpression;
+    gobbleIdentifier: () => PossibleExpression;
+    gobbleArguments: (number) => PossibleExpression;
+    gobbleGroup: () => Expression;
+    gobbleArray: () => PossibleExpression;
+    throwError: (string) => void;
+}
+```
+
+#### Hook Types
+* `before-all`: called just before starting all expression parsing.
+* `after-all`: called after parsing all. Read/Write `arg.node` as required.
+* `gobble-expression`: called just before attempting to parse an expression. Set `arg.node` as required.
+* `after-expression`: called just after parsing an expression. Read/Write `arg.node` as required.
+* `gobble-token`: called just before attempting to parse a token. Set `arg.node` as required.
+* `after-token`: called just after parsing a token. Read/Write `arg.node` as required.
+* `gobble-spaces`: called when gobbling spaces.
+
+#### How to add plugins:
+```javascript
+import { Jsep } from 'jsep';
+import 'jsep/plugins/ternary';
+```
+
+#### Optional Plugins:
+* `ternary`: Built-in by default, adds support for ternary `a ? b : c` expressions
+
+#### Writing Your Own Plugin:
+Refer to the `jsep/plugins` folder for examples. In general, the file should look something like:
+```javascript
+import { Jsep } from '../../jsep.js';
+Jsep.hooksAdd(/* refer to [Hook Types] */, function myPlugin(env) {
+  if (this.char === '#') {
+    env.node = {
+      /* add a node type */
+    };
+  }
+});
+```
+
 ### License
 
 jsep is under the MIT license. See LICENSE file.

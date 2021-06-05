@@ -25,6 +25,14 @@
 				"exceptions": ["*"]
 			}
 		}],
+		"indent": [
+			"error",
+			"tab",
+			{
+				"SwitchCase": 1
+			}
+		],
+		"linebreak-style": 0,
 		"arrow-spacing": 1,
 		"comma-spacing": 1,
 		"keyword-spacing": 1
