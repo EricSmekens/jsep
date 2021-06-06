@@ -132,6 +132,7 @@ import 'jsep/plugins/ternary.js';
 
 #### Optional Plugins:
 * `ternary`: Built-in by default, adds support for ternary `a ? b : c` expressions
+* `object`: Adds object expression support: `{ a: 1, b: { c }}`
 
 #### Writing Your Own Plugin:
 Refer to the `jsep/plugins` folder for examples. In general, the file should look something like:

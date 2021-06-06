@@ -29,6 +29,15 @@ jsep.hooksAdd('after-expression', function gobbleTernary(env) {
 				alternate,
 			};
 		}
+		// if binary operator is custom-added (i.e. object plugin), then correct it to a ternary node:
+		else if (consequent.operator === ':') {
+			env.node = {
+				type: jsep.CONDITIONAL_EXP,
+				test,
+				consequent: consequent.left,
+				alternate: consequent.right,
+			};
+		}
 		else {
 			this.throwError('Expected :');
 		}
