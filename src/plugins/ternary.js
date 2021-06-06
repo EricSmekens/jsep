@@ -1,10 +1,10 @@
-import {Jsep} from '../jsep.js';
+import jsep from '../jsep.js';
 
-Jsep.CONDITIONAL_EXP = 'ConditionalExpression';
+jsep.CONDITIONAL_EXP = 'ConditionalExpression';
 
 // Ternary expression: test ? consequent : alternate
-Jsep.hooksAdd('after-expression', function gobbleTernary(env) {
-	if (this.code === Jsep.QUMARK_CODE) {
+jsep.hooksAdd('after-expression', function gobbleTernary(env) {
+	if (this.code === jsep.QUMARK_CODE) {
 		this.index++;
 		const test = env.node;
 		const consequent = this.gobbleExpression();
@@ -15,7 +15,7 @@ Jsep.hooksAdd('after-expression', function gobbleTernary(env) {
 
 		this.gobbleSpaces();
 
-		if (this.code === Jsep.COLON_CODE) {
+		if (this.code === jsep.COLON_CODE) {
 			this.index++;
 			const alternate = this.gobbleExpression();
 
@@ -23,7 +23,7 @@ Jsep.hooksAdd('after-expression', function gobbleTernary(env) {
 				this.throwError('Expected expression');
 			}
 			env.node = {
-				type: Jsep.CONDITIONAL_EXP,
+				type: jsep.CONDITIONAL_EXP,
 				test,
 				consequent,
 				alternate,
