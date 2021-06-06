@@ -127,7 +127,7 @@ export interface HookScope {
 #### How to add plugins:
 ```javascript
 import { Jsep } from 'jsep';
-import 'jsep/plugins/ternary';
+import 'jsep/plugins/ternary.js';
 ```
 
 #### Optional Plugins:

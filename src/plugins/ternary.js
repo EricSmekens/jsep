@@ -1,4 +1,4 @@
-import {Jsep} from '../../jsep.js';
+import {Jsep} from '../jsep.js';
 
 // Ternary expression: test ? consequent : alternate
 Jsep.hooksAdd('after-expression', function gobbleTernary(env) {

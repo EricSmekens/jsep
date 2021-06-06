@@ -1,4 +1,4 @@
-import '../../src/plugins/ternary/ternary.js';
+import '../../src/plugins/ternary.js';
 import {testParser, esprimaComparisonTest} from '../test_utils.js';
 
 const { test } = QUnit;

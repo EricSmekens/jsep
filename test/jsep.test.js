@@ -52,6 +52,7 @@ import {testParser, testOpExpression, esprimaComparisonTest} from './test_utils.
 	QUnit.test('Custom operators', function (assert) {
 		jsep.addBinaryOp('^', 10);
 		testParser('a^b', {}, assert);
+		jsep.removeBinaryOp('^');
 
 		jsep.addBinaryOp('×', 9);
 		testParser('a×b', {
@@ -59,6 +60,7 @@ import {testParser, testOpExpression, esprimaComparisonTest} from './test_utils.
 			left: { name: 'a' },
 			right: { name: 'b' },
 		}, assert);
+		jsep.removeBinaryOp('×');
 
 		jsep.addBinaryOp('or', 1);
 		testParser('oneWord ordering anotherWord', {
@@ -78,6 +80,7 @@ import {testParser, testOpExpression, esprimaComparisonTest} from './test_utils.
 				},
 			],
 		}, assert);
+		jsep.removeBinaryOp('or');
 
 		jsep.addUnaryOp('#');
 		testParser('#a', {
@@ -85,6 +88,7 @@ import {testParser, testOpExpression, esprimaComparisonTest} from './test_utils.
 			operator: '#',
 			argument: { type: 'Identifier', name: 'a' },
 		}, assert);
+		jsep.removeUnaryOp('#');
 
 		jsep.addUnaryOp('not');
 		testParser('not a', {
@@ -92,12 +96,14 @@ import {testParser, testOpExpression, esprimaComparisonTest} from './test_utils.
 			operator: 'not',
 			argument: { type: 'Identifier', name: 'a' },
 		}, assert);
+		jsep.removeUnaryOp('not');
 
 		jsep.addUnaryOp('notes');
 		testParser('notes', {
 			type: 'Identifier',
 			name: 'notes',
 		}, assert);
+		jsep.removeUnaryOp('notes');
 	});
 
 	QUnit.test('Custom alphanumeric operators', function (assert) {
@@ -111,6 +117,7 @@ import {testParser, testOpExpression, esprimaComparisonTest} from './test_utils.
 		testParser('bands', { type: 'Identifier', name: 'bands' }, assert);
 
 		testParser('b ands', { type: 'Compound' }, assert);
+		jsep.removeBinaryOp('and');
 
 		jsep.addUnaryOp('not');
 		testParser('not a', {
@@ -118,8 +125,8 @@ import {testParser, testOpExpression, esprimaComparisonTest} from './test_utils.
 			operator: 'not',
 			argument: { type: 'Identifier', name: 'a' },
 		}, assert);
-
 		testParser('notes', { type: 'Identifier', name: 'notes' }, assert);
+		jsep.removeUnaryOp('not');
 	});
 
 	QUnit.test('Custom identifier characters', function (assert) {
@@ -128,6 +135,7 @@ import {testParser, testOpExpression, esprimaComparisonTest} from './test_utils.
 			type: 'Identifier',
 			name: '@asd',
 		}, assert);
+		jsep.removeIdentifierChar('@');
 	});
 
 	QUnit.test('Bad Numbers', function (assert) {
@@ -202,17 +210,23 @@ import {testParser, testOpExpression, esprimaComparisonTest} from './test_utils.
 		testParser('a||b ? c : d', { type: 'ConditionalExpression' }, assert);
 	});
 
-	const defaultHooks = Object.assign({}, jsep.hooks);
 	QUnit.module('Hooks', (qunit) => {
+		const defaultHooks = {};
 		const resetHooks = () => {
 			for (let key in jsep.hooks) {
 				delete jsep.hooks[key];
 			}
-			Object.assign(jsep.hooks, defaultHooks);
+			Object.entries(defaultHooks).forEach(([hookName, fns]) => {
+				jsep.hooks[hookName] = [...fns];
+			});
 		};
 
+		qunit.before(() => Object.entries(jsep.hooks).forEach(([hookName, fns]) => {
+			defaultHooks[hookName] = [...fns];
+		}));
+
 		qunit.beforeEach(resetHooks);
-		qunit.afterEach(resetHooks);
+		qunit.after(resetHooks);
 
 		QUnit.module('gobble-spaces', () => {
 			QUnit.test('should allow manipulating what is considered whitespace', (assert) => {
@@ -241,7 +255,7 @@ import {testParser, testOpExpression, esprimaComparisonTest} from './test_utils.
 						this.index += 4;
 						env.node = { type: 'custom' };
 					}
-				});
+				}, true);
 				testParser(expr, {}, assert);
 			});
 		});
