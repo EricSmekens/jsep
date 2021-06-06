@@ -836,7 +836,6 @@ Object.assign(Jsep, {
 	CALL_EXP:        'CallExpression',
 	UNARY_EXP:       'UnaryExpression',
 	BINARY_EXP:      'BinaryExpression',
-	CONDITIONAL_EXP: 'ConditionalExpression',
 	ARRAY_EXP:       'ArrayExpression',
 
 	TAB_CODE:    9,
