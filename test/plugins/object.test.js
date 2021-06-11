@@ -1,7 +1,8 @@
 import jsep from '../../src/index.js';
-import '../../src/plugins/object.js';
+import object from '../../src/plugins/object.js';
 import { testParser } from '../test_utils.js';
 
+jsep.plugins.register(object);
 const { test } = QUnit;
 
 (function () {

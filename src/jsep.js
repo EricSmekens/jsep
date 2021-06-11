@@ -2,6 +2,7 @@
 //     JSEP may be freely distributed under the MIT License
 //     https://ericsmekens.github.io/jsep/
 import Hooks from './hooks.js';
+import Plugins from './plugins.js';
 
 export class Jsep {
 	/**
@@ -822,6 +823,7 @@ const hooks = new Hooks();
 Object.assign(Jsep, {
 	hooks,
 	hooksAdd: hooks.add.bind(hooks),
+	plugins: new Plugins(Jsep),
 
 	// Node Types
 	// ----------
