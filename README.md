@@ -98,6 +98,11 @@ Plugins are registered by calling `jsep.plugins.register(the_plugin)`.
 import jsep from 'jsep';
 import object from 'jsep/plugins/object.js';
 jsep.plugins.register(object);
+jsep.plugins.register([
+  object1,
+	object2,
+]);
+jsep.plugins.register(object1, object2);
 ```
 
 #### Writing Your Own Plugin:

@@ -38,10 +38,28 @@ const { test } = QUnit;
 				assert.equal(Object.keys(plugins.plugins).length, 1);
 			});
 
+			test('should accept array args', (assert) => {
+				const myPlugins = [
+					{ name: 'a', init: () => {} },
+					{ name: 'b', init: () => {} },
+				];
+				plugins.register(myPlugins);
+				assert.equal(Object.keys(plugins.plugins).length, 2);
+			});
+
+			test('should accept multiple args', (assert) => {
+				const myPlugins = [
+					{ name: 'a', init: () => {} },
+					{ name: 'b', init: () => {} },
+				];
+				plugins.register(...myPlugins);
+				assert.equal(Object.keys(plugins.plugins).length, 2);
+			});
+
 			test('should throw on invalid plugin argument', (assert) => {
 				[
 					'noObject',
-					[],
+					[null],
 					1,
 					null,
 					{ bad: 'object' },
