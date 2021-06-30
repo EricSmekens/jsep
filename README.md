@@ -120,7 +120,7 @@ const plugin = {
 ##### Hooks
 Most plugins will make use of hooks to modify the parsing behavior of jsep.
 All hooks are bound to the jsep instance, are called with a single argument, and return void.
-The 'this' context provides access to the internal parsing methods of jsep
+The `this` context provides access to the internal parsing methods of jsep
 to allow reuse as needed. Some hook types will pass an object that allows reading/writing
 the `node` property as needed.
 
