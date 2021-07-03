@@ -1,5 +1,5 @@
 import jsep from '../../src/jsep.js';
-import ternary from '../../src/plugins/ternary.js';
+import ternary from '../../src/plugins/jsepTernary.js';
 import {testParser, esprimaComparisonTest} from '../test_utils.js';
 
 jsep.plugins.register(ternary);

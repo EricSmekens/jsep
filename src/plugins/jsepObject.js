@@ -4,7 +4,7 @@ const OBJECT_EXP  = 'ObjectExpression';
 const PROPERTY    = 'Property';
 
 export default {
-	name: 'object',
+	name: 'jsepObject',
 
 	init(jsep) {
 		jsep.addBinaryOp(':', 0.5);

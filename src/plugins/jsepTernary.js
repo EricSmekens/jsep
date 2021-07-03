@@ -1,7 +1,7 @@
 const CONDITIONAL_EXP = 'ConditionalExpression';
 
 export default {
-	name: 'ternary',
+	name: 'jsepTernary',
 
 	init(jsep) {
 		// Ternary expression: test ? consequent : alternate

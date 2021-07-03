@@ -90,8 +90,8 @@ JSEP supports defining custom hooks for extending or modifying the expression pa
 Plugins are registered by calling `jsep.plugins.register()` with the plugin(s) as the argument(s).
 
 #### JSEP-provided plugins:
-* `ternary`: Built-in by default, adds support for ternary `a ? b : c` expressions
-* `object`: Adds object expression support: `{ a: 1, b: { c }}`
+* `jsepTernary`: Built-in by default, adds support for ternary `a ? b : c` expressions
+* `jsepObject`: Adds object expression support: `{ a: 1, b: { c }}`
 
 #### How to add plugins:
 Plugins have a `name` property so that they can only be registered once.
@@ -99,8 +99,8 @@ Any subsequent registrations will have no effect. Add a plugin by registering it
 
 ```javascript
 import jsep from 'jsep';
-import ternary from 'jsep/plugins/ternary.js';
-import object from 'jsep/plugins/object.js';
+import ternary from 'jsep/plugins/jsepTernary.js';
+import object from 'jsep/plugins/jsepObject.js';
 jsep.plugins.register(object);
 jsep.plugins.register(ternary, object);
 ```

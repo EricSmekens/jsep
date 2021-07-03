@@ -1,5 +1,5 @@
 import jsep from '../../src/index.js';
-import object from '../../src/plugins/object.js';
+import object from '../../src/plugins/jsepObject.js';
 import { testParser } from '../test_utils.js';
 
 jsep.plugins.register(object);
