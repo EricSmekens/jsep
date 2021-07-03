@@ -87,22 +87,22 @@ jsep.removeIdentifierChar('@');
 
 ### Plugins
 JSEP supports defining custom hooks for extending or modifying the expression parsing.
-Plugins are registered by calling `jsep.plugins.register(the_plugin)`.
+Plugins are registered by calling `jsep.plugins.register()` with the plugin(s) as the argument(s).
 
 #### JSEP-provided plugins:
 * `ternary`: Built-in by default, adds support for ternary `a ? b : c` expressions
 * `object`: Adds object expression support: `{ a: 1, b: { c }}`
 
 #### How to add plugins:
+Plugins have a `name` property so that they can only be registered once.
+Any subsequent registrations will have no effect. Add a plugin by registering it with JSEP:
+
 ```javascript
 import jsep from 'jsep';
+import ternary from 'jsep/plugins/ternary.js';
 import object from 'jsep/plugins/object.js';
 jsep.plugins.register(object);
-jsep.plugins.register([
-  object1,
-	object2,
-]);
-jsep.plugins.register(object1, object2);
+jsep.plugins.register(ternary, object);
 ```
 
 #### Writing Your Own Plugin:
@@ -136,7 +136,7 @@ the `node` property as needed.
 * `after-expression`: called just after parsing an expression. Read/Write `arg.node` as required.
 * `gobble-token`: called just before attempting to parse a token. Set `arg.node` as required. Plugins should do nothing if arg.node is already set.
 * `after-token`: called just after parsing a token. Read/Write `arg.node` as required.
-* `gobble-spaces`: called when gobbling spaces.
+* `gobble-spaces`: called when gobbling whitespace.
 
 ##### 'this' context of Hooks
 ```typescript
