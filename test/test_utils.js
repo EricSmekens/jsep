@@ -55,3 +55,17 @@ export function esprimaComparisonTest(str, assert) {
 	const esprimaVal = esprima.parse(str);
 	return assert.deepEqual(parsedVal, esprimaVal.body[0].expression);
 }
+
+let defaultHooks = {};
+Object.entries(jsep.hooks).forEach(([hookName, fns]) => {
+	defaultHooks[hookName] = [...fns];
+});
+
+export function resetJsepHooks() {
+	for (let key in jsep.hooks) {
+		delete jsep.hooks[key];
+	}
+	Object.entries(defaultHooks).forEach(([hookName, fns]) => {
+		jsep.hooks[hookName] = [...fns];
+	});
+}

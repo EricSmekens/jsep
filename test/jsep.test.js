@@ -1,5 +1,5 @@
 import jsep from '../src/index.js';
-import {testParser, testOpExpression, esprimaComparisonTest} from './test_utils.js';
+import {testParser, testOpExpression, esprimaComparisonTest, resetJsepHooks} from './test_utils.js';
 
 (function () {
 	QUnit.module('Expression Parser');
@@ -211,22 +211,8 @@ import {testParser, testOpExpression, esprimaComparisonTest} from './test_utils.
 	});
 
 	QUnit.module('Hooks', (qunit) => {
-		const defaultHooks = {};
-		const resetHooks = () => {
-			for (let key in jsep.hooks) {
-				delete jsep.hooks[key];
-			}
-			Object.entries(defaultHooks).forEach(([hookName, fns]) => {
-				jsep.hooks[hookName] = [...fns];
-			});
-		};
-
-		qunit.before(() => Object.entries(jsep.hooks).forEach(([hookName, fns]) => {
-			defaultHooks[hookName] = [...fns];
-		}));
-
-		qunit.beforeEach(resetHooks);
-		qunit.after(resetHooks);
+		qunit.beforeEach(resetJsepHooks);
+		qunit.after(resetJsepHooks);
 
 		QUnit.module('gobble-spaces', () => {
 			QUnit.test('should allow manipulating what is considered whitespace', (assert) => {

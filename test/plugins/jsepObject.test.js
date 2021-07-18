@@ -1,12 +1,17 @@
 import jsep from '../../src/index.js';
 import object from '../../src/plugins/jsepObject.js';
-import { testParser } from '../test_utils.js';
+import { testParser, resetJsepHooks } from '../test_utils.js';
 
-jsep.plugins.register(object);
 const { test } = QUnit;
 
 (function () {
-	QUnit.module('Plugin:Object', () => {
+	QUnit.module('Plugin:Object', (qunit) => {
+		qunit.before(() => jsep.plugins.register(object));
+		qunit.after(() => {
+			jsep.removeBinaryOp(':');
+			resetJsepHooks();
+		});
+
 		test('should parse basic object expression', (assert) => {
 			testParser('({ a: 1, b: 2 })', {
 				type: "ObjectExpression",
