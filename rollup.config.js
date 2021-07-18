@@ -68,6 +68,7 @@ export default [
 		],
 	},
 	...[
+		'jsepComment',
 		'jsepObject',
 	].map(name => ({
 		input: `src/plugins/${name}.js`,
