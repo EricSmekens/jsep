@@ -43,5 +43,33 @@ const { test } = QUnit;
 				}
 			}, assert);
 		}));
+
+		[
+			{ expr: 'a++', expect: { operator: '++', prefix: false } },
+			{ expr: 'a--', expect: { operator: '--', prefix: false } },
+			{ expr: '++a', expect: { operator: '++', prefix: true } },
+			{ expr: '--a', expect: { operator: '--', prefix: true } },
+		].forEach(testCase => test(`should handle basic update expression ${testCase.expr}`, (assert) => {
+			testParser(testCase.expr, Object.assign({
+				type: "UpdateExpression",
+				argument: {
+					type: "Identifier",
+					name: "a",
+				},
+			}, testCase.expect), assert);
+		}));
+
+		[
+			'fn()++',
+			'1++',
+			'++',
+			'(a + b)++',
+			'--fn()',
+			'--1',
+			'--',
+			'--(a + b)',
+		].forEach(expr => test(`should throw on invalid update expression, ${expr}`, (assert) => {
+			assert.throws(() => jsep(expr));
+		}));
 	});
 }());

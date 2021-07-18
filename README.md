@@ -91,7 +91,7 @@ Plugins are registered by calling `jsep.plugins.register()` with the plugin(s) a
 
 #### JSEP-provided plugins:
 * `jsepTernary`: Built-in by default, adds support for ternary `a ? b : c` expressions
-* `jsepAssignment`: Adds assignment expression support: `a = 2`, `a *= 2`
+* `jsepAssignment`: Adds assignment and update expression support: `a = 2`, `a++`
 * `jsepObject`: Adds object expression support: `{ a: 1, b: { c }}`
 
 #### How to add plugins:
