@@ -256,6 +256,22 @@ export class Jsep {
 	}
 
 	/**
+	 * Runs a given hook until one returns a node
+	 * @param {string} name
+	 * @returns {?jsep.Expression}
+	 */
+	searchHook(name) {
+		if (Jsep.hooks[name]) {
+			const env = { context: this };
+			Jsep.hooks[name].find(function (callback) {
+				callback.call(env.context, env);
+				return env.node;
+			});
+			return env.node;
+		}
+	}
+
+	/**
 	 * Push `index` up to the next non-space character
 	 */
 	gobbleSpaces() {
@@ -328,7 +344,7 @@ export class Jsep {
 	 * @returns {?jsep.Expression}
 	 */
 	gobbleExpression() {
-		const node = this.runHook('gobble-expression') || this.gobbleBinaryExpression();
+		const node = this.searchHook('gobble-expression') || this.gobbleBinaryExpression();
 		this.gobbleSpaces();
 
 		return this.runHook('after-expression', node);
@@ -453,7 +469,7 @@ export class Jsep {
 		let ch, to_check, tc_len, node;
 
 		this.gobbleSpaces();
-		node = this.runHook('gobble-token');
+		node = this.searchHook('gobble-token');
 		if (node) {
 			return this.runHook('after-token', node);
 		}

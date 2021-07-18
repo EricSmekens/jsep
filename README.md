@@ -105,6 +105,10 @@ jsep.plugins.register(object);
 jsep.plugins.register(ternary, object);
 ```
 
+#### List plugins:
+Plugins are stored in an object, keyed by their name.
+They can be retrieved through `jsep.plugins.registered`.
+
 #### Writing Your Own Plugin:
 Plugins are objects with two properties: `name` and `init`.
 Here's a simple plugin example:
@@ -132,13 +136,13 @@ the `node` property as needed.
 ##### Hook Types
 * `before-all`: called just before starting all expression parsing.
 * `after-all`: called after parsing all. Read/Write `arg.node` as required.
-* `gobble-expression`: called just before attempting to parse an expression. Set `arg.node` as required. Plugins should do nothing if arg.node is already set.
+* `gobble-expression`: called just before attempting to parse an expression. Set `arg.node` as required.
 * `after-expression`: called just after parsing an expression. Read/Write `arg.node` as required.
-* `gobble-token`: called just before attempting to parse a token. Set `arg.node` as required. Plugins should do nothing if arg.node is already set.
+* `gobble-token`: called just before attempting to parse a token. Set `arg.node` as required.
 * `after-token`: called just after parsing a token. Read/Write `arg.node` as required.
 * `gobble-spaces`: called when gobbling whitespace.
 
-##### 'this' context of Hooks
+##### The `this` context of Hooks
 ```typescript
 export interface HookScope {
     index: number;

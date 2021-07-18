@@ -1,7 +1,7 @@
 export default class Plugins {
 	constructor(jsep) {
 		this.jsep = jsep;
-		this.plugins = {};
+		this.registered = {};
 	}
 
 	/**
@@ -22,12 +22,12 @@ export default class Plugins {
 			if (typeof plugin !== 'object' || !plugin.name || !plugin.init) {
 				throw new Error('Invalid JSEP plugin format');
 			}
-			if (this.plugins[plugin.name]) {
+			if (this.registered[plugin.name]) {
 				// already registered. Ignore.
 				return;
 			}
 			plugin.init(this.jsep);
-			this.plugins[plugin.name] = plugin;
+			this.registered[plugin.name] = plugin;
 		});
 	}
 }

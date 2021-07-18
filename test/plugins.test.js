@@ -35,7 +35,7 @@ const { test } = QUnit;
 					throw new Error('second init');
 				};
 				plugins.register(plugin);
-				assert.equal(Object.keys(plugins.plugins).length, 1);
+				assert.equal(Object.keys(plugins.registered).length, 1);
 			});
 
 			test('should accept multiple args', (assert) => {
@@ -44,7 +44,7 @@ const { test } = QUnit;
 					{ name: 'b', init: () => {} },
 				];
 				plugins.register(...myPlugins);
-				assert.equal(Object.keys(plugins.plugins).length, 2);
+				assert.equal(Object.keys(plugins.registered).length, 2);
 			});
 
 			test('should throw on invalid plugin argument', (assert) => {
