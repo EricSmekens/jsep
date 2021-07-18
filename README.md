@@ -92,6 +92,7 @@ Plugins are registered by calling `jsep.plugins.register()` with the plugin(s) a
 #### JSEP-provided plugins:
 * `jsepTernary`: Built-in by default, adds support for ternary `a ? b : c` expressions
 * `jsepObject`: Adds object expression support: `{ a: 1, b: { c }}`
+* `jsepSpread`: Adds support for the spread operator, `fn(...[1, ...a])`. Works with `jsepObject` plugin, too
 
 #### How to add plugins:
 Plugins have a `name` property so that they can only be registered once.
