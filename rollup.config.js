@@ -68,6 +68,7 @@ export default [
 		],
 	},
 	...[
+		'jsepAssignment',
 		'jsepObject',
 	].map(name => ({
 		input: `src/plugins/${name}.js`,
