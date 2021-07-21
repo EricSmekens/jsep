@@ -35,7 +35,7 @@ export function filterProps(larger, smaller) {
 	const rv = (typeof larger.length === 'number') ? [] : {};
 	for (let propName in smaller) {
 		let propVal = smaller[propName];
-		if (typeof propVal === 'string' || typeof propVal === 'number') {
+		if (typeof propVal === 'string' || typeof propVal === 'number' || typeof propVal === 'boolean' || propVal === null) {
 			rv[propName] = larger[propName];
 		}
 		else {
@@ -54,4 +54,18 @@ export function esprimaComparisonTest(str, assert) {
 	const parsedVal = jsep(str);
 	const esprimaVal = esprima.parse(str);
 	return assert.deepEqual(parsedVal, esprimaVal.body[0].expression);
+}
+
+let defaultHooks = {};
+Object.entries(jsep.hooks).forEach(([hookName, fns]) => {
+	defaultHooks[hookName] = [...fns];
+});
+
+export function resetJsepHooks() {
+	for (let key in jsep.hooks) {
+		delete jsep.hooks[key];
+	}
+	Object.entries(defaultHooks).forEach(([hookName, fns]) => {
+		jsep.hooks[hookName] = [...fns];
+	});
 }
