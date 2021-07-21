@@ -91,6 +91,7 @@ Plugins are registered by calling `jsep.plugins.register()` with the plugin(s) a
 
 #### JSEP-provided plugins:
 * `jsepTernary`: Built-in by default, adds support for ternary `a ? b : c` expressions
+* `jsepComment`: Adds support for ignoring comments: `a /* ignore this */ > 1 // ignore this too`
 * `jsepNew`: Adds 'new' keyword support: `new Date()`
 * `jsepObject`: Adds object expression support: `{ a: 1, b: { c }}`
 

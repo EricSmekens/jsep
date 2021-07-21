@@ -68,6 +68,7 @@ export default [
 		],
 	},
 	...[
+		'jsepComment',
 		'jsepNew',
 		'jsepObject',
 	].map(name => ({
