@@ -69,7 +69,11 @@ export default [
 	},
 	...[
 		'jsepAssignment',
+		'jsepComment',
+		'jsepNew',
 		'jsepObject',
+		'jsepSpread',
+		'jsepTemplateLiteral',
 	].map(name => ({
 		input: `src/plugins/${name}.js`,
 		output: [
