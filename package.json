@@ -32,6 +32,7 @@
 		"node-qunit-puppeteer": "^2.0.3",
 		"puppeteer": "^4.0.1",
 		"rollup": "^2.44.0",
+		"rollup-plugin-delete": "^2.0.0",
 		"rollup-plugin-terser": "^7.0.2"
 	},
 	"engines": {

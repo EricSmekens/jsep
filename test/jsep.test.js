@@ -1,5 +1,5 @@
 import jsep from '../src/index.js';
-import {testParser, testOpExpression, esprimaComparisonTest} from './test_utils.js';
+import {testParser, testOpExpression, esprimaComparisonTest, resetJsepHooks} from './test_utils.js';
 
 (function () {
 	QUnit.module('Expression Parser');
@@ -211,22 +211,8 @@ import {testParser, testOpExpression, esprimaComparisonTest} from './test_utils.
 	});
 
 	QUnit.module('Hooks', (qunit) => {
-		const defaultHooks = {};
-		const resetHooks = () => {
-			for (let key in jsep.hooks) {
-				delete jsep.hooks[key];
-			}
-			Object.entries(defaultHooks).forEach(([hookName, fns]) => {
-				jsep.hooks[hookName] = [...fns];
-			});
-		};
-
-		qunit.before(() => Object.entries(jsep.hooks).forEach(([hookName, fns]) => {
-			defaultHooks[hookName] = [...fns];
-		}));
-
-		qunit.beforeEach(resetHooks);
-		qunit.after(resetHooks);
+		qunit.beforeEach(resetJsepHooks);
+		qunit.after(resetJsepHooks);
 
 		QUnit.module('gobble-spaces', () => {
 			QUnit.test('should allow manipulating what is considered whitespace', (assert) => {
@@ -252,11 +238,27 @@ import {testParser, testOpExpression, esprimaComparisonTest} from './test_utils.
 
 				jsep.hooksAdd('gobble-expression', function (env) {
 					if (this.char === 'f') {
-						this.index += 4;
+						this.index += 9;
 						env.node = { type: 'custom' };
 					}
 				}, true);
-				testParser(expr, {}, assert);
+				testParser(expr, { type: 'custom' }, assert);
+			});
+
+			QUnit.test('should stop at first hook returning a node', (assert) => {
+				const expr = 'fn( 4 * 2';
+				assert.throws(() => jsep(expr));
+
+				jsep.hooksAdd('gobble-expression', function (env) {
+					if (this.char === 'f') {
+						this.index += 9;
+						env.node = { type: 'custom' };
+					}
+				}, true);
+				jsep.hooksAdd('gobble-expression', function (env) {
+					env.node = { type: 'wrong' };
+				});
+				testParser(expr, { type: 'custom' }, assert);
 			});
 		});
 
@@ -274,7 +276,7 @@ import {testParser, testOpExpression, esprimaComparisonTest} from './test_utils.
 
 		QUnit.module('gobble-token', () => {
 			QUnit.test('should allow overriding gobbleToken', (assert) => {
-				const expr = '...2';
+				const expr = '...';
 				assert.throws(() => jsep(expr));
 				jsep.hooksAdd('gobble-token', function (env) {
 					if ([0, 1, 2].every(i => this.expr.charAt(i) === '.')) {
@@ -282,7 +284,7 @@ import {testParser, testOpExpression, esprimaComparisonTest} from './test_utils.
 						env.node = { type: 'spread' };
 					}
 				});
-				testParser(expr, {}, assert);
+				testParser(expr, { type: 'spread' }, assert);
 			});
 
 			QUnit.test('should allow manipulating found token', (assert) => {
@@ -299,6 +301,21 @@ import {testParser, testOpExpression, esprimaComparisonTest} from './test_utils.
 				assert.equal(after[1], 'CallExpression:)');
 				assert.equal(after[2], 'UnaryExpression:)');
 				assert.equal(after[3], 'MemberExpression:)');
+			});
+
+			QUnit.test('should stop processing hooks at first found node', (assert) => {
+				const expr = '...';
+				assert.throws(() => jsep(expr));
+				jsep.hooksAdd('gobble-token', function (env) {
+					if ([0, 1, 2].every(i => this.expr.charAt(i) === '.')) {
+						this.index += 3;
+						env.node = { type: 'spread' };
+					}
+				});
+				jsep.hooksAdd('gobble-token', function (env) {
+					env.node = { type: 'wrong' };
+				});
+				testParser(expr, { type: 'spread' }, assert);
 			});
 		});
 	});
