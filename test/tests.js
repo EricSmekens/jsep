@@ -6,3 +6,4 @@ export * from './plugins/jsepTernary.test.js';
 export * from './plugins/jsepComment.test.js';
 export * from './plugins/jsepNew.test.js';
 export * from './plugins/jsepObject.test.js';
+export * from './plugins/jsepTemplateLiteral.test.js';

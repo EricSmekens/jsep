@@ -94,6 +94,7 @@ Plugins are registered by calling `jsep.plugins.register()` with the plugin(s) a
 * `jsepComment`: Adds support for ignoring comments: `a /* ignore this */ > 1 // ignore this too`
 * `jsepNew`: Adds 'new' keyword support: `new Date()`
 * `jsepObject`: Adds object expression support: `{ a: 1, b: { c }}`
+* `jsepTemplateLiteral`: Adds template literal support: `` `hi ${name}` ``
 
 #### How to add plugins:
 Plugins have a `name` property so that they can only be registered once.

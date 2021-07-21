@@ -71,6 +71,7 @@ export default [
 		'jsepComment',
 		'jsepNew',
 		'jsepObject',
+		'jsepTemplateLiteral',
 	].map(name => ({
 		input: `src/plugins/${name}.js`,
 		output: [
