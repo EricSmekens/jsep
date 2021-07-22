@@ -121,14 +121,19 @@ const plugin = {
   name: 'the plugin',
 	init(jsep) {
     jsep.addAdentifierChar('@');
-    jsep.hooksAdd('after-expression', function myPlugin(env) {
+    jsep.hooks.add('gobble-expression', function myPlugin(env) {
       if (this.char === '@') {
-        env.node = null;
+        this.index += 1;
+        env.node = {
+          type: 'MyCustom@Detector',
+				};
 			}
 		});
 	},
 };
 ```
+This example would treat the `@` character as a custom expression, returning
+a node of type `MyCustom@Detector`.
 
 ##### Hooks
 Most plugins will make use of hooks to modify the parsing behavior of jsep.
