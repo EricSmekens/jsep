@@ -155,11 +155,11 @@ the `node` property as needed.
 ```typescript
 export interface HookScope {
     index: number;
-    expr: string;
-    char: string; // current character of the expression
-    code: number; // current character code of the expression
+    readonly expr: string;
+    readonly char: string; // current character of the expression
+    readonly code: number; // current character code of the expression
     gobbleSpaces: () => void;
-    gobbleExpressions: (number?) => Eexpression[];
+    gobbleExpressions: (number?) => Expression[];
     gobbleExpression: () => Expression;
     gobbleBinaryOp: () => PossibleExpression;
     gobbleBinaryExpression: () => PossibleExpression;

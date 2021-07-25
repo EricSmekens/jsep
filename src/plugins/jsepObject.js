@@ -44,7 +44,7 @@ export default {
 				};
 			}
 		}
-		jsep.hooksAdd('gobble-expression', gobbleObjectExpression);
-		jsep.hooksAdd('after-token', gobbleObjectExpression);
+		jsep.hooks.add('gobble-expression', gobbleObjectExpression);
+		jsep.hooks.add('after-token', gobbleObjectExpression);
 	}
 };
