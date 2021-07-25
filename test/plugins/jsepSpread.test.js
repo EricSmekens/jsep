@@ -1,13 +1,13 @@
 import jsep from '../../src/index.js';
 import spread from '../../src/plugins/jsepSpread.js';
-import {resetJsepHooks, testParser} from '../test_utils.js';
+import {resetJsepDefaults, testParser} from '../test_utils.js';
 
 const { test } = QUnit;
 
 (function () {
 	QUnit.module('Plugin:Spread', (qunit) => {
 		qunit.before(() => jsep.plugins.register(spread));
-		qunit.after(resetJsepHooks);
+		qunit.after(resetJsepDefaults);
 
 		test('should parse array spread', (assert) => {
 			testParser('[...a]', {

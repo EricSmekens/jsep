@@ -1,3 +1,6 @@
+/**
+ * @implements {IHooks}
+ */
 export default class Hooks {
 	/**
 	 * @callback HookCallback

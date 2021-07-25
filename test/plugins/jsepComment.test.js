@@ -1,13 +1,13 @@
 import jsep from '../../src/index.js';
 import comment from '../../src/plugins/jsepComment.js';
-import { testParser, resetJsepHooks } from '../test_utils.js';
+import { testParser, resetJsepDefaults } from '../test_utils.js';
 
 const { test } = QUnit;
 
 (function () {
 	QUnit.module('Plugin:Comment', (qunit) => {
 		qunit.before(() => jsep.plugins.register(comment));
-		qunit.after(resetJsepHooks);
+		qunit.after(resetJsepDefaults);
 
 		[
 			'a /* ignore this */ > 1 // ignore this too',
