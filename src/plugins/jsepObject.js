@@ -11,7 +11,7 @@ export default {
 
 		// Object literal support
 		function gobbleObjectExpression(env) {
-			if (this.code === OCURLY_CODE && !env.node) {
+			if (this.code === OCURLY_CODE) {
 				this.index++;
 				const properties = this.gobbleArguments(CCURLY_CODE)
 					.map((arg) => {
