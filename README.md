@@ -94,6 +94,7 @@ Plugins are registered by calling `jsep.plugins.register()` with the plugin(s) a
 * `jsepComment`: Adds support for ignoring comments: `a /* ignore this */ > 1 // ignore this too`
 * `jsepNew`: Adds 'new' keyword support: `new Date()`
 * `jsepObject`: Adds object expression support: `{ a: 1, b: { c }}`
+* `jsepRegex`: Adds support for regular expression literals: `/[a-z]{2}/ig`
 * `jsepSpread`: Adds support for the spread operator, `fn(...[1, ...a])`. Works with `jsepObject` plugin, too
 * `jsepTemplateLiteral`: Adds template literal support: `` `hi ${name}` ``
 
@@ -163,7 +164,8 @@ export interface HookScope {
     gobbleExpression: () => Expression;
     gobbleBinaryOp: () => PossibleExpression;
     gobbleBinaryExpression: () => PossibleExpression;
-    gobbleToken: () =>  PossibleExpression;
+    gobbleToken: () => PossibleExpression;
+    gobbleTokenProperty: (Expression) => Expression;
     gobbleNumericLiteral: () => PossibleExpression;
     gobbleStringLiteral: () => PossibleExpression;
     gobbleIdentifier: () => PossibleExpression;

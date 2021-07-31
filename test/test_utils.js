@@ -35,7 +35,7 @@ export function filterProps(larger, smaller) {
 	const rv = (typeof larger.length === 'number') ? [] : {};
 	for (let propName in smaller) {
 		let propVal = smaller[propName];
-		if (typeof propVal === 'string' || typeof propVal === 'number' || typeof propVal === 'boolean' || propVal === null) {
+		if (typeof propVal === 'string' || typeof propVal === 'number' || typeof propVal === 'boolean' || propVal === null || propVal instanceof RegExp) {
 			rv[propName] = larger[propName];
 		}
 		else {
