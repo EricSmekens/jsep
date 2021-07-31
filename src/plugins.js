@@ -1,3 +1,6 @@
+/**
+ * @implements {IPlugins}
+ */
 export default class Plugins {
 	constructor(jsep) {
 		this.jsep = jsep;

@@ -84,13 +84,54 @@ declare module 'jsep' {
 			| 'ConditionalExpression'
 			| 'ArrayExpression';
 
-		type HookType = 'gobble-expression' | 'after-expression' | 'gobble-token' | 'after-token' | 'gobble-spaces';
-		type HookCallback = (env: { node?: Expression }) => void;
+		export type PossibleExpression = Expression | undefined;
+		export interface HookScope {
+			index: number;
+			readonly expr: string;
+			readonly char: string; // current character of the expression
+			readonly code: number; // current character code of the expression
+			gobbleSpaces: () => void;
+			gobbleExpressions: (number?) => Expression[];
+			gobbleExpression: () => Expression;
+			gobbleBinaryOp: () => PossibleExpression;
+			gobbleBinaryExpression: () => PossibleExpression;
+			gobbleToken: () =>  PossibleExpression;
+			gobbleNumericLiteral: () => PossibleExpression;
+			gobbleStringLiteral: () => PossibleExpression;
+			gobbleIdentifier: () => PossibleExpression;
+			gobbleArguments: (number) => PossibleExpression;
+			gobbleGroup: () => Expression;
+			gobbleArray: () => PossibleExpression;
+			throwError: (string) => void;
+		}
 
-		function hooksAdd(name: HookType, cb: HookCallback): void;
-		function hooksAdd(name: HookType, first: boolean, cb: HookCallback): void;
-		function hooksAdd(obj: { [name in HookType]: HookCallback }): void;
-		function hooksAdd(obj: { [name in HookType]: HookCallback }, first: boolean): void;
+		export type HookType = 'gobble-expression' | 'after-expression' | 'gobble-token' | 'after-token' | 'gobble-spaces';
+		export type HookCallback = (this: HookScope, env: { node?: Expression }) => void;
+		type HookTypeObj = Partial<{ [key in HookType]: HookCallback}>
+
+		export interface IHooks extends HookTypeObj {
+			add(name: HookType, cb: HookCallback): void;
+			add(name: HookType, first: boolean, cb: HookCallback): void;
+			add(obj: { [name in HookType]: HookCallback }): void;
+			add(obj: { [name in HookType]: HookCallback }, first: boolean): void;
+			run(name: string, env: { context?: typeof jsep, node?: Expression }): void;
+		}
+		let hooks: IHooks;
+
+		export interface IPlugin {
+			name: string;
+			init: (this: typeof jsep) => void;
+		}
+		export interface IPlugins {
+			registered: { [name: string]: IPlugin };
+		}
+		let plugins: IPlugins;
+
+		let unary_ops: { [op: string]: any };
+		let binary_ops: { [op: string]: number };
+		let additional_identifier_chars: Set<string>;
+		let literals: { [literal: string]: any };
+		let this_str: string;
 
 		function addBinaryOp(operatorName: string, precedence: number): void;
 

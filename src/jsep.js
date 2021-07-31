@@ -838,7 +838,6 @@ export class Jsep {
 const hooks = new Hooks();
 Object.assign(Jsep, {
 	hooks,
-	hooksAdd: hooks.add.bind(hooks),
 	plugins: new Plugins(Jsep),
 
 	// Node Types
