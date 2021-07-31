@@ -71,6 +71,7 @@ export default [
 		'jsepComment',
 		'jsepNew',
 		'jsepObject',
+		'jsepRegex',
 		'jsepSpread',
 		'jsepTemplateLiteral',
 	].map(name => ({
