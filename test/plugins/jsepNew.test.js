@@ -1,16 +1,13 @@
 import jsep from '../../src/index.js';
 import jsepNew from '../../src/plugins/jsepNew.js';
-import { testParser, resetJsepHooks } from '../test_utils.js';
+import { testParser, resetJsepDefaults } from '../test_utils.js';
 
 const { test } = QUnit;
 
 (function () {
 	QUnit.module('Plugin:New', (qunit) => {
 		qunit.before(() => jsep.plugins.register(jsepNew));
-		qunit.after(() => {
-			jsep.removeUnaryOp('new');
-			resetJsepHooks();
-		});
+		qunit.after(resetJsepDefaults);
 
 		test('should parse basic "new" expression', (assert) => {
 			testParser('new Date(123)', {

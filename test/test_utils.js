@@ -56,16 +56,30 @@ export function esprimaComparisonTest(str, assert) {
 	return assert.deepEqual(parsedVal, esprimaVal.body[0].expression);
 }
 
-let defaultHooks = {};
+export const defaults = {
+	hooks: {},
+	plugins: Object.assign({}, jsep.plugins.registered),
+	unary_ops: Object.assign({}, jsep.unary_ops),
+	binary_ops: Object.assign({}, jsep.binary_ops),
+	additional_identifier_chars: new Set(jsep.additional_identifier_chars),
+	literals: Object.assign({}, jsep.literals),
+	this_str: jsep.this_str,
+};
 Object.entries(jsep.hooks).forEach(([hookName, fns]) => {
-	defaultHooks[hookName] = [...fns];
+	defaults.hooks[hookName] = [...fns];
 });
 
-export function resetJsepHooks() {
+export function resetJsepDefaults() {
 	for (let key in jsep.hooks) {
 		delete jsep.hooks[key];
 	}
-	Object.entries(defaultHooks).forEach(([hookName, fns]) => {
+	Object.entries(defaults.hooks).forEach(([hookName, fns]) => {
 		jsep.hooks[hookName] = [...fns];
 	});
+	jsep.unary_ops = Object.assign({}, defaults.unary_ops);
+	jsep.binary_ops = Object.assign({}, defaults.binary_ops);
+	jsep.additional_identifier_chars = new Set(defaults.additional_identifier_chars);
+	jsep.literals = Object.assign({}, defaults.literals);
+	jsep.this_str = defaults.this_str;
+	jsep.plugins.registered = Object.assign({}, defaults.plugins);
 }

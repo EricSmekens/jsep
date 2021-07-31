@@ -1,13 +1,13 @@
 import jsep from '../../src/index.js';
 import templateLiteral from '../../src/plugins/jsepTemplateLiteral.js';
-import {testParser, resetJsepHooks} from '../test_utils.js';
+import {testParser, resetJsepDefaults} from '../test_utils.js';
 
 const { test } = QUnit;
 
 (function () {
 	QUnit.module('Plugin:Template Literal', (qunit) => {
 		qunit.before(() => jsep.plugins.register(templateLiteral));
-		qunit.after(resetJsepHooks);
+		qunit.after(resetJsepDefaults);
 
 		test('should parse basic template literal expression', (assert) => {
 			testParser('`hi ${name}`', {
