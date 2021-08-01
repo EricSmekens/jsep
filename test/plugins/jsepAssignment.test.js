@@ -1,6 +1,6 @@
 import jsep from '../../src/index.js';
 import assignment from '../../src/plugins/jsepAssignment.js';
-import { testParser, resetJsepHooks } from '../test_utils.js';
+import {testParser, resetJsepDefaults, esprimaComparisonTest} from '../test_utils.js';
 
 const { test } = QUnit;
 
@@ -23,10 +23,7 @@ const { test } = QUnit;
 		];
 
 		qunit.before(() => jsep.plugins.register(assignment));
-		qunit.after(() => {
-			operators.forEach(op => jsep.removeBinaryOp(op));
-			resetJsepHooks();
-		});
+		qunit.after(resetJsepDefaults);
 
 		operators.forEach(op => test(`should correctly parse assignment operator, ${op}`, (assert) => {
 			testParser(`a ${op} 2`, {
@@ -71,5 +68,19 @@ const { test } = QUnit;
 		].forEach(expr => test(`should throw on invalid update expression, ${expr}`, (assert) => {
 			assert.throws(() => jsep(expr));
 		}));
+
+		[
+			...operators
+				.filter(op => op !== '**=') // not supported by esprima
+				.map(op => `a ${op} 2`),
+			'a++',
+			'++a',
+			'a--',
+			'--a',
+		].forEach((expr) => {
+			test(`should match Esprima: ${expr}`, function (assert) {
+				esprimaComparisonTest(expr, assert);
+			});
+		});
 	});
 }());
