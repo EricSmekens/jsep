@@ -1,16 +1,13 @@
 import jsep from '../../src/index.js';
 import arrow from '../../src/plugins/jsepArrow.js';
-import { testParser, resetJsepHooks } from '../test_utils.js';
+import { testParser, resetJsepDefaults } from '../test_utils.js';
 
 const { test } = QUnit;
 
 (function () {
 	QUnit.module('Plugin:Arrow Function', (qunit) => {
 		qunit.before(() => jsep.plugins.register(arrow));
-		qunit.after(() => {
-			jsep.removeBinaryOp('=>');
-			resetJsepHooks();
-		});
+		qunit.after(resetJsepDefaults);
 
 		test('should parse basic arrow expression with no args, () =>', (assert) => {
 			testParser('a.find(() => true)', {
