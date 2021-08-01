@@ -69,6 +69,7 @@ const { test } = QUnit;
 		[
 			'/[a-z]{3}/ig.test(b)',
 			'/\d(?=px)/',
+			'a / 2', // regex should not interfere with binary operator
 		].forEach((expr) => {
 			test('should match Esprima', function (assert) {
 				esprimaComparisonTest(expr, assert);
@@ -95,5 +96,73 @@ const { test } = QUnit;
 		].forEach(expr => test(`should give an error for invalid expression ${expr}`, (assert) => {
 			assert.throws(() => jsep(expr));
 		}));
+
+		QUnit.module('Regex with binary / operators', (qu) => {
+			qu.beforeEach(() => {
+				resetJsepDefaults();
+				jsep.plugins.register(jsepRegex);
+				jsep.addBinaryOp('/=');
+			});
+			qu.after(resetJsepDefaults);
+
+			test('Should parse correctly with /= and regex', (assert) => {
+				testParser('a /= (/^\\d+$/.test(b) ? +b / 2 : 1)', {
+					type: 'BinaryExpression', // (assignment plugin would convert to AssignmentExpression)
+					operator: '/=',
+					left: {
+						type: 'Identifier',
+						name: 'a'
+					},
+					right: {
+						type: 'ConditionalExpression',
+						test: {
+							type: 'CallExpression',
+							arguments: [
+								{
+									type: 'Identifier',
+									name: 'b'
+								}
+							],
+							callee: {
+								type: 'MemberExpression',
+								computed: false,
+								object: {
+									type: 'Literal',
+									value: /^\d+$/,
+									raw: '/^\\d+$/'
+								},
+								property: {
+									type: 'Identifier',
+									name: 'test'
+								}
+							}
+						},
+						consequent: {
+							type: 'BinaryExpression',
+							operator: '/',
+							left: {
+								type: 'UnaryExpression',
+								operator: '+',
+								argument: {
+									type: 'Identifier',
+									name: 'b'
+								},
+								prefix: true
+							},
+							right: {
+								type: 'Literal',
+								value: 2,
+								raw: '2'
+							}
+						},
+						alternate: {
+							type: 'Literal',
+							value: 1,
+							raw: '1'
+						}
+					}
+				}, assert);
+			});
+		});
 	});
 }());
