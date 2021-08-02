@@ -23,7 +23,9 @@ export default {
 		]);
 		const updateOperators = [PLUS_CODE, MINUS_CODE];
 		const updateNodeTypes = [jsep.IDENTIFIER, jsep.MEMBER_EXP];
-		assignmentOperators.forEach(op => jsep.addBinaryOp(op, 0.9));
+
+		// See operator precedence https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_Precedence
+		assignmentOperators.forEach(op => jsep.addBinaryOp(op, 11));
 
 		jsep.hooks.add('gobble-expression', function gobbleUpdatePrefix(env) {
 			const code = this.code;
