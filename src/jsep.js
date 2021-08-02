@@ -524,15 +524,22 @@ export class Jsep {
 			return this.runHook('after-token', false);
 		}
 
+		node = this.gobbleTokenProperty(node);
+		return this.runHook('after-token', node);
+	}
+
+	/**
+	 * Gobble properties of of identifiers/strings/arrays/groups.
+	 * e.g. `foo`, `bar.baz`, `foo['bar'].baz`
+	 * It also gobbles function calls:
+	 * e.g. `Math.acos(obj.angle)`
+	 * @param {jsep.Expression} node
+	 * @returns {jsep.Expression}
+	 */
+	gobbleTokenProperty(node) {
 		this.gobbleSpaces();
 
-		ch = this.code;
-
-		// Gobble properties of of identifiers/strings/arrays/groups.
-		// e.g. `foo`, `bar.baz`, `foo['bar'].baz`
-		// It also gobbles function calls:
-		// e.g. `Math.acos(obj.angle)`
-
+		let ch = this.code;
 		while (ch === Jsep.PERIOD_CODE || ch === Jsep.OBRACK_CODE || ch === Jsep.OPAREN_CODE) {
 			this.index++;
 
@@ -571,7 +578,7 @@ export class Jsep {
 			ch = this.code;
 		}
 
-		return this.runHook('after-token', node);
+		return node;
 	}
 
 	/**
@@ -731,7 +738,7 @@ export class Jsep {
 	 * `(` or `[` has already been gobbled, and gobbles expressions and commas
 	 * until the terminator character `)` or `]` is encountered.
 	 * e.g. `foo(bar, baz)`, `my_func()`, or `[bar, baz]`
-	 * @param {string} termination
+	 * @param {number} termination
 	 * @returns {jsep.Expression[]}
 	 */
 	gobbleArguments(termination) {

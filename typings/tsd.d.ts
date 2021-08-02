@@ -91,18 +91,19 @@ declare module 'jsep' {
 			readonly char: string; // current character of the expression
 			readonly code: number; // current character code of the expression
 			gobbleSpaces: () => void;
-			gobbleExpressions: (number?) => Expression[];
+			gobbleExpressions: (untilICode?: number) => Expression[];
 			gobbleExpression: () => Expression;
 			gobbleBinaryOp: () => PossibleExpression;
 			gobbleBinaryExpression: () => PossibleExpression;
-			gobbleToken: () =>  PossibleExpression;
+			gobbleToken: () => PossibleExpression;
+			gobbleTokenProperty: (node: Expression) => Expression
 			gobbleNumericLiteral: () => PossibleExpression;
 			gobbleStringLiteral: () => PossibleExpression;
 			gobbleIdentifier: () => PossibleExpression;
-			gobbleArguments: (number) => PossibleExpression;
+			gobbleArguments: (untilICode: number) => PossibleExpression;
 			gobbleGroup: () => Expression;
 			gobbleArray: () => PossibleExpression;
-			throwError: (string) => void;
+			throwError: (msg: string) => void;
 		}
 
 		export type HookType = 'gobble-expression' | 'after-expression' | 'gobble-token' | 'after-token' | 'gobble-spaces';
@@ -124,6 +125,7 @@ declare module 'jsep' {
 		}
 		export interface IPlugins {
 			registered: { [name: string]: IPlugin };
+			register: (...plugins: IPlugin[]) => void;
 		}
 		let plugins: IPlugins;
 

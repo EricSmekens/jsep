@@ -91,10 +91,12 @@ Plugins are registered by calling `jsep.plugins.register()` with the plugin(s) a
 
 #### JSEP-provided plugins:
 * `jsepTernary`: Built-in by default, adds support for ternary `a ? b : c` expressions
+* `jsepArrow`: Adds arrow-function support: `v => !!v`
 * `jsepAssignment`: Adds assignment and update expression support: `a = 2`, `a++`
 * `jsepComment`: Adds support for ignoring comments: `a /* ignore this */ > 1 // ignore this too`
 * `jsepNew`: Adds 'new' keyword support: `new Date()`
 * `jsepObject`: Adds object expression support: `{ a: 1, b: { c }}`
+* `jsepRegex`: Adds support for regular expression literals: `/[a-z]{2}/ig`
 * `jsepSpread`: Adds support for the spread operator, `fn(...[1, ...a])`. Works with `jsepObject` plugin, too
 * `jsepTemplateLiteral`: Adds template literal support: `` `hi ${name}` ``
 
@@ -160,18 +162,19 @@ export interface HookScope {
     readonly char: string; // current character of the expression
     readonly code: number; // current character code of the expression
     gobbleSpaces: () => void;
-    gobbleExpressions: (number?) => Expression[];
+    gobbleExpressions: (untilICode?: number) => Expression[];
     gobbleExpression: () => Expression;
     gobbleBinaryOp: () => PossibleExpression;
     gobbleBinaryExpression: () => PossibleExpression;
-    gobbleToken: () =>  PossibleExpression;
+    gobbleToken: () => PossibleExpression;
+    gobbleTokenProperty: (node: Expression) => Expression;
     gobbleNumericLiteral: () => PossibleExpression;
     gobbleStringLiteral: () => PossibleExpression;
     gobbleIdentifier: () => PossibleExpression;
-    gobbleArguments: (number) => PossibleExpression;
+    gobbleArguments: (untilICode: number) => PossibleExpression;
     gobbleGroup: () => Expression;
     gobbleArray: () => PossibleExpression;
-    throwError: (string) => void;
+    throwError: (msg: string) => void;
 }
 ```
 
