@@ -68,6 +68,7 @@ export default [
 		],
 	},
 	...[
+		'jsepArrow',
 		'jsepComment',
 		'jsepNew',
 		'jsepObject',
