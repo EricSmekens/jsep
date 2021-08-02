@@ -751,6 +751,9 @@ export class Jsep {
 					}
 				}
 			}
+			else if (args.length !== separator_count) {
+				this.throwError('Expected comma');
+			}
 			else {
 				const node = this.gobbleExpression();
 
