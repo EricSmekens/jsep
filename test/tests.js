@@ -11,3 +11,4 @@ export * from './plugins/jsepObject.test.js';
 export * from './plugins/jsepRegex.test.js';
 export * from './plugins/jsepSpread.test.js';
 export * from './plugins/jsepTemplateLiteral.test.js';
+export * from './plugins/combinedPlugins.test.js';
