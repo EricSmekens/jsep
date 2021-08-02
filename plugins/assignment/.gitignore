@@ -8,4 +8,4 @@ node_modules/
 # Build files
 annotated_source/
 dist/
-docs/
+/package-lock.json

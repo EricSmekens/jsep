@@ -1,13 +1,13 @@
 import jsep from '../../src/jsep.js';
-import jsepArrow from '../../src/plugins/jsepArrow.js';
-import jsepAssignment from '../../src/plugins/jsepAssignment.js';
-import jsepComment from '../../src/plugins/jsepComment.js';
-import jsepNew from '../../src/plugins/jsepNew.js';
-import jsepObject from '../../src/plugins/jsepObject.js';
-import jsepRegex from '../../src/plugins/jsepRegex.js';
-import jsepSpread from '../../src/plugins/jsepSpread.js';
-import jsepTemplateLiteral from '../../src/plugins/jsepTemplateLiteral.js';
-import jsepTernary from '../../src/plugins/jsepTernary.js';
+import jsepArrow from '../../plugins/arrow/src/index.js';
+import jsepAssignment from '../../plugins/assignment/src/index.js';
+import jsepComment from '../../plugins/comment/src/index.js';
+import jsepNew from '../../plugins/new/src/index.js';
+import jsepObject from '../../plugins/object/src/index.js';
+import jsepRegex from '../../plugins/regex/src/index.js';
+import jsepSpread from '../../plugins/spread/src/index.js';
+import jsepTemplateLiteral from '../../plugins/template/src/index.js';
+import jsepTernary from '../../plugins/ternary/src/index.js';
 import {testParser, resetJsepDefaults, esprimaComparisonTest} from '../test_utils.js';
 
 const { test } = QUnit;

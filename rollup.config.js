@@ -4,12 +4,12 @@ import del from 'rollup-plugin-delete';
 
 const { version } = require('./package.json');
 
-const terserConfig = {
+export const terserConfig = {
 	compress: true,
 	mangle: true
 };
 
-function bundle(type, name = 'jsep') {
+export function bundle(type, name = 'jsep') {
 	let minify = false;
 	let format = type.replace(".min", () => {
 		minify = true;
@@ -67,24 +67,4 @@ export default [
 			}),
 		],
 	},
-	...[
-		'jsepArrow',
-		'jsepAssignment',
-		'jsepComment',
-		'jsepNew',
-		'jsepObject',
-		'jsepRegex',
-		'jsepSpread',
-		'jsepTemplateLiteral',
-	].map(name => ({
-		input: `src/plugins/${name}.js`,
-		output: [
-			bundle('esm', name),
-			bundle('esm.min', name),
-			bundle('iife', name),
-			bundle('iife.min', name),
-			bundle('cjs', name),
-			bundle('cjs.min', name),
-		],
-	})),
 ];
