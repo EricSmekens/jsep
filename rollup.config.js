@@ -41,7 +41,7 @@ const versionPlugin = replace({
 
 export default [
 	{
-		input: "src/jsep.js",
+		input: "src/index.js",
 		output: [
 			bundle("esm"),
 			bundle("esm.min"),
@@ -52,7 +52,7 @@ export default [
 		],
 	},
 	{
-		input: "src/jsep.js",
+		input: "src/index.js",
 		output: [
 			bundle("iife"),
 			bundle("iife.min"),

@@ -161,19 +161,19 @@ export interface HookScope {
     readonly char: string; // current character of the expression
     readonly code: number; // current character code of the expression
     gobbleSpaces: () => void;
-    gobbleExpressions: (number?) => Expression[];
+    gobbleExpressions: (untilICode?: number) => Expression[];
     gobbleExpression: () => Expression;
     gobbleBinaryOp: () => PossibleExpression;
     gobbleBinaryExpression: () => PossibleExpression;
     gobbleToken: () => PossibleExpression;
-    gobbleTokenProperty: (Expression) => Expression;
+    gobbleTokenProperty: (node: Expression) => Expression;
     gobbleNumericLiteral: () => PossibleExpression;
     gobbleStringLiteral: () => PossibleExpression;
     gobbleIdentifier: () => PossibleExpression;
-    gobbleArguments: (number) => PossibleExpression;
+    gobbleArguments: (untilICode: number) => PossibleExpression;
     gobbleGroup: () => Expression;
     gobbleArray: () => PossibleExpression;
-    throwError: (string) => void;
+    throwError: (msg: string) => void;
 }
 ```
 

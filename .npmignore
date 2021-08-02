@@ -1,6 +1,6 @@
-*.swp
-.DS_Store
-node_modules
-*.zip
-docs/
-test/
+*
+*/
+!package.json
+!LICENSE
+!README.md
+!dist/**/*

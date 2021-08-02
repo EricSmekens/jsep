@@ -738,7 +738,7 @@ export class Jsep {
 	 * `(` or `[` has already been gobbled, and gobbles expressions and commas
 	 * until the terminator character `)` or `]` is encountered.
 	 * e.g. `foo(bar, baz)`, `my_func()`, or `[bar, baz]`
-	 * @param {string} termination
+	 * @param {number} termination
 	 * @returns {jsep.Expression[]}
 	 */
 	gobbleArguments(termination) {
