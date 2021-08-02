@@ -3,6 +3,7 @@ export * from './jsep.test.js';
 export * from './hooks.test.js';
 export * from './plugins.test.js';
 export * from './plugins/jsepArrow.test.js';
+export * from './plugins/jsepAssignment.test.js';
 export * from './plugins/jsepTernary.test.js';
 export * from './plugins/jsepComment.test.js';
 export * from './plugins/jsepNew.test.js';
