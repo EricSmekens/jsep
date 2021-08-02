@@ -751,7 +751,8 @@ export class Jsep {
 					}
 				}
 			}
-			else if (args.length !== separator_count) {
+			else if (args.length !== separator_count && separator_count !== 0) {
+				// NOTE: `&& separator_count !== 0` allows for either all commas, or all spaces as arguments
 				this.throwError('Expected comma');
 			}
 			else {

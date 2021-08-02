@@ -27,6 +27,9 @@ import {testParser, testOpExpression, esprimaComparisonTest} from './test_utils.
 		testParser('\'a\'.toString()', {}, assert);
 		testParser('[1].length', {}, assert);
 		testParser(';', {}, assert);
+		// allow all spaces or all commas to separate arguments
+		testParser('check(a, b, c, d)', {}, assert);
+		testParser('check(a b c d)', {}, assert);
 	});
 
 	QUnit.test('Arrays', function (assert) {
