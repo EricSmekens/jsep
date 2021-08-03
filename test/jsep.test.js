@@ -22,11 +22,14 @@ import {testParser, testOpExpression, esprimaComparisonTest} from './test_utils.
 	});
 
 	QUnit.test('Function Calls', function (assert) {
-		// testParser("a(b, c(d,e), f)", {});
+		testParser("a(b, c(d,e), f)", {}, assert);
 		testParser('a b + c', {}, assert);
 		testParser('\'a\'.toString()', {}, assert);
 		testParser('[1].length', {}, assert);
 		testParser(';', {}, assert);
+		// allow all spaces or all commas to separate arguments
+		testParser('check(a, b, c, d)', {}, assert);
+		testParser('check(a b c d)', {}, assert);
 	});
 
 	QUnit.test('Arrays', function (assert) {
@@ -150,6 +153,10 @@ import {testParser, testOpExpression, esprimaComparisonTest} from './test_utils.
 		assert.throws(function () {
 			jsep('check(1,2,)');
 		}, 'detects missing argument (tail)');
+		assert.throws(() => jsep('check(a, b c d) '), 'spaced arg after 1 comma');
+		assert.throws(() => jsep('check(a, b, c d)'), 'spaced arg at end');
+		assert.throws(() => jsep('check(a b, c, d)'), 'spaced arg first');
+		assert.throws(() => jsep('check(a b c, d)'), 'spaced args first');
 	});
 
 	QUnit.test('Uncompleted expression-call/array', function (assert) {
