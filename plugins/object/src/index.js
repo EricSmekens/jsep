@@ -19,7 +19,7 @@ export default {
 							return {
 								type: PROPERTY,
 								computed: false,
-								key: arg.name,
+								key: arg,
 								shorthand: true,
 							};
 						}

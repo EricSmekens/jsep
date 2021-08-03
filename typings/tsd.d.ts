@@ -1,8 +1,10 @@
+import { ExpressionType } from 'jsep';
+
 declare module 'jsep' {
 
 	namespace jsep {
-		export interface Expression {
-			type: ExpressionType;
+		export interface Expression<T extends string = never> {
+			type: ExpressionType | T;
 		}
 
 		export interface ArrayExpression extends Expression {
@@ -42,7 +44,7 @@ declare module 'jsep' {
 
 		export interface Literal extends Expression {
 			type: 'Literal';
-			value: boolean | number | string;
+			value: boolean | number | string | RegExp | null;
 			raw: string;
 		}
 

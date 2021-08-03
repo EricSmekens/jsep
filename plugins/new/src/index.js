@@ -11,7 +11,13 @@ export default {
 					this.throwError('Expected new function()');
 				}
 				env.node = node.argument;
-				env.node.type = 'NewExpression';
+
+				// Change CALL_EXP to NewExpression (could be a nested member)
+				let callNode = env.node;
+				while (callNode.type === 'MemberExpression') {
+					callNode = callNode.object;
+				}
+				callNode.type = 'NewExpression';
 			}
 		});
 	}

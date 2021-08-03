@@ -1,5 +1,5 @@
 import del from 'rollup-plugin-delete';
-import { bundle } from '../../rollup.config.js';
+import { bundle } from './rollup.config.js';
 
 const name = 'index';
 export default [

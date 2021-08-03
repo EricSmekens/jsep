@@ -26,8 +26,33 @@ const { test } = QUnit;
 			}, assert);
 		});
 
+		test('should parse new with member expression', (assert) => {
+			testParser('new Date(1).month', {
+				type: "MemberExpression",
+				object: {
+					type: 'NewExpression',
+					arguments: [
+						{
+							type: 'Literal',
+							value: 1,
+						},
+					],
+					callee: {
+						type: 'Identifier',
+						name: 'Date',
+					},
+				},
+				property: {
+					type: 'Identifier',
+					name: 'month',
+				},
+			}, assert);
+		});
+
 		[
 			'new A().b',
+			'new A()["b"].c + 2',
+			'new A() + 2',
 			'new A() != null',
 			'new A(), new B()',
 			'[new A(), new A()]',
