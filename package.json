@@ -24,6 +24,7 @@
 	},
 	"typings": "typings/tsd.d.ts",
 	"private": false,
+	"workspaces": [ "./packages/*" ],
 	"devDependencies": {
 		"@rollup/plugin-replace": "^2.4.2",
 		"docco": "^0.7.0",
@@ -45,9 +46,9 @@
 		"default": "npm run lint && npm run build && npm run test && npm run docco",
 		"build": "npx rollup -c && cp package-cjs.json dist/cjs/package.json",
 		"build:watch": "npx rollup -c --watch",
-		"build:all": "npm run build && cd plugins/arrow && npm run build && cd ../assignment && npm run build && cd ../comment && npm run build && cd ../new && npm run build && cd ../object && npm run build && cd ../regex && npm run build && cd ../spread && npm run build && cd ../template && npm run build && cd ../ternary && npm run build",
+		"build:all": "pnpm run build -r",
 		"test": "npx http-server -p 49649 --silent & npx node-qunit-puppeteer http://localhost:49649/test/unit_tests.html",
 		"docco": "npx docco src/jsep.js --css=src/docco.css --output=annotated_source/",
-		"lint": "npx eslint src/**/*.js test/*.js test/plugins/**/*.js plugins/**/*.js"
+		"lint": "npx eslint src/**/*.js test/*.js test/packages/**/*.js packages/**/*.js"
 	}
 }

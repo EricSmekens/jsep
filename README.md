@@ -92,15 +92,15 @@ Plugins are registered by calling `jsep.plugins.register()` with the plugin(s) a
 #### JSEP-provided plugins:
 |                                      |                                                                                           |
 | ------------------------------------ | ----------------------------------------------------------------------------------------- |
-| [ternary](plugins/ternary)           | Built-in by default, adds support for ternary `a ? b : c` expressions                     |
-| [arrow](plugins/arrow)               | Adds arrow-function support: `v => !!v`                                                   |
-| [assignment](plugins/assignment)     | Adds assignment and update expression support: `a = 2`, `a++`                             |
-| [comment](plugins/comment)           | Adds support for ignoring comments: `a /* ignore this */ > 1 // ignore this too`          |
-| [new](plugins/new)                   | Adds 'new' keyword support: `new Date()`                                                  |
-| [object](plugins/object)             | Adds object expression support: `{ a: 1, b: { c }}`                                       |
-| [regex](plugins/regex)               | Adds support for regular expression literals: `/[a-z]{2}/ig`                              |
-| [spread](plugins/spread)             | Adds support for the spread operator, `fn(...[1, ...a])`. Works with `object` plugin, too |
-| [template](plugins/template)         | Adds template literal support: `` `hi ${name}` ``                                         |
+| [ternary](packages/ternary)           | Built-in by default, adds support for ternary `a ? b : c` expressions                     |
+| [arrow](packages/arrow)               | Adds arrow-function support: `v => !!v`                                                   |
+| [assignment](packages/assignment)     | Adds assignment and update expression support: `a = 2`, `a++`                             |
+| [comment](packages/comment)           | Adds support for ignoring comments: `a /* ignore this */ > 1 // ignore this too`          |
+| [new](packages/new)                   | Adds 'new' keyword support: `new Date()`                                                  |
+| [object](packages/object)             | Adds object expression support: `{ a: 1, b: { c }}`                                       |
+| [regex](packages/regex)               | Adds support for regular expression literals: `/[a-z]{2}/ig`                              |
+| [spread](packages/spread)             | Adds support for the spread operator, `fn(...[1, ...a])`. Works with `object` plugin, too |
+| [template](packages/template)         | Adds template literal support: `` `hi ${name}` ``                                         |
 |                                      |                                                                                           |
 
 #### How to add plugins:
