@@ -1,6 +1,6 @@
 // Add default plugins:
 import jsep from './jsep.js';
-import ternary from './plugins/jsepTernary.js';
+import ternary from '../packages/ternary/src/index.js';
 
 jsep.plugins.register(ternary);
 

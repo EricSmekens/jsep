@@ -90,15 +90,18 @@ JSEP supports defining custom hooks for extending or modifying the expression pa
 Plugins are registered by calling `jsep.plugins.register()` with the plugin(s) as the argument(s).
 
 #### JSEP-provided plugins:
-* `jsepTernary`: Built-in by default, adds support for ternary `a ? b : c` expressions
-* `jsepArrow`: Adds arrow-function support: `v => !!v`
-* `jsepAssignment`: Adds assignment and update expression support: `a = 2`, `a++`
-* `jsepComment`: Adds support for ignoring comments: `a /* ignore this */ > 1 // ignore this too`
-* `jsepNew`: Adds 'new' keyword support: `new Date()`
-* `jsepObject`: Adds object expression support: `{ a: 1, b: { c }}`
-* `jsepRegex`: Adds support for regular expression literals: `/[a-z]{2}/ig`
-* `jsepSpread`: Adds support for the spread operator, `fn(...[1, ...a])`. Works with `jsepObject` plugin, too
-* `jsepTemplateLiteral`: Adds template literal support: `` `hi ${name}` ``
+|                                      |                                                                                           |
+| ------------------------------------ | ----------------------------------------------------------------------------------------- |
+| [ternary](packages/ternary)           | Built-in by default, adds support for ternary `a ? b : c` expressions                     |
+| [arrow](packages/arrow)               | Adds arrow-function support: `v => !!v`                                                   |
+| [assignment](packages/assignment)     | Adds assignment and update expression support: `a = 2`, `a++`                             |
+| [comment](packages/comment)           | Adds support for ignoring comments: `a /* ignore this */ > 1 // ignore this too`          |
+| [new](packages/new)                   | Adds 'new' keyword support: `new Date()`                                                  |
+| [object](packages/object)             | Adds object expression support: `{ a: 1, b: { c }}`                                       |
+| [regex](packages/regex)               | Adds support for regular expression literals: `/[a-z]{2}/ig`                              |
+| [spread](packages/spread)             | Adds support for the spread operator, `fn(...[1, ...a])`. Works with `object` plugin, too |
+| [template](packages/template)         | Adds template literal support: `` `hi ${name}` ``                                         |
+|                                      |                                                                                           |
 
 #### How to add plugins:
 Plugins have a `name` property so that they can only be registered once.
@@ -106,8 +109,8 @@ Any subsequent registrations will have no effect. Add a plugin by registering it
 
 ```javascript
 import jsep from 'jsep';
-import ternary from 'jsep/plugins/jsepTernary.js';
-import object from 'jsep/plugins/jsepObject.js';
+import ternary from '@jsep/plugin-ternary';
+import object from '@jsep/plugin-object';
 jsep.plugins.register(object);
 jsep.plugins.register(ternary, object);
 ```
