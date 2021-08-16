@@ -1,14 +1,15 @@
 import { terser } from "rollup-plugin-terser";
 import replace from '@rollup/plugin-replace';
+import del from 'rollup-plugin-delete';
 
 const { version } = require('./package.json');
 
-const terserConfig = {
+export const terserConfig = {
 	compress: true,
 	mangle: true
 };
 
-function bundle(type) {
+export function bundle(type, name = 'jsep') {
 	let minify = false;
 	let format = type.replace(".min", () => {
 		minify = true;
@@ -19,8 +20,8 @@ function bundle(type) {
 	let folder = format === 'esm' ? '' : `${format}/`;
 
 	return {
-		file: `dist/${folder}jsep${suffix}.js`,
-		name: "jsep",
+		file: `dist/${folder}${name}${suffix}.js`,
+		name,
 		format,
 		sourcemap: type !== "esm",
 		exports: format === 'esm' ? 'named' : 'default',
@@ -40,17 +41,18 @@ const versionPlugin = replace({
 
 export default [
 	{
-		input: "src/jsep.js",
+		input: "src/index.js",
 		output: [
 			bundle("esm"),
 			bundle("esm.min"),
 		],
 		plugins: [
+			del({ targets: 'dist/*' }),
 			versionPlugin,
 		],
 	},
 	{
-		input: "src/jsep.js",
+		input: "src/index.js",
 		output: [
 			bundle("iife"),
 			bundle("iife.min"),

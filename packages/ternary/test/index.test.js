@@ -1,6 +1,8 @@
-import '../../src/plugins/ternary/ternary.js';
-import {testParser, esprimaComparisonTest} from '../test_utils.js';
+import jsep from '../../../src/jsep.js';
+import ternary from '../src/index.js';
+import {testParser, esprimaComparisonTest} from '../../../test/test_utils.js';
 
+jsep.plugins.register(ternary);
 const { test } = QUnit;
 
 (function () {

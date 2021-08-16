@@ -2,6 +2,7 @@
 //     JSEP may be freely distributed under the MIT License
 //     https://ericsmekens.github.io/jsep/
 import Hooks from './hooks.js';
+import Plugins from './plugins.js';
 
 export class Jsep {
 	/**
@@ -255,6 +256,22 @@ export class Jsep {
 	}
 
 	/**
+	 * Runs a given hook until one returns a node
+	 * @param {string} name
+	 * @returns {?jsep.Expression}
+	 */
+	searchHook(name) {
+		if (Jsep.hooks[name]) {
+			const env = { context: this };
+			Jsep.hooks[name].find(function (callback) {
+				callback.call(env.context, env);
+				return env.node;
+			});
+			return env.node;
+		}
+	}
+
+	/**
 	 * Push `index` up to the next non-space character
 	 */
 	gobbleSpaces() {
@@ -327,7 +344,7 @@ export class Jsep {
 	 * @returns {?jsep.Expression}
 	 */
 	gobbleExpression() {
-		const node = this.runHook('gobble-expression') || this.gobbleBinaryExpression();
+		const node = this.searchHook('gobble-expression') || this.gobbleBinaryExpression();
 		this.gobbleSpaces();
 
 		return this.runHook('after-expression', node);
@@ -452,7 +469,7 @@ export class Jsep {
 		let ch, to_check, tc_len, node;
 
 		this.gobbleSpaces();
-		node = this.runHook('gobble-token');
+		node = this.searchHook('gobble-token');
 		if (node) {
 			return this.runHook('after-token', node);
 		}
@@ -507,15 +524,22 @@ export class Jsep {
 			return this.runHook('after-token', false);
 		}
 
+		node = this.gobbleTokenProperty(node);
+		return this.runHook('after-token', node);
+	}
+
+	/**
+	 * Gobble properties of of identifiers/strings/arrays/groups.
+	 * e.g. `foo`, `bar.baz`, `foo['bar'].baz`
+	 * It also gobbles function calls:
+	 * e.g. `Math.acos(obj.angle)`
+	 * @param {jsep.Expression} node
+	 * @returns {jsep.Expression}
+	 */
+	gobbleTokenProperty(node) {
 		this.gobbleSpaces();
 
-		ch = this.code;
-
-		// Gobble properties of of identifiers/strings/arrays/groups.
-		// e.g. `foo`, `bar.baz`, `foo['bar'].baz`
-		// It also gobbles function calls:
-		// e.g. `Math.acos(obj.angle)`
-
+		let ch = this.code;
 		while (ch === Jsep.PERIOD_CODE || ch === Jsep.OBRACK_CODE || ch === Jsep.OPAREN_CODE) {
 			this.index++;
 
@@ -554,7 +578,7 @@ export class Jsep {
 			ch = this.code;
 		}
 
-		return this.runHook('after-token', node);
+		return node;
 	}
 
 	/**
@@ -714,7 +738,7 @@ export class Jsep {
 	 * `(` or `[` has already been gobbled, and gobbles expressions and commas
 	 * until the terminator character `)` or `]` is encountered.
 	 * e.g. `foo(bar, baz)`, `my_func()`, or `[bar, baz]`
-	 * @param {string} termination
+	 * @param {number} termination
 	 * @returns {jsep.Expression[]}
 	 */
 	gobbleArguments(termination) {
@@ -825,7 +849,7 @@ export class Jsep {
 const hooks = new Hooks();
 Object.assign(Jsep, {
 	hooks,
-	hooksAdd: hooks.add.bind(hooks),
+	plugins: new Plugins(Jsep),
 
 	// Node Types
 	// ----------
@@ -840,7 +864,6 @@ Object.assign(Jsep, {
 	CALL_EXP:        'CallExpression',
 	UNARY_EXP:       'UnaryExpression',
 	BINARY_EXP:      'BinaryExpression',
-	CONDITIONAL_EXP: 'ConditionalExpression',
 	ARRAY_EXP:       'ArrayExpression',
 
 	TAB_CODE:    9,

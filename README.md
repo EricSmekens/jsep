@@ -87,63 +87,98 @@ jsep.removeIdentifierChar('@');
 
 ### Plugins
 JSEP supports defining custom hooks for extending or modifying the expression parsing.
-All hooks are bound to the jsep instance and called with a single argument and return void.
-The 'this' context provide access to the internal parsing methods of jsep
+Plugins are registered by calling `jsep.plugins.register()` with the plugin(s) as the argument(s).
+
+#### JSEP-provided plugins:
+|                                      |                                                                                           |
+| ------------------------------------ | ----------------------------------------------------------------------------------------- |
+| [ternary](packages/ternary)           | Built-in by default, adds support for ternary `a ? b : c` expressions                     |
+| [arrow](packages/arrow)               | Adds arrow-function support: `v => !!v`                                                   |
+| [assignment](packages/assignment)     | Adds assignment and update expression support: `a = 2`, `a++`                             |
+| [comment](packages/comment)           | Adds support for ignoring comments: `a /* ignore this */ > 1 // ignore this too`          |
+| [new](packages/new)                   | Adds 'new' keyword support: `new Date()`                                                  |
+| [object](packages/object)             | Adds object expression support: `{ a: 1, b: { c }}`                                       |
+| [regex](packages/regex)               | Adds support for regular expression literals: `/[a-z]{2}/ig`                              |
+| [spread](packages/spread)             | Adds support for the spread operator, `fn(...[1, ...a])`. Works with `object` plugin, too |
+| [template](packages/template)         | Adds template literal support: `` `hi ${name}` ``                                         |
+|                                      |                                                                                           |
+
+#### How to add plugins:
+Plugins have a `name` property so that they can only be registered once.
+Any subsequent registrations will have no effect. Add a plugin by registering it with JSEP:
+
+```javascript
+import jsep from 'jsep';
+import ternary from '@jsep/plugin-ternary';
+import object from '@jsep/plugin-object';
+jsep.plugins.register(object);
+jsep.plugins.register(ternary, object);
+```
+
+#### List plugins:
+Plugins are stored in an object, keyed by their name.
+They can be retrieved through `jsep.plugins.registered`.
+
+#### Writing Your Own Plugin:
+Plugins are objects with two properties: `name` and `init`.
+Here's a simple plugin example:
+```javascript
+const plugin = {
+  name: 'the plugin',
+	init(jsep) {
+    jsep.addAdentifierChar('@');
+    jsep.hooks.add('gobble-expression', function myPlugin(env) {
+      if (this.char === '@') {
+        this.index += 1;
+        env.node = {
+          type: 'MyCustom@Detector',
+				};
+			}
+		});
+	},
+};
+```
+This example would treat the `@` character as a custom expression, returning
+a node of type `MyCustom@Detector`.
+
+##### Hooks
+Most plugins will make use of hooks to modify the parsing behavior of jsep.
+All hooks are bound to the jsep instance, are called with a single argument, and return void.
+The `this` context provides access to the internal parsing methods of jsep
 to allow reuse as needed. Some hook types will pass an object that allows reading/writing
 the `node` property as needed.
 
-#### Hook 'this' context
-```typescript
-export interface HookScope {
-    index: number;
-    expr: string;
-    char: string; // current character of the expression
-    code: number; // current character code of the expression
-    gobbleSpaces: () => void;
-    gobbleExpressions: (number?) => Eexpression[];
-    gobbleExpression: () => Expression;
-    gobbleBinaryOp: () => PossibleExpression;
-    gobbleBinaryExpression: () => PossibleExpression;
-    gobbleToken: () =>  PossibleExpression;
-    gobbleNumericLiteral: () => PossibleExpression;
-    gobbleStringLiteral: () => PossibleExpression;
-    gobbleIdentifier: () => PossibleExpression;
-    gobbleArguments: (number) => PossibleExpression;
-    gobbleGroup: () => Expression;
-    gobbleArray: () => PossibleExpression;
-    throwError: (string) => void;
-}
-```
-
-#### Hook Types
+##### Hook Types
 * `before-all`: called just before starting all expression parsing.
 * `after-all`: called after parsing all. Read/Write `arg.node` as required.
 * `gobble-expression`: called just before attempting to parse an expression. Set `arg.node` as required.
 * `after-expression`: called just after parsing an expression. Read/Write `arg.node` as required.
 * `gobble-token`: called just before attempting to parse a token. Set `arg.node` as required.
 * `after-token`: called just after parsing a token. Read/Write `arg.node` as required.
-* `gobble-spaces`: called when gobbling spaces.
+* `gobble-spaces`: called when gobbling whitespace.
 
-#### How to add plugins:
-```javascript
-import { Jsep } from 'jsep';
-import 'jsep/plugins/ternary';
-```
-
-#### Optional Plugins:
-* `ternary`: Built-in by default, adds support for ternary `a ? b : c` expressions
-
-#### Writing Your Own Plugin:
-Refer to the `jsep/plugins` folder for examples. In general, the file should look something like:
-```javascript
-import { Jsep } from '../../jsep.js';
-Jsep.hooksAdd(/* refer to [Hook Types] */, function myPlugin(env) {
-  if (this.char === '#') {
-    env.node = {
-      /* add a node type */
-    };
-  }
-});
+##### The `this` context of Hooks
+```typescript
+export interface HookScope {
+    index: number;
+    readonly expr: string;
+    readonly char: string; // current character of the expression
+    readonly code: number; // current character code of the expression
+    gobbleSpaces: () => void;
+    gobbleExpressions: (untilICode?: number) => Expression[];
+    gobbleExpression: () => Expression;
+    gobbleBinaryOp: () => PossibleExpression;
+    gobbleBinaryExpression: () => PossibleExpression;
+    gobbleToken: () => PossibleExpression;
+    gobbleTokenProperty: (node: Expression) => Expression;
+    gobbleNumericLiteral: () => PossibleExpression;
+    gobbleStringLiteral: () => PossibleExpression;
+    gobbleIdentifier: () => PossibleExpression;
+    gobbleArguments: (untilICode: number) => PossibleExpression;
+    gobbleGroup: () => Expression;
+    gobbleArray: () => PossibleExpression;
+    throwError: (msg: string) => void;
+}
 ```
 
 ### License
