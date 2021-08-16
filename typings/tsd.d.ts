@@ -113,10 +113,8 @@ declare module 'jsep' {
 		type HookTypeObj = Partial<{ [key in HookType]: HookCallback}>
 
 		export interface IHooks extends HookTypeObj {
-			add(name: HookType, cb: HookCallback): void;
-			add(name: HookType, first: boolean, cb: HookCallback): void;
-			add(obj: { [name in HookType]: HookCallback }): void;
-			add(obj: { [name in HookType]: HookCallback }, first: boolean): void;
+			add(name: HookType, cb: HookCallback, first?: boolean): void;
+			add(obj: { [name in HookType]: HookCallback }, first?: boolean): void;
 			run(name: string, env: { context?: typeof jsep, node?: Expression }): void;
 		}
 		let hooks: IHooks;
