@@ -8,6 +8,9 @@
 		"Lea Verou (https://github.com/LeaVerou)",
 		"Shelly (https://github.com/6utt3rfly)"
 	],
+	"publishConfig": {
+		"access": "public"
+	},
 	"homepage": "https://ericsmekens.github.io/jsep/tree/master/packages/object#readme",
 	"license": "MIT",
 	"repository": {
