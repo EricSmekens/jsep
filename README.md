@@ -125,17 +125,17 @@ Here's a simple plugin example:
 ```javascript
 const plugin = {
   name: 'the plugin',
-	init(jsep) {
+  init(jsep) {
     jsep.addAdentifierChar('@');
     jsep.hooks.add('gobble-expression', function myPlugin(env) {
       if (this.char === '@') {
         this.index += 1;
         env.node = {
           type: 'MyCustom@Detector',
-				};
-			}
-		});
-	},
+        };
+      }
+    });
+  },
 };
 ```
 This example would treat the `@` character as a custom expression, returning

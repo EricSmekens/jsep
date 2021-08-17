@@ -148,5 +148,49 @@ const { test } = QUnit;
 				esprimaComparisonTest(expr, assert);
 			});
 		});
+
+		test('should parse arrow object defaults', (assert) => {
+			testParser('[a].map(({a = 1} = {}) => a)', {
+				type: 'CallExpression',
+				arguments: [
+					{
+						type: 'ArrowFunctionExpression',
+						params: [
+							{
+								type: 'AssignmentExpression',
+								operator: '=',
+								left: {
+									type: 'ObjectExpression',
+									properties: [
+										{
+											type: 'AssignmentExpression',
+											operator: '=',
+											left: {
+												type: 'Identifier',
+												name: 'a',
+											},
+											right: {
+												type: 'Literal',
+												value: 1,
+												raw: '1',
+											},
+										},
+									],
+								},
+								right: {
+									type: 'ObjectExpression',
+									properties: [],
+								},
+							},
+						],
+						body: {
+							type: 'Identifier',
+							name: 'a'
+						}
+					}
+				],
+				callee: {},
+			}, assert);
+		});
 	});
 }());
