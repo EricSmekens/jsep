@@ -25,5 +25,6 @@ export interface AssignmentExpression extends Expression<'AssignmentExpression'>
 		| '&='
 		| '^='
 		| '|=';
+	left: Expression;
 	right: Expression;
 }
