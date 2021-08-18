@@ -6,7 +6,7 @@ export default {
 	init(jsep) {
 		// Ternary expression: test ? consequent : alternate
 		jsep.hooks.add('after-expression', function gobbleTernary(env) {
-			if (this.code === jsep.QUMARK_CODE) {
+			if (env.node && this.code === jsep.QUMARK_CODE) {
 				this.index++;
 				const test = env.node;
 				const consequent = this.gobbleExpression();

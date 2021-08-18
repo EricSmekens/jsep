@@ -182,6 +182,21 @@ import {testParser, testOpExpression, esprimaComparisonTest, resetJsepDefaults} 
 		'detects trailing operator');
 	});
 
+	[
+		'!',
+		'*x',
+		'||x',
+		'?a:b',
+		'.',
+		'()()',
+		// '()', should throw 'unexpected )'...
+		// '() + 1', should throw 'unexpected )'...
+	].forEach(expr => {
+		QUnit.test(`should throw on invalid expr "${expr}"`, (assert) => {
+			assert.throws(() => jsep(expr));
+		});
+	});
+
 	QUnit.test('Esprima Comparison', function (assert) {
 		([
 			'[1,,3]',
@@ -206,6 +221,11 @@ import {testParser, testOpExpression, esprimaComparisonTest, resetJsepDefaults} 
 			'(Object.variable.toLowerCase()).length == 3',
 			'(Object.variable.toLowerCase())  .  length == 3',
 			'[1] + [2]',
+			'"a"[0]',
+			'[1](2)',
+			'"a".length',
+			'a.this',
+			'a.true',
 		]).forEach(function (test) {
 			esprimaComparisonTest(test, assert);
 		});

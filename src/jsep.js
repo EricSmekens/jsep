@@ -388,7 +388,13 @@ export class Jsep {
 
 		// First, try to get the leftmost thing
 		// Then, check to see if there's a binary operator operating on that leftmost thing
+		// Only allow empty left-hand argument if it gobbles chars (i.e. () for arrow function)
+		this.gobbleSpaces();
+		i = this.index;
 		left = this.gobbleToken();
+		if (!left && this.index === i) {
+			return left;
+		}
 		biop = this.gobbleBinaryOp();
 
 		// If there wasn't a binary operator, just return the leftmost node
@@ -501,10 +507,14 @@ export class Jsep {
 					(this.index + to_check.length < this.expr.length && !Jsep.isIdentifierPart(this.expr.charCodeAt(this.index + to_check.length)))
 				)) {
 					this.index += tc_len;
+					const argument = this.gobbleToken();
+					if (!argument) {
+						this.throwError('missing unaryOp argument');
+					}
 					return this.runHook('after-token', {
 						type: Jsep.UNARY_EXP,
 						operator: to_check,
-						argument: this.gobbleToken(),
+						argument,
 						prefix: true
 					});
 				}
@@ -513,7 +523,7 @@ export class Jsep {
 			}
 
 			if (Jsep.isIdentifierStart(ch)) {
-				node = this.gobbleIdentifier();
+				node = this.gobbleIdentifier(true);
 			}
 			else if (ch === Jsep.OPAREN_CODE) { // open parenthesis
 				node = this.gobbleGroup();
@@ -549,7 +559,7 @@ export class Jsep {
 					type: Jsep.MEMBER_EXP,
 					computed: false,
 					object: node,
-					property: this.gobbleIdentifier()
+					property: this.gobbleIdentifier(false),
 				};
 			}
 			else if (ch === Jsep.OBRACK_CODE) {
@@ -627,7 +637,7 @@ export class Jsep {
 			this.throwError('Variable names cannot start with a number (' +
 				number + this.char + ')');
 		}
-		else if (chCode === Jsep.PERIOD_CODE) {
+		else if (chCode === Jsep.PERIOD_CODE || (number.length === 1 && number.charCodeAt(0) === Jsep.PERIOD_CODE)) {
 			this.throwError('Unexpected period');
 		}
 
@@ -690,9 +700,10 @@ export class Jsep {
 	 * e.g.: `foo`, `_value`, `$x1`
 	 * Also, this function checks if that identifier is a literal:
 	 * (e.g. `true`, `false`, `null`) or `this`
+	 * @param {boolean} [allowLiterals=true] (member property must be an identifier)
 	 * @returns {jsep.Expression}
 	 */
-	gobbleIdentifier() {
+	gobbleIdentifier(allowLiterals = true) {
 		let ch = this.code, start = this.index, identifier;
 
 		if (Jsep.isIdentifierStart(ch)) {
@@ -714,14 +725,14 @@ export class Jsep {
 		}
 		identifier = this.expr.slice(start, this.index);
 
-		if (Jsep.literals.hasOwnProperty(identifier)) {
+		if (Jsep.literals.hasOwnProperty(identifier) && allowLiterals) {
 			return {
 				type: Jsep.LITERAL,
 				value: Jsep.literals[identifier],
 				raw: identifier
 			};
 		}
-		else if (identifier === Jsep.this_str) {
+		else if (identifier === Jsep.this_str && allowLiterals) {
 			return { type: Jsep.THIS_EXP };
 		}
 		else {
