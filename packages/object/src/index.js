@@ -10,7 +10,7 @@ export default {
 		jsep.addBinaryOp(':', 0.5);
 
 		// Object literal support
-		jsep.hooks.add('gobble-token', function gobbleObjectExpression(env) {
+		function gobbleObjectExpression(env) {
 			if (this.code === OCURLY_CODE) {
 				this.index++;
 				const properties = this.gobbleArguments(CCURLY_CODE)
@@ -43,6 +43,8 @@ export default {
 					properties,
 				};
 			}
-		});
+		}
+		jsep.hooks.add('gobble-token', gobbleObjectExpression);
+		jsep.hooks.add('after-token', gobbleObjectExpression);
 	}
 };

@@ -388,7 +388,11 @@ export class Jsep {
 
 		// First, try to get the leftmost thing
 		// Then, check to see if there's a binary operator operating on that leftmost thing
+		// Don't gobbleBinaryOp without a left-hand-side
 		left = this.gobbleToken();
+		if (!left) {
+			return left;
+		}
 		biop = this.gobbleBinaryOp();
 
 		// If there wasn't a binary operator, just return the leftmost node
@@ -501,10 +505,14 @@ export class Jsep {
 					(this.index + to_check.length < this.expr.length && !Jsep.isIdentifierPart(this.expr.charCodeAt(this.index + to_check.length)))
 				)) {
 					this.index += tc_len;
+					const argument = this.gobbleToken();
+					if (!argument) {
+						this.throwError('missing unaryOp argument');
+					}
 					return this.runHook('after-token', {
 						type: Jsep.UNARY_EXP,
 						operator: to_check,
-						argument: this.gobbleToken(),
+						argument,
 						prefix: true
 					});
 				}
@@ -627,7 +635,7 @@ export class Jsep {
 			this.throwError('Variable names cannot start with a number (' +
 				number + this.char + ')');
 		}
-		else if (chCode === Jsep.PERIOD_CODE) {
+		else if (chCode === Jsep.PERIOD_CODE || (number.length === 1 && number.charCodeAt(0) === Jsep.PERIOD_CODE)) {
 			this.throwError('Unexpected period');
 		}
 
