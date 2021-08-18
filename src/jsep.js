@@ -388,11 +388,9 @@ export class Jsep {
 
 		// First, try to get the leftmost thing
 		// Then, check to see if there's a binary operator operating on that leftmost thing
-		// Only allow empty left-hand argument if it gobbles chars (i.e. () for arrow function)
-		this.gobbleSpaces();
-		i = this.index;
+		// Don't gobbleBinaryOp without a left-hand-side
 		left = this.gobbleToken();
-		if (!left && this.index === i) {
+		if (!left) {
 			return left;
 		}
 		biop = this.gobbleBinaryOp();

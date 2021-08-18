@@ -190,7 +190,7 @@ import {testParser, testOpExpression, esprimaComparisonTest, resetJsepDefaults} 
 		'.',
 		'()()',
 		// '()', should throw 'unexpected )'...
-		// '() + 1', should throw 'unexpected )'...
+		'() + 1',
 	].forEach(expr => {
 		QUnit.test(`should throw on invalid expr "${expr}"`, (assert) => {
 			assert.throws(() => jsep(expr));
