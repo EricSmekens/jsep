@@ -101,7 +101,7 @@ declare module 'jsep' {
 			gobbleTokenProperty: (node: Expression) => Expression
 			gobbleNumericLiteral: () => PossibleExpression;
 			gobbleStringLiteral: () => PossibleExpression;
-			gobbleIdentifier: (allowLiteral?: boolean) => PossibleExpression;
+			gobbleIdentifier: () => PossibleExpression;
 			gobbleArguments: (untilICode: number) => PossibleExpression;
 			gobbleGroup: () => Expression;
 			gobbleArray: () => PossibleExpression;
