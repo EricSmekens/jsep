@@ -50,6 +50,18 @@ export function testParser(inp, out, assert) {
 	return assert.deepEqual(filterProps(parsedVal, out), out);
 }
 
+export function findNode(ast, condition) {
+	if (typeof ast !== 'object') {
+		return undefined;
+	}
+	if (condition(ast)) {
+		return ast;
+	}
+	return Object
+		.getOwnPropertyNames(ast)
+		.reduce((n, k) => n || findNode(ast[k], condition), undefined);
+}
+
 export function esprimaComparisonTest(str, assert) {
 	const parsedVal = jsep(str);
 	const esprimaVal = esprima.parse(str);

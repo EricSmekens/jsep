@@ -7,5 +7,6 @@ export interface ArrowExpression extends Expression<'ArrowFunctionExpression'> {
 	type: 'ArrowFunctionExpression';
 	params: Expression[] | null;
 	body: Expression;
+	async?: boolean;
 }
 

@@ -1,6 +1,7 @@
 import jsep from '../../src/jsep.js';
 import jsepArrow from '../../packages/arrow/src/index.js';
 import jsepAssignment from '../../packages/assignment/src/index.js';
+import jsepAsyncAwait from '../../packages/async-await/src/index.js';
 import jsepComment from '../../packages/comment/src/index.js';
 import jsepNew from '../../packages/new/src/index.js';
 import jsepObject from '../../packages/object/src/index.js';
@@ -18,6 +19,7 @@ const { test } = QUnit;
 			jsep.plugins.register(
 				jsepArrow,
 				jsepAssignment,
+				jsepAsyncAwait,
 				jsepComment,
 				jsepNew,
 				jsepObject,
@@ -55,6 +57,11 @@ const { test } = QUnit;
 			'a.find(val => key === "abc")',
 			'a.find(() => []).length > 2',
 			'(a || b).find(v => v(1))',
+			'await a',
+			'await a.find(async (v1, v2) => await v1(v2))',
+			'await a.find(async v => await v)',
+			'a.find(async ([v]) => await v)',
+			'a.find(async () => await x)',
 			'a /* ignore this */ > 1 // ignore this too', // especially with regex plugin
 			'a /* ignore *\r\n *this */ > 1 // ignore this too',
 			'a // ignore this\r\n > 1',
@@ -100,6 +107,64 @@ const { test } = QUnit;
 				testParser(expr, {}, assert);
 			});
 		});
+
+		[
+			'() =>',
+			'a.find((  ) => )',
+			'a.find((   ',
+
+			'fn()++',
+			'1++',
+			'++',
+			'(a + b)++',
+			'--fn()',
+			'--1',
+			'--',
+			'--(a + b)',
+
+			'async 123',
+			'async a + b',
+			'a.find(async () + 2)',
+
+			'a /* no close comment',
+
+			'new A',
+			'new A,new B',
+			'fn(new A)',
+			'!new A',
+			'new 123',
+			'new (a > 2 ? A : B)',
+			'new (a > 1)',
+
+			'{ a: }', // missing value
+			'{ a: 1 ', // missing }
+			'{ a: 2 ? 3, b }', // missing : in ternary
+
+			'/abc', // unclosed regex
+			'/a/xzw', // invalid flag
+			'/a/xyz.test(a)', // invalid flag
+			'/a(/', // unclosed (
+			'/a[/', // unclosed [
+
+			'[.....5]', // extra ..
+			'[..2]', // missing .
+			'[...3', // missing ]
+
+			'1.2.3',
+			'check(,)',
+			'check(,1,2)',
+			'check(1,,2)',
+			'check(1,2,)',
+			'check(a, b c d) ',
+			'check(a, b, c d)',
+			'check(a b, c, d)',
+			'check(a b c, d)',
+			'myFunction(a,b',
+			'[1,2',
+			'-1+2-',
+		].forEach(expr => test(`should throw on invalid expression, ${expr}`, (assert) => {
+			assert.throws(() => jsep(expr));
+		}));
 
 		([
 			'a((1 + 2), (e > 0 ? f : g))',

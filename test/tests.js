@@ -4,6 +4,7 @@ export * from './hooks.test.js';
 export * from './plugins.test.js';
 export * from '../packages/arrow/test/index.test.js';
 export * from '../packages/assignment/test/index.test.js';
+export * from '../packages/async-await/test/index.test.js';
 export * from '../packages/ternary/test/index.test.js';
 export * from '../packages/comment/test/index.test.js';
 export * from '../packages/new/test/index.test.js';
