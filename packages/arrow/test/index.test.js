@@ -142,9 +142,20 @@ const { test } = QUnit;
 			'a.find(val => key === "abc")',
 			'a.find(() => []).length > 2',
 			'(a || b).find(v => v(1))',
+			'a.find((  ) => 1)',
 		].forEach(expr => {
 			test(`should parse expr "${expr}" without error`, (assert) => {
 				testParser(expr, {}, assert);
+			});
+		});
+
+		[
+			'() =>',
+			'a.find((  ) => )',
+			'a.find((   ',
+		].forEach(expr => {
+			QUnit.test(`should throw on invalid expr "${expr}"`, (assert) => {
+				assert.throws(() => jsep(expr));
 			});
 		});
 	});

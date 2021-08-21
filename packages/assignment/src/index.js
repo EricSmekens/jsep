@@ -43,24 +43,27 @@ export default {
 			}
 		});
 
-		jsep.hooks.add('after-expression', function gobbleAssignmentOrPostfix(env) {
+		jsep.hooks.add('after-token', function gobbleUpdatePostfix(env) {
 			if (env.node) {
-				if (assignmentOperators.has(env.node.operator)) {
-					env.node.type = 'AssignmentExpression';
-				}
-
-				// Replace Binary/Unary Operator with Update node, as needed:
-				else if (['+', '-'].includes(env.node.operator) && env.node.right && env.node.right.operator === env.node.operator) {
-					if (!env.node.left || !updateNodeTypes.includes(env.node.left.type)) {
-						this.throwError('Invalid postfix operation');
+				const code = this.code;
+				if (updateOperators.some(c => c === code && c === this.expr.charCodeAt(this.index + 1))) {
+					if (!updateNodeTypes.includes(env.node.type)) {
+						this.throwError(`Unexpected ${env.node.operator}`);
 					}
+					this.index += 2;
 					env.node = {
 						type: 'UpdateExpression',
-						operator: env.node.operator + env.node.operator,
-						argument: env.node.left,
+						operator: code === PLUS_CODE ? '++' : '--',
+						argument: env.node,
 						prefix: false,
 					};
 				}
+			}
+		});
+
+		jsep.hooks.add('after-expression', function gobbleAssignment(env) {
+			if (env.node && assignmentOperators.has(env.node.operator)) {
+				env.node.type = 'AssignmentExpression';
 			}
 		});
 	},
