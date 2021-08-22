@@ -224,6 +224,8 @@ import {testParser, testOpExpression, esprimaComparisonTest, resetJsepDefaults} 
 			'"a"[0]',
 			'[1](2)',
 			'"a".length',
+			'a.this',
+			'a.true',
 		]).forEach(function (test) {
 			esprimaComparisonTest(test, assert);
 		});

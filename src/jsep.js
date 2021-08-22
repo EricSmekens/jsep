@@ -522,6 +522,16 @@ export class Jsep {
 
 			if (Jsep.isIdentifierStart(ch)) {
 				node = this.gobbleIdentifier();
+				if (Jsep.literals.hasOwnProperty(node.name)) {
+					node = {
+						type: Jsep.LITERAL,
+						value: Jsep.literals[node.name],
+						raw: node.name,
+					};
+				}
+				else if (node.name === Jsep.this_str) {
+					node = { type: Jsep.THIS_EXP };
+				}
 			}
 			else if (ch === Jsep.OPAREN_CODE) { // open parenthesis
 				node = this.gobbleGroup();
@@ -557,7 +567,7 @@ export class Jsep {
 					type: Jsep.MEMBER_EXP,
 					computed: false,
 					object: node,
-					property: this.gobbleIdentifier()
+					property: this.gobbleIdentifier(),
 				};
 			}
 			else if (ch === Jsep.OBRACK_CODE) {
@@ -698,10 +708,10 @@ export class Jsep {
 	 * e.g.: `foo`, `_value`, `$x1`
 	 * Also, this function checks if that identifier is a literal:
 	 * (e.g. `true`, `false`, `null`) or `this`
-	 * @returns {jsep.Expression}
+	 * @returns {jsep.Identifier}
 	 */
 	gobbleIdentifier() {
-		let ch = this.code, start = this.index, identifier;
+		let ch = this.code, start = this.index;
 
 		if (Jsep.isIdentifierStart(ch)) {
 			this.index++;
@@ -720,24 +730,10 @@ export class Jsep {
 				break;
 			}
 		}
-		identifier = this.expr.slice(start, this.index);
-
-		if (Jsep.literals.hasOwnProperty(identifier)) {
-			return {
-				type: Jsep.LITERAL,
-				value: Jsep.literals[identifier],
-				raw: identifier
-			};
-		}
-		else if (identifier === Jsep.this_str) {
-			return { type: Jsep.THIS_EXP };
-		}
-		else {
-			return {
-				type: Jsep.IDENTIFIER,
-				name: identifier
-			};
-		}
+		return {
+			type: Jsep.IDENTIFIER,
+			name: this.expr.slice(start, this.index),
+		};
 	}
 
 	/**
