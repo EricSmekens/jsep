@@ -1,5 +1,5 @@
-## 1.0.0 - 2021-##-##
-Rewrote to ESM, added a plugin system, and fixed numerous grammer issues
+## 1.0.0 - 2021-08-22
+Rewrote to ESM, added a plugin system, and fixed numerous grammar issues. For most standard use-cases, this release should not be a breaking change, as every effort was made to maintain compatibility.
 
 ### Breaking Changes
 - renamed `build` folder to `dist` (#130). The package file structure is now:
@@ -20,17 +20,24 @@ Rewrote to ESM, added a plugin system, and fixed numerous grammer issues
 ```
 - Removed `LogicalExpression` and treat it as a `BinaryExpression` (#100)
 - Call arguments must be either all comma-separated or all space-separated, but not mixed
+- unary expressions with no argument now throw `missing unaryOp argument`
+- binary expressions now require the left-hand side to exist
+- conditional (ternary) expressions with no condition now throw `unexpected "?"`
+- `.` now throws `unexpected .`
+- `()()` now throws `unexpected "("`
+- `a.this`, `a.true`, `a.false`, `a.null` now match espimra and treat the property as an identifier instead of a literal or ThisExpression
 
 ### Added
 - Added a plugin system, including plugins for
-	- arrow expressions (`() => ...`)
-	- assigment and update expressions (`a = 2`, `a++`)
-	- comments (`/* .. */` and `// ...`)
-	- new expressions (`new Date()`)
-	- object expressions (`{a: 1, b}`)
-	- regex support (`/123/ig`)
-	- spread operator (`fn(...a)`, `[1, ...b]`, `{...c}`)
-	- template expressions (`` `hi ${name}` ``, `` msg`hig ${name}` ``)
+    - arrow expressions (`() => ...`)
+    - assigment and update expressions (`a = 2`, `a++`)
+    - async/await (`await a.find(async (v1, v2) => await v1(v2))`)
+    - comments (`/* .. */` and `// ...`)
+    - new expressions (`new Date()`)
+    - object expressions (`{a: 1, b}`)
+    - regex support (`/123/ig`)
+    - spread operator (`fn(...a)`, `[1, ...b]`, `{...c}`)
+    - template expressions (`` `hi ${name}` ``, `` msg`hig ${name}` ``)
 
 ### Updated
 - `(1, 2)` now returns a SequenceExpression instead of throwing an `Unclosed (` error
