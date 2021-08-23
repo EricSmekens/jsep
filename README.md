@@ -109,8 +109,8 @@ Any subsequent registrations will have no effect. Add a plugin by registering it
 
 ```javascript
 import jsep from 'jsep';
-import ternary from '@jsep/plugin-ternary';
-import object from '@jsep/plugin-object';
+import ternary from '@jsep-plugin/ternary';
+import object from '@jsep-plugin/object';
 jsep.plugins.register(object);
 jsep.plugins.register(ternary, object);
 ```
