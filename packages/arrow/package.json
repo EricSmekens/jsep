@@ -1,5 +1,5 @@
 {
-	"name": "@jsep/plugin-arrow",
+	"name": "@jsep-plugin/arrow",
 	"version": "1.0.0",
 	"description": "Adds arrow-function support",
 	"author": "Shelly (https://github.com/6utt3rfly)",

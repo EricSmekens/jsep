@@ -1,5 +1,5 @@
 {
-	"name": "@jsep/plugin-async-await",
+	"name": "@jsep-plugin/async-await",
 	"version": "1.0.0",
 	"description": "Adds async/await support",
 	"author": "Shelly (https://github.com/6utt3rfly)",

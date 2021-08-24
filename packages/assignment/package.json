@@ -1,5 +1,5 @@
 {
-	"name": "@jsep/plugin-assignment",
+	"name": "@jsep-plugin/assignment",
 	"version": "1.0.0",
 	"description": "Adds assignment expression support",
 	"author": "Shelly (https://github.com/6utt3rfly)",

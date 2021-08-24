@@ -1,5 +1,5 @@
 {
-	"name": "@jsep/plugin-ternary",
+	"name": "@jsep-plugin/ternary",
 	"version": "1.0.0",
 	"description": "Adds ternary expression support",
 	"author": "Shelly (https://github.com/6utt3rfly)",
