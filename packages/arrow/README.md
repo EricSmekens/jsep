@@ -13,7 +13,7 @@ A JSEP plugin for adding arrow-function support. Allows expressions of the form:
 ```javascript
 jsep('a.find(v => v === 1)');
 jsep('a.map((v, i) => i)');
-jsep('a.map(() => true');
+jsep('a.map(() => true)');
 ```
 
 ## Install
