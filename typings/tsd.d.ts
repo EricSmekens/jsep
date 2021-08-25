@@ -1,10 +1,10 @@
-import { ExpressionType } from 'jsep';
-
 declare module 'jsep' {
 
 	namespace jsep {
-		export interface Expression<T extends string = never> {
-			type: ExpressionType | T;
+		export type baseTypes = string | number | boolean | RegExp | null;
+		export interface Expression {
+			type: string;
+			[key: string]: baseTypes | Expression | Array<baseTypes | Expression>;
 		}
 
 		export interface ArrayExpression extends Expression {
@@ -48,13 +48,6 @@ declare module 'jsep' {
 			raw: string;
 		}
 
-		export interface LogicalExpression extends Expression {
-			type: 'LogicalExpression';
-			operator: string;
-			left: Expression;
-			right: Expression;
-		}
-
 		export interface MemberExpression extends Expression {
 			type: 'MemberExpression';
 			computed: boolean;
@@ -73,7 +66,7 @@ declare module 'jsep' {
 			prefix: boolean;
 		}
 
-		type ExpressionType =
+		export type ExpressionType =
 			'Compound'
 			| 'Identifier'
 			| 'MemberExpression'
@@ -82,9 +75,20 @@ declare module 'jsep' {
 			| 'CallExpression'
 			| 'UnaryExpression'
 			| 'BinaryExpression'
-			| 'LogicalExpression'
 			| 'ConditionalExpression'
 			| 'ArrayExpression';
+
+		export type CoreExpression =
+			ArrayExpression
+			| BinaryExpression
+			| CallExpression
+			| Compound
+			| ConditionalExpression
+			| Identifier
+			| Literal
+			| MemberExpression
+			| ThisExpression
+			| UnaryExpression;
 
 		export type PossibleExpression = Expression | undefined;
 		export interface HookScope {

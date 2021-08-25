@@ -3,7 +3,7 @@ import { Expression } from 'jsep';
 export const name: string;
 export function init(this: typeof jsep): void;
 
-export interface ArrowExpression extends Expression<'ArrowFunctionExpression'> {
+export interface ArrowExpression extends Expression {
 	type: 'ArrowFunctionExpression';
 	params: Expression[] | null;
 	body: Expression;
