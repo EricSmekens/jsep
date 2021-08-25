@@ -1,3 +1,6 @@
+## 1.0.1 - 2021-08-24
+Fixed support for CommonJS modules. This is only a republish.
+
 ## 1.0.0 - 2021-08-22
 Rewrote to ESM, added a plugin system, and fixed numerous grammar issues. For most standard use-cases, this release should not be a breaking change, as every effort was made to maintain compatibility.
 
