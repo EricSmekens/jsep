@@ -35,7 +35,7 @@ export class Jsep {
 	/**
 	 * @method jsep.addBinaryOp
 	 * @param {string} op_name The name of the binary op to add
-	 * @param {number} precedence The precedence of the binary op (can be a float)
+	 * @param {number} precedence The precedence of the binary op (can be a float). Higher number = higher precedence
 	 * @returns {Jsep}
 	 */
 	static addBinaryOp(op_name, precedence) {
@@ -899,8 +899,8 @@ Object.assign(Jsep, {
 	},
 
 	// Also use a map for the binary operations but set their values to their
-	// binary precedence for quick reference:
-	// see [Order of operations](http://en.wikipedia.org/wiki/Order_of_operations#Programming_language)
+	// binary precedence for quick reference (higher number = higher precedence)
+	// see [Order of operations](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_Precedence)
 	binary_ops: {
 		'||': 1, '&&': 2, '|': 3, '^': 4, '&': 5,
 		'==': 6, '!=': 6, '===': 6, '!==': 6,

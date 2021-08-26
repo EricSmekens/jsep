@@ -25,7 +25,8 @@ export default {
 		const updateNodeTypes = [jsep.IDENTIFIER, jsep.MEMBER_EXP];
 
 		// See operator precedence https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_Precedence
-		assignmentOperators.forEach(op => jsep.addBinaryOp(op, 11));
+		// We need lower priority than || and && which start at 1
+		assignmentOperators.forEach(op => jsep.addBinaryOp(op, 0.9));
 
 		jsep.hooks.add('gobble-token', function gobbleUpdatePrefix(env) {
 			const code = this.code;
