@@ -1,6 +1,6 @@
 {
 	"name": "@jsep-plugin/arrow",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "Adds arrow-function support",
 	"author": "Shelly (https://github.com/6utt3rfly)",
 	"maintainers": [

@@ -1,3 +1,6 @@
+## 1.0.2 - 2021-08-26
+Republish to include types.
+
 ## 1.0.1 - 2021-08-24
 Fixed support for CommonJS modules. This is only a republish.
 
@@ -28,7 +31,7 @@ Rewrote to ESM, added a plugin system, and fixed numerous grammar issues. For mo
 - conditional (ternary) expressions with no condition now throw `unexpected "?"`
 - `.` now throws `unexpected .`
 - `()()` now throws `unexpected "("`
-- `a.this`, `a.true`, `a.false`, `a.null` now match espimra and treat the property as an identifier instead of a literal or ThisExpression
+- `a.this`, `a.true`, `a.false`, `a.null` now match esprima and treat the property as an identifier instead of a literal or ThisExpression
 
 ### Added
 - Added a plugin system, including plugins for

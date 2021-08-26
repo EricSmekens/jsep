@@ -1,6 +1,6 @@
 {
 	"name": "@jsep-plugin/spread",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "Adds spread (...) expression support",
 	"author": "Shelly (https://github.com/6utt3rfly)",
 	"maintainers": [
