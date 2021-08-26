@@ -3,7 +3,7 @@ import { Expression } from 'jsep';
 export const name: string;
 export function init(this: typeof jsep): void;
 
-export interface NewExpression extends Expression<'NewExpression'> {
+export interface NewExpression extends Expression {
 	type: 'NewExpression';
 	arguments: Expression[];
 	callee: Expression;

@@ -3,19 +3,19 @@ import { Expression } from 'jsep';
 export const name: string;
 export function init(this: typeof jsep): void;
 
-export interface TaggedTemplateExpression extends Expression<'TaggedTemplateExpression'> {
+export interface TaggedTemplateExpression extends Expression {
 	type: 'TaggedTemplateExpression';
 	readonly tag: Expression;
 	readonly quasi: TemplateLiteral;
 }
 
-export interface TemplateElement extends Expression<'TemplateElement'> {
+export interface TemplateElement extends Expression {
 	type: 'TemplateElement';
 	value: { cooked: string; raw: string };
 	tail: boolean;
 }
 
-export interface TemplateLiteral extends Expression<'TemplateLiteral'> {
+export interface TemplateLiteral extends Expression {
 	type: 'TemplateLiteral';
 	quasis: TemplateElement[];
 	expressions: Expression[];

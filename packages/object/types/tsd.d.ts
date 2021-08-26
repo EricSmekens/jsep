@@ -3,12 +3,12 @@ import { Expression } from 'jsep';
 export const name: string;
 export function init(this: typeof jsep): void;
 
-export interface ObjectExpression extends Expression<'ObjectExpression'> {
+export interface ObjectExpression extends Expression {
 	type: 'ObjectExpression';
 	properties: Property[];
 }
 
-export interface Property extends Expression<'Property'> {
+export interface Property extends Expression {
 	type: 'Property';
 	computed: boolean;
 	key: Expression;
