@@ -77,6 +77,11 @@ const { test } = QUnit;
 			'++a',
 			'a--',
 			'--a',
+			'++a == 2',
+			'a++ == 2',
+			'2 == ++a',
+			'2 == a++',
+			'a ? a[1]++ : --b',
 		].forEach((expr) => {
 			test(`should match Esprima: ${expr}`, function (assert) {
 				esprimaComparisonTest(expr, assert);

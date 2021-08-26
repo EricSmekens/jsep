@@ -25,16 +25,17 @@ export default {
 		const updateNodeTypes = [jsep.IDENTIFIER, jsep.MEMBER_EXP];
 
 		// See operator precedence https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_Precedence
-		assignmentOperators.forEach(op => jsep.addBinaryOp(op, 11));
+		// We need lower priority than || and && which start at 1
+		assignmentOperators.forEach(op => jsep.addBinaryOp(op, 0.9));
 
-		jsep.hooks.add('gobble-expression', function gobbleUpdatePrefix(env) {
+		jsep.hooks.add('gobble-token', function gobbleUpdatePrefix(env) {
 			const code = this.code;
 			if (updateOperators.some(c => c === code && c === this.expr.charCodeAt(this.index + 1))) {
 				this.index += 2;
 				env.node = {
 					type: 'UpdateExpression',
 					operator: code === PLUS_CODE ? '++' : '--',
-					argument: this.gobbleExpression(),
+					argument: this.gobbleTokenProperty(this.gobbleIdentifier()),
 					prefix: true,
 				};
 				if (!env.node.argument || !updateNodeTypes.includes(env.node.argument.type)) {
