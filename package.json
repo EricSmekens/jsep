@@ -92,7 +92,14 @@
 			],
 			"@semantic-release/changelog",
 			"@semantic-release/git",
-			"@semantic-release/npm"
+			["@semantic-release/npm", {
+				"tarballDir": "dist"
+			}],
+			["@semantic-release/github", {
+				"assets": [
+					{"path": "dist/*.tgz", "label": "build"}
+				]
+			}]
 		]
 	},
 	"scripts": {
