@@ -932,9 +932,8 @@ Jsep.max_binop_len = Jsep.getMaxKeyLen(Jsep.binary_ops);
 const jsep = expr => (new Jsep(expr)).parse();
 const staticMethods = Object.getOwnPropertyNames(Jsep);
 staticMethods
-	.slice(staticMethods.indexOf('version'))
 	.forEach((m) => {
-		if (m !== 'name') {
+		if (jsep[m] === undefined && m !== 'prototype') {
 			jsep[m] = Jsep[m];
 		}
 	});
