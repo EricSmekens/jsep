@@ -1,5 +1,10 @@
 # JSEP Contributing Guide
 
+## Set Up
+
+1. Run `pnpm install`
+2. Run `pnpm run prepare`
+
 ## Code style
 
 Please follow the code style of the rest of the project.
@@ -32,3 +37,18 @@ let o = []; for (let i in r) {
     o.push(`| [${i}](https://eslint.org/docs/rules/${i}) | \`"${i}": ${JSON.stringify(r[i])}\` |  |`)
 }; copy(o.join("\n"));
 -->
+
+## Commit Messages
+
+Commit messages MUST be in the [angular commit-message format](https://github.com/angular/angular/blob/master/CONTRIBUTING.md#-commit-message-format)
+Which can be summarized as:
+```
+<type>(<scope>): <short summary>
+<BLANK LINE>
+<body, explaining motivation for the change>
+<BLANK LINE>
+<footer, optional>
+```
+
+`<type>` Must be `build | ci | docs | feat | fix | perf | refactor | test`
+This field is used to control the semantic versioning of the release following a merge of the commit

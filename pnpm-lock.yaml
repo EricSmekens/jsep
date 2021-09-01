@@ -4,31 +4,39 @@ importers:
 
   .:
     specifiers:
+      '@commitlint/cli': ^13.1.0
+      '@commitlint/config-angular': ^13.1.0
       '@rollup/plugin-replace': ^2.4.2
       '@semantic-release/changelog': ^5.0.1
       '@semantic-release/git': ^9.0.0
       docco: ^0.8.1
       eslint: ^7.23.0
       http-server: ^0.12.3
+      husky: ^7.0.0
       node-qunit-puppeteer: ^2.1.0
       puppeteer: ^5.5.0
       rollup: ^2.44.0
       rollup-plugin-delete: ^2.0.0
       rollup-plugin-terser: ^7.0.2
+      semantic-release-commit-filter: ^1.0.2
       semantic-release-monorepo: ^7.0.5
       semantic-release-plus: ^18.4.1
     devDependencies:
+      '@commitlint/cli': 13.1.0
+      '@commitlint/config-angular': 13.1.0
       '@rollup/plugin-replace': 2.4.2_rollup@2.55.1
       '@semantic-release/changelog': 5.0.1
       '@semantic-release/git': 9.0.0
       docco: 0.8.1
       eslint: 7.32.0
       http-server: 0.12.3
+      husky: 7.0.2
       node-qunit-puppeteer: 2.1.0
       puppeteer: 5.5.0
       rollup: 2.55.1
       rollup-plugin-delete: 2.0.0
       rollup-plugin-terser: 7.0.2_rollup@2.55.1
+      semantic-release-commit-filter: 1.0.2
       semantic-release-monorepo: 7.0.5
       semantic-release-plus: 18.4.1
 
@@ -139,6 +147,150 @@ packages:
       '@babel/helper-validator-identifier': 7.14.9
       chalk: 2.4.2
       js-tokens: 4.0.0
+    dev: true
+
+  /@commitlint/cli/13.1.0:
+    resolution: {integrity: sha512-xN/uNYWtGTva5OMSd+xA6e6/c2jk8av7MUbdd6w2cw89u6z3fAWoyiH87X0ewdSMNYmW/6B3L/2dIVGHRDID5w==}
+    engines: {node: '>=v12'}
+    hasBin: true
+    dependencies:
+      '@commitlint/format': 13.1.0
+      '@commitlint/lint': 13.1.0
+      '@commitlint/load': 13.1.0
+      '@commitlint/read': 13.1.0
+      '@commitlint/types': 13.1.0
+      lodash: 4.17.21
+      resolve-from: 5.0.0
+      resolve-global: 1.0.0
+      yargs: 17.1.1
+    dev: true
+
+  /@commitlint/config-angular-type-enum/13.0.0:
+    resolution: {integrity: sha512-soiLksKzA4QOP1ELg+Iqt4bAgaZ9/29w2xAiqV0PoVB0VIYaFmG2U3hehnz5WL0XJNw5WRgh2HOw+zJHPZQboA==}
+    engines: {node: '>=v12'}
+    dev: true
+
+  /@commitlint/config-angular/13.1.0:
+    resolution: {integrity: sha512-G+tQHfve6jYbw4a7/P5d+kVjsLJ4T54k8dbhN2+xTMFx4bielDYiEo8SJ/ErtSTHv6rFqk/GKDyCCzWuaKUDeA==}
+    engines: {node: '>=v12'}
+    dependencies:
+      '@commitlint/config-angular-type-enum': 13.0.0
+    dev: true
+
+  /@commitlint/ensure/13.1.0:
+    resolution: {integrity: sha512-NRGyjOdZQnlYwm9it//BZJ2Vm+4x7G9rEnHpLCvNKYY0c6RA8Qf7hamLAB8dWO12RLuFt06JaOpHZoTt/gHutA==}
+    engines: {node: '>=v12'}
+    dependencies:
+      '@commitlint/types': 13.1.0
+      lodash: 4.17.21
+    dev: true
+
+  /@commitlint/execute-rule/13.0.0:
+    resolution: {integrity: sha512-lBz2bJhNAgkkU/rFMAw3XBNujbxhxlaFHY3lfKB/MxpAa+pIfmWB3ig9i1VKe0wCvujk02O0WiMleNaRn2KJqw==}
+    engines: {node: '>=v12'}
+    dev: true
+
+  /@commitlint/format/13.1.0:
+    resolution: {integrity: sha512-n46rYvzf+6Sm99TJjTLjJBkjm6JVcklt31lDO5Q+pCIV0NnJ4qIUcwa6wIL9a9Vqb1XzlMgtp27E0zyYArkvSg==}
+    engines: {node: '>=v12'}
+    dependencies:
+      '@commitlint/types': 13.1.0
+      chalk: 4.1.2
+    dev: true
+
+  /@commitlint/is-ignored/13.1.0:
+    resolution: {integrity: sha512-P6zenLE5Tn3FTNjRzmL9+/KooTXEI0khA2TmUbuei9KiycemeO4q7Xk7w7aXwFPNAbN0O9oI7z3z7cFpzKJWmQ==}
+    engines: {node: '>=v12'}
+    dependencies:
+      '@commitlint/types': 13.1.0
+      semver: 7.3.5
+    dev: true
+
+  /@commitlint/lint/13.1.0:
+    resolution: {integrity: sha512-qH9AYSQDDTaSWSdtOvB3G1RdPpcYSgddAdFYqpFewlKQ1GJj/L+sM7vwqCG7/ip6AiM04Sry1sgmFzaEoFREUA==}
+    engines: {node: '>=v12'}
+    dependencies:
+      '@commitlint/is-ignored': 13.1.0
+      '@commitlint/parse': 13.1.0
+      '@commitlint/rules': 13.1.0
+      '@commitlint/types': 13.1.0
+    dev: true
+
+  /@commitlint/load/13.1.0:
+    resolution: {integrity: sha512-zlZbjJCWnWmBOSwTXis8H7I6pYk6JbDwOCuARA6B9Y/qt2PD+NCo0E/7EuaaFoxjHl+o56QR5QttuMBrf+BJzg==}
+    engines: {node: '>=v12'}
+    dependencies:
+      '@commitlint/execute-rule': 13.0.0
+      '@commitlint/resolve-extends': 13.0.0
+      '@commitlint/types': 13.1.0
+      chalk: 4.1.2
+      cosmiconfig: 7.0.1
+      lodash: 4.17.21
+      resolve-from: 5.0.0
+    dev: true
+
+  /@commitlint/message/13.0.0:
+    resolution: {integrity: sha512-W/pxhesVEk8747BEWJ+VGQ9ILHmCV27/pEwJ0hGny1wqVquUR8SxvScRCbUjHCB1YtWX4dEnOPXOS9CLH/CX7A==}
+    engines: {node: '>=v12'}
+    dev: true
+
+  /@commitlint/parse/13.1.0:
+    resolution: {integrity: sha512-xFybZcqBiKVjt6vTStvQkySWEUYPI0AcO4QQELyy29o8EzYZqWkhUfrb7K61fWiHsplWL1iL6F3qCLoxSgTcrg==}
+    engines: {node: '>=v12'}
+    dependencies:
+      '@commitlint/types': 13.1.0
+      conventional-changelog-angular: 5.0.12
+      conventional-commits-parser: 3.2.1
+    dev: true
+
+  /@commitlint/read/13.1.0:
+    resolution: {integrity: sha512-NrVe23GMKyL6i1yDJD8IpqCBzhzoS3wtLfDj8QBzc01Ov1cYBmDojzvBklypGb+MLJM1NbzmRM4PR5pNX0U/NQ==}
+    engines: {node: '>=v12'}
+    dependencies:
+      '@commitlint/top-level': 13.0.0
+      '@commitlint/types': 13.1.0
+      fs-extra: 10.0.0
+      git-raw-commits: 2.0.10
+    dev: true
+
+  /@commitlint/resolve-extends/13.0.0:
+    resolution: {integrity: sha512-1SyaE+UOsYTkQlTPUOoj4NwxQhGFtYildVS/d0TJuK8a9uAJLw7bhCLH2PEeH5cC2D1do4Eqhx/3bLDrSLH3hg==}
+    engines: {node: '>=v12'}
+    dependencies:
+      import-fresh: 3.3.0
+      lodash: 4.17.21
+      resolve-from: 5.0.0
+      resolve-global: 1.0.0
+    dev: true
+
+  /@commitlint/rules/13.1.0:
+    resolution: {integrity: sha512-b6F+vBqEXsHVghrhomG0Y6YJimHZqkzZ0n5QEpk03dpBXH2OnsezpTw5e+GvbyYCc7PutGbYVQkytuv+7xCxYA==}
+    engines: {node: '>=v12'}
+    dependencies:
+      '@commitlint/ensure': 13.1.0
+      '@commitlint/message': 13.0.0
+      '@commitlint/to-lines': 13.0.0
+      '@commitlint/types': 13.1.0
+      execa: 5.1.1
+    dev: true
+
+  /@commitlint/to-lines/13.0.0:
+    resolution: {integrity: sha512-mzxWwCio1M4/kG9/69TTYqrraQ66LmtJCYTzAZdZ2eJX3I5w52pSjyP/DJzAUVmmJCYf2Kw3s+RtNVShtnZ+Rw==}
+    engines: {node: '>=v12'}
+    dev: true
+
+  /@commitlint/top-level/13.0.0:
+    resolution: {integrity: sha512-baBy3MZBF28sR93yFezd4a5TdHsbXaakeladfHK9dOcGdXo9oQe3GS5hP3BmlN680D6AiQSN7QPgEJgrNUWUCg==}
+    engines: {node: '>=v12'}
+    dependencies:
+      find-up: 5.0.0
+    dev: true
+
+  /@commitlint/types/13.1.0:
+    resolution: {integrity: sha512-zcVjuT+OfKt8h91vhBxt05RMcTGEx6DM7Q9QZeuMbXFk6xgbsSEDMMapbJPA1bCZ81fa/1OQBijSYPrKvtt06g==}
+    engines: {node: '>=v12'}
+    dependencies:
+      chalk: 4.1.2
     dev: true
 
   /@eslint/eslintrc/0.4.3:
@@ -908,6 +1060,11 @@ packages:
     engines: {node: '>=8'}
     dev: true
 
+  /dargs/7.0.0:
+    resolution: {integrity: sha512-2iy1EkLdlBzQGvbweYRFxmFath8+K7+AKB0TlhHWkNuH+TmovaMH/Wp7V7R4u7f4SnX3OgLsU9t1NI9ioDnUpg==}
+    engines: {node: '>=8'}
+    dev: true
+
   /dateformat/3.0.3:
     resolution: {integrity: sha512-jyCETtSl3VMZMWeRo7iY1FL19ges1t55hMo5yaam4Jrsm5EPL89UQkoQRyiI+Yf4k8r2ZpdngkV8hr1lIdjb3Q==}
     dev: true
@@ -1360,6 +1517,14 @@ packages:
       path-exists: 4.0.0
     dev: true
 
+  /find-up/5.0.0:
+    resolution: {integrity: sha512-78/PXT1wlLLDgTzDs7sjq9hzz0vXD+zn+7wypEe4fXQxCmdmqfGsEPQxmiCSQI3ajFV91bVSsvNtrJRiW6nGng==}
+    engines: {node: '>=10'}
+    dependencies:
+      locate-path: 6.0.0
+      path-exists: 4.0.0
+    dev: true
+
   /find-versions/4.0.0:
     resolution: {integrity: sha512-wgpWy002tA+wgmO27buH/9KzyEOQnKsG/R0yrcjPT9BOFm0zRBVQbZ95nRGXWMywS8YR5knRbpohio0bcJABxQ==}
     engines: {node: '>=10'}
@@ -1479,6 +1644,18 @@ packages:
       traverse: 0.6.6
     dev: true
 
+  /git-raw-commits/2.0.10:
+    resolution: {integrity: sha512-sHhX5lsbG9SOO6yXdlwgEMQ/ljIn7qMpAbJZCGfXX2fq5T8M5SrDnpYk9/4HswTildcIqatsWa91vty6VhWSaQ==}
+    engines: {node: '>=10'}
+    hasBin: true
+    dependencies:
+      dargs: 7.0.0
+      lodash: 4.17.21
+      meow: 8.1.2
+      split2: 3.2.2
+      through2: 4.0.2
+    dev: true
+
   /glob-parent/5.1.2:
     resolution: {integrity: sha512-AOIgSQCepiJYwP3ARnGx+5VnTu2HBYdzbGP45eLw1vr3zB3vZLeyed1sC9hnbcOc9/SrMyM5RPQrkGz4aS9Zow==}
     engines: {node: '>= 6'}
@@ -1495,6 +1672,13 @@ packages:
       minimatch: 3.0.4
       once: 1.4.0
       path-is-absolute: 1.0.1
+    dev: true
+
+  /global-dirs/0.1.1:
+    resolution: {integrity: sha1-sxnA3UYH81PzvpzKTHL8FIxJ9EU=}
+    engines: {node: '>=4'}
+    dependencies:
+      ini: 1.3.8
     dev: true
 
   /globals/13.10.0:
@@ -1669,6 +1853,12 @@ packages:
   /human-signals/2.1.0:
     resolution: {integrity: sha512-B4FFZ6q/T2jhhksgkbEW3HBvWIfDW85snkQgawt07S7J5QXTk6BkNV+0yAeZrM5QpMAdYlocGoljn0sJ/WQkFw==}
     engines: {node: '>=10.17.0'}
+    dev: true
+
+  /husky/7.0.2:
+    resolution: {integrity: sha512-8yKEWNX4z2YsofXAMT7KvA1g8p+GxtB1ffV8XtpAEGuXNAbCV5wdNKH+qTpw8SM9fh4aMPDR+yQuKfgnreyZlg==}
+    engines: {node: '>=12'}
+    hasBin: true
     dev: true
 
   /ieee754/1.2.1:
@@ -1929,6 +2119,13 @@ packages:
     engines: {node: '>=8'}
     dependencies:
       p-locate: 4.1.0
+    dev: true
+
+  /locate-path/6.0.0:
+    resolution: {integrity: sha512-iPZK6eYjbxRu3uB4/WZ3EsEIMJFMqAoopl3R+zuq0UjcAm/MO6KCweDgPfP3elTztoKP3KtnVHxTn2NHBSDVUw==}
+    engines: {node: '>=10'}
+    dependencies:
+      p-locate: 5.0.0
     dev: true
 
   /lodash.capitalize/4.2.1:
@@ -2358,6 +2555,13 @@ packages:
       p-try: 2.2.0
     dev: true
 
+  /p-limit/3.1.0:
+    resolution: {integrity: sha512-TYOanM3wGwNGsZN2cVTYPArw454xnXj5qmWF1bEoAc4+cU/ol7GVh7odevjp1FNHduHc3KZMcFduxU5Xc6uJRQ==}
+    engines: {node: '>=10'}
+    dependencies:
+      yocto-queue: 0.1.0
+    dev: true
+
   /p-locate/2.0.0:
     resolution: {integrity: sha1-IKAQOyIqcMj9OcwuWAaA893l7EM=}
     engines: {node: '>=4'}
@@ -2370,6 +2574,13 @@ packages:
     engines: {node: '>=8'}
     dependencies:
       p-limit: 2.3.0
+    dev: true
+
+  /p-locate/5.0.0:
+    resolution: {integrity: sha512-LaNjtRWUBY++zB5nE/NwcaoMylSPk+S+ZHNB1TzdbMJMny6dynpAGt7X/tl/QYq3TIeE6nxHppbo2LGymrG5Pw==}
+    engines: {node: '>=10'}
+    dependencies:
+      p-limit: 3.1.0
     dev: true
 
   /p-map/2.1.0:
@@ -2725,6 +2936,13 @@ packages:
     engines: {node: '>=8'}
     dev: true
 
+  /resolve-global/1.0.0:
+    resolution: {integrity: sha512-zFa12V4OLtT5XUX/Q4VLvTfBf+Ok0SPc1FNGM/z9ctUdiU618qwKpWnd0CHs3+RqROfyEg/DhuHbMWYqcgljEw==}
+    engines: {node: '>=8'}
+    dependencies:
+      global-dirs: 0.1.1
+    dev: true
+
   /resolve/1.20.0:
     resolution: {integrity: sha512-wENBPt4ySzg4ybFQW2TT1zMQucPK95HSh/nq2CFTZVOGut2+pQvSsgtda4d26YrYcr067wjbmzOG8byDPBX63A==}
     dependencies:
@@ -2799,6 +3017,10 @@ packages:
 
   /secure-compare/3.0.1:
     resolution: {integrity: sha1-8aAymzCLIh+uN7mXTz1XjQypmeM=}
+    dev: true
+
+  /semantic-release-commit-filter/1.0.2:
+    resolution: {integrity: sha512-LpIB1UN78oRmJnqgPdvA/qRgVitih5V1Ybyszv8GcOBAJWJBHGWI1PmSrOfdEmbf1ZvGkdK/NNDdBHbuSQqSyQ==}
     dev: true
 
   /semantic-release-monorepo/7.0.5:
@@ -3425,9 +3647,27 @@ packages:
       yargs-parser: 20.2.9
     dev: true
 
+  /yargs/17.1.1:
+    resolution: {integrity: sha512-c2k48R0PwKIqKhPMWjeiF6y2xY/gPMUlro0sgxqXpbOIohWiLNXWslsootttv7E1e73QPAMQSg5FeySbVcpsPQ==}
+    engines: {node: '>=12'}
+    dependencies:
+      cliui: 7.0.4
+      escalade: 3.1.1
+      get-caller-file: 2.0.5
+      require-directory: 2.1.1
+      string-width: 4.2.2
+      y18n: 5.0.8
+      yargs-parser: 20.2.9
+    dev: true
+
   /yauzl/2.10.0:
     resolution: {integrity: sha1-x+sXyT4RLLEIb6bY5R+wZnt5pfk=}
     dependencies:
       buffer-crc32: 0.2.13
       fd-slicer: 1.1.0
+    dev: true
+
+  /yocto-queue/0.1.0:
+    resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
+    engines: {node: '>=10'}
     dev: true
