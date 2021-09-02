@@ -1,3 +1,10 @@
+## [1.0.3](https://github.com/EricSmekens/jsep/compare/v1.0.2...v1.0.3) (2021-09-02)
+
+
+### Bug Fixes
+
+* firefox compatibility ([3e51523](https://github.com/EricSmekens/jsep/commit/3e51523ff56b69b08366356a9e5789873ed4f491)), closes [#178](https://github.com/EricSmekens/jsep/issues/178)
+
 ## 1.0.2 - 2021-08-26
 Republish to include types.
 
@@ -82,10 +89,4 @@ First version that was using a CHANGELOG.md.
 - Functions to remove all binary/unary/etc. ops.
 
 ### Fixed
-- Supports multiline expressions. 
-
-
-
-
-
-
+- Supports multiline expressions.
