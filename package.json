@@ -94,7 +94,12 @@
 				}
 			],
 			"@semantic-release/changelog",
-			"@semantic-release/git",
+			[
+				"@semantic-release/git",
+				{
+					"message": "build: ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
+				}
+			],
 			[
 				"@semantic-release/npm",
 				{
