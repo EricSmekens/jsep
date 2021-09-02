@@ -1,34 +1,39 @@
 # This workflow will run tests using node and then publish a package to GitHub Packages when a release is created
 # For more information see: https://help.github.com/actions/language-and-framework-guides/publishing-nodejs-packages
+# and see: https://github.com/semantic-release/semantic-release/blob/1405b94296059c0c6878fb8b626e2c5da9317632/docs/recipes/github-actions.md
 
-name: Node.js Package
-
+name: Release
 on:
-  release:
-    types: [created]
-
+  push:
+    branches:
+      - master
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [16.x]
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
         with:
-          node-version: 16.x
-      - run: npm ci
-      - run: npm test
-
-  publish-npm:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+          node-version: ${{ matrix.node-version }}
+      - name: Cache pnpm modules
+        uses: actions/cache@v2
         with:
-          node-version: 16.x
-          registry-url: https://registry.npmjs.org/
-      - run: npm ci
-      - run: npm run default
-      - run: npm publish
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-
+      - uses: pnpm/action-setup@v2.0.1
+        with:
+          version: 6.0.2
+          run_install: true
+      - run: pnpm install
+      - run: pnpm run default
+      - run: pnpm run release
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
+          NPM_TOKEN: ${{secrets.npm_token}}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
