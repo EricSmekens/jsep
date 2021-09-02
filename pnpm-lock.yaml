@@ -18,7 +18,6 @@ importers:
       rollup: ^2.44.0
       rollup-plugin-delete: ^2.0.0
       rollup-plugin-terser: ^7.0.2
-      semantic-release-commit-filter: ^1.0.2
       semantic-release-monorepo: ^7.0.5
       semantic-release-plus: ^18.4.1
     devDependencies:
@@ -36,7 +35,6 @@ importers:
       rollup: 2.55.1
       rollup-plugin-delete: 2.0.0
       rollup-plugin-terser: 7.0.2_rollup@2.55.1
-      semantic-release-commit-filter: 1.0.2
       semantic-release-monorepo: 7.0.5
       semantic-release-plus: 18.4.1
 
@@ -3017,10 +3015,6 @@ packages:
 
   /secure-compare/3.0.1:
     resolution: {integrity: sha1-8aAymzCLIh+uN7mXTz1XjQypmeM=}
-    dev: true
-
-  /semantic-release-commit-filter/1.0.2:
-    resolution: {integrity: sha512-LpIB1UN78oRmJnqgPdvA/qRgVitih5V1Ybyszv8GcOBAJWJBHGWI1PmSrOfdEmbf1ZvGkdK/NNDdBHbuSQqSyQ==}
     dev: true
 
   /semantic-release-monorepo/7.0.5:

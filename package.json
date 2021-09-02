@@ -7,11 +7,11 @@
 		"Eric Smekens (https://github.com/EricSmekens)",
 		"Lea Verou (https://github.com/LeaVerou)"
 	],
-	"homepage": "https://github.com/EricSmekens/jsep",
+	"homepage": "https://ericsmekens.github.io/jsep/",
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/EricSmekens/jsep"
+		"url": "https://github.com/EricSmekens/jsep.git"
 	},
 	"type": "module",
 	"main": "./dist/cjs/jsep.cjs.js",
@@ -42,7 +42,6 @@
 		"rollup": "^2.44.0",
 		"rollup-plugin-delete": "^2.0.0",
 		"rollup-plugin-terser": "^7.0.2",
-		"semantic-release-commit-filter": "^1.0.2",
 		"semantic-release-monorepo": "^7.0.5",
 		"semantic-release-plus": "^18.4.1"
 	},
