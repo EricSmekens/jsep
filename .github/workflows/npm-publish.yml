@@ -34,5 +34,6 @@ jobs:
       - run: pnpm run default
       - run: pnpm run release
         env:
+          NODE_AUTH_TOKEN: ${{secrets.npm_token}}
           NPM_TOKEN: ${{secrets.npm_token}}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
