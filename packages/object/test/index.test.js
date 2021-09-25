@@ -89,6 +89,36 @@ const { test } = QUnit;
 			}, assert);
 		});
 
+		test('should parse object with member expression', (assert) => {
+			testParser('{a:1}[b]', {
+				type: 'MemberExpression',
+				computed: true,
+				object: {
+					type: 'ObjectExpression',
+					properties: [
+						{
+							type: 'Property',
+							computed: false,
+							key: {
+								type: 'Identifier',
+								name: 'a'
+							},
+							value: {
+								type: 'Literal',
+								value: 1,
+								raw: '1'
+							},
+							shorthand: false
+						}
+					]
+				},
+				property: {
+					type: 'Identifier',
+					name: 'b'
+				}
+			}, assert);
+		});
+
 		test('should parse nested objects', (assert) => {
 			QUnit.dump.maxDepth = 10;
 			testParser('{ a: { b: { c: 1 } } }', {

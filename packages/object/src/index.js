@@ -38,10 +38,10 @@ export default {
 						// complex value (i.e. ternary, spread)
 						return arg;
 					});
-				env.node = {
+				env.node = this.gobbleTokenProperty({
 					type: OBJECT_EXP,
 					properties,
-				};
+				});
 			}
 		}
 		jsep.hooks.add('gobble-token', gobbleObjectExpression);
