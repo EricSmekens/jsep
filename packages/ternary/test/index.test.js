@@ -19,5 +19,15 @@ const { test } = QUnit;
 			testParser('a ? b : c', { type: 'ConditionalExpression' }, assert);
 			testParser('a||b ? c : d', { type: 'ConditionalExpression' }, assert);
 		});
+
+		[
+			'a ? b : ', // missing value
+			'a ? b', // missing :
+			'a : b ?', // backwards
+		].forEach((expr) => {
+			test(`should give an error for invalid expression ${expr}`, (assert) => {
+				assert.throws(() => jsep(expr));
+			});
+		});
 	});
 }());

@@ -170,10 +170,220 @@ const { test } = QUnit;
 			}, assert);
 		});
 
+		test('should parse nested complex ternary with object plugin', (assert) => {
+			testParser('a ? b ? 1 : c ? d ? e ? 3 : 4 : 5 : 6 : 7', {
+				type: 'ConditionalExpression',
+				test: {
+					type: 'Identifier',
+					name: 'a'
+				},
+				consequent: {
+					type: 'ConditionalExpression',
+					test: {
+						type: 'Identifier',
+						name: 'b'
+					},
+					consequent: {
+						type: 'Literal',
+						value: 1,
+						raw: '1'
+					},
+					alternate: {
+						type: 'ConditionalExpression',
+						test: {
+							type: 'Identifier',
+							name: 'c'
+						},
+						consequent: {
+							type: 'ConditionalExpression',
+							test: {
+								type: 'Identifier',
+								name: 'd'
+							},
+							consequent: {
+								type: 'ConditionalExpression',
+								test: {
+									type: 'Identifier',
+									name: 'e'
+								},
+								consequent: {
+									type: 'Literal',
+									value: 3,
+									raw: '3'
+								},
+								alternate: {
+									type: 'Literal',
+									value: 4,
+									raw: '4'
+								}
+							},
+							alternate: {
+								type: 'Literal',
+								value: 5,
+								raw: '5'
+							}
+						},
+						alternate: {
+							left: {
+								type: 'Literal',
+								value: 6,
+								raw: '6'
+							},
+							type: 'Literal',
+							value: 6,
+							raw: '6'
+						}
+					}
+				},
+				alternate: {
+					type: 'Literal',
+					value: 7,
+					raw: '7'
+				}
+			}, assert);
+		});
+
+		test('should parse nested ternary consequent/alternates while object plugin loaded', (assert) => {
+			testParser('a ? 0 : b ? 1 : 2', {
+				type: 'ConditionalExpression',
+				test: {
+					type: 'Identifier',
+					name: 'a'
+				},
+				consequent: {
+					type: 'Literal',
+					value: 0,
+					raw: '0'
+				},
+				alternate: {
+					type: 'ConditionalExpression',
+					test: {
+						type: 'Identifier',
+						name: 'b'
+					},
+					consequent: {
+						type: 'Literal',
+						value: 1,
+						raw: '1'
+					},
+					alternate: {
+						type: 'Literal',
+						value: 2,
+						raw: '2'
+					}
+				}
+			}, assert);
+		});
+
+		test('should parse nested ternary with object values', (assert) => {
+			testParser('a ? { a: 1 } : b ? { b: 1 } : { c: 1 }[c] === 1 ? \'c\' : null', {
+				type: 'ConditionalExpression',
+				test: {
+					type: 'Identifier',
+					name: 'a'
+				},
+				consequent: {
+					type: 'ObjectExpression',
+					properties: [
+						{
+							type: 'Property',
+							computed: false,
+							key: {
+								type: 'Identifier',
+								name: 'a'
+							},
+							value: {
+								type: 'Literal',
+								value: 1,
+								raw: '1'
+							},
+							shorthand: false
+						}
+					]
+				},
+				alternate: {
+					type: 'ConditionalExpression',
+					test: {
+						type: 'Identifier',
+						name: 'b'
+					},
+					consequent: {
+						type: 'ObjectExpression',
+						properties: [
+							{
+								type: 'Property',
+								computed: false,
+								key: {
+									type: 'Identifier',
+									name: 'b'
+								},
+								value: {
+									type: 'Literal',
+									value: 1,
+									raw: '1'
+								},
+								shorthand: false
+							}
+						]
+					},
+					alternate: {
+						type: 'ConditionalExpression',
+						test: {
+							type: 'BinaryExpression',
+							operator: '===',
+							left: {
+								type: 'MemberExpression',
+								computed: true,
+								object: {
+									type: 'ObjectExpression',
+									properties: [
+										{
+											type: 'Property',
+											computed: false,
+											key: {
+												type: 'Identifier',
+												name: 'c'
+											},
+											value: {
+												type: 'Literal',
+												value: 1,
+												raw: '1'
+											},
+											shorthand: false
+										}
+									]
+								},
+								property: {
+									type: 'Identifier',
+									name: 'c'
+								}
+							},
+							right: {
+								type: 'Literal',
+								value: 1,
+								raw: '1'
+							}
+						},
+						consequent: {
+							type: 'Literal',
+							value: 'c',
+							raw: '\'c\''
+						},
+						alternate: {
+							type: 'Literal',
+							value: null,
+							raw: 'null'
+						}
+					}
+				}
+			}, assert);
+		});
+
 		test('should not throw any errors', (assert) => {
 			[
 				'{ a: b ? 1 : 2, c }', // mixed object/ternary
 				'fn({ a: 1 })', // function argument
+				'a ? 0 : b ? 1 : 2', // nested ternary with no ()
 			].forEach(expr => testParser(expr, {}, assert));
 		});
 
