@@ -7,7 +7,7 @@ export default {
 	name: 'object',
 
 	init(jsep) {
-		jsep.addBinaryOp(':', 0.5);
+		jsep.addBinaryOp(':', 0.95); // > assignment operators at 0.9
 
 		// Object literal support
 		function gobbleObjectExpression(env) {
