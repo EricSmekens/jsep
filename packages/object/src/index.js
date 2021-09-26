@@ -20,6 +20,7 @@ export default {
 								type: PROPERTY,
 								computed: false,
 								key: arg,
+								value: arg,
 								shorthand: true,
 							};
 						}
