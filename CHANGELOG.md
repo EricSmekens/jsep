@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/EricSmekens/jsep/compare/v1.0.3...v1.1.0) (2021-10-03)
+
+
+### Features
+
+* add optional chaining support (?.) ([56d1e3d](https://github.com/EricSmekens/jsep/commit/56d1e3daeba094a87b02432a8b6a5d3fecb1c4ed))
+
 ## [1.0.3](https://github.com/EricSmekens/jsep/compare/v1.0.2...v1.0.3) (2021-09-02)
 
 
