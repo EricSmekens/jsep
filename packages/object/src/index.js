@@ -7,7 +7,7 @@ export default {
 	name: 'object',
 
 	init(jsep) {
-		jsep.addBinaryOp(':', 0.5);
+		jsep.addBinaryOp(':', 0.95); // > assignment operators at 0.9
 
 		// Object literal support
 		function gobbleObjectExpression(env) {
@@ -20,6 +20,7 @@ export default {
 								type: PROPERTY,
 								computed: false,
 								key: arg,
+								value: arg,
 								shorthand: true,
 							};
 						}
@@ -38,10 +39,10 @@ export default {
 						// complex value (i.e. ternary, spread)
 						return arg;
 					});
-				env.node = {
+				env.node = this.gobbleTokenProperty({
 					type: OBJECT_EXP,
 					properties,
-				};
+				});
 			}
 		}
 		jsep.hooks.add('gobble-token', gobbleObjectExpression);

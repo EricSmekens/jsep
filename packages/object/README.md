@@ -11,7 +11,7 @@
 A JSEP plugin for adding object expression support. Allows expressions of the form:
 
 ```javascript
-jsep('{ a: 1, b: { c }}');
+jsep('{ a: 1, b: { c }}[d]');
 ```
 
 ## Install
