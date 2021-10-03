@@ -558,19 +558,20 @@ export class Jsep {
 		this.gobbleSpaces();
 
 		let ch = this.code;
-		while (ch === Jsep.PERIOD_CODE || ch === Jsep.OBRACK_CODE || ch === Jsep.OPAREN_CODE) {
+		while (ch === Jsep.PERIOD_CODE || ch === Jsep.OBRACK_CODE || ch === Jsep.OPAREN_CODE || ch === Jsep.QUMARK_CODE) {
+			let optional;
+			if (ch === Jsep.QUMARK_CODE) {
+				if (this.expr.charCodeAt(this.index + 1) !== Jsep.PERIOD_CODE) {
+					break;
+				}
+				optional = true;
+				this.index += 2;
+				this.gobbleSpaces();
+				ch = this.code;
+			}
 			this.index++;
 
-			if (ch === Jsep.PERIOD_CODE) {
-				this.gobbleSpaces();
-				node = {
-					type: Jsep.MEMBER_EXP,
-					computed: false,
-					object: node,
-					property: this.gobbleIdentifier(),
-				};
-			}
-			else if (ch === Jsep.OBRACK_CODE) {
+			if (ch === Jsep.OBRACK_CODE) {
 				node = {
 					type: Jsep.MEMBER_EXP,
 					computed: true,
@@ -592,6 +593,23 @@ export class Jsep {
 					callee: node
 				};
 			}
+			else if (ch === Jsep.PERIOD_CODE || optional) {
+				if (optional) {
+					this.index--;
+				}
+				this.gobbleSpaces();
+				node = {
+					type: Jsep.MEMBER_EXP,
+					computed: false,
+					object: node,
+					property: this.gobbleIdentifier(),
+				};
+			}
+
+			if (optional) {
+				node.optional = true;
+			} // else leave undefined for compatibility with esprima
+
 			this.gobbleSpaces();
 			ch = this.code;
 		}

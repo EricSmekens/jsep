@@ -19,6 +19,10 @@ import {testParser, testOpExpression, esprimaComparisonTest, resetJsepDefaults} 
 			},
 		}, assert);
 		testParser('Δέλτα', { name: 'Δέλτα' }, assert);
+		testParser('a?.b?.(arg)?.[c] ?. d', {
+			type: 'MemberExpression',
+			optional: true,
+		}, assert);
 	});
 
 	QUnit.test('Function Calls', function (assert) {
