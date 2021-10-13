@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/EricSmekens/jsep/compare/v1.1.0...v1.1.1) (2021-10-13)
+
+
+### Bug Fixes
+
+* literal 'raw' value now matches input string ([432c514](https://github.com/EricSmekens/jsep/commit/432c51485d360e8d6db2b75d0296cd93a0277146)), closes [#192](https://github.com/EricSmekens/jsep/issues/192)
+
 # [1.1.0](https://github.com/EricSmekens/jsep/compare/v1.0.3...v1.1.0) (2021-10-03)
 
 
