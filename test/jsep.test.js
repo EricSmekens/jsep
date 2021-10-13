@@ -21,6 +21,7 @@ import {testParser, testOpExpression, esprimaComparisonTest, resetJsepDefaults} 
 			["'a \\b b'", "a \b b"],
 			["'a \\f b'", "a \f b"],
 			["'a \\v b'", "a \v b"],
+			["'a \\\ b'", "a \ b"],
 		].forEach((t) => QUnit.test(`Should parse ${t[0]}`, (assert) => {
 			testParser(t[0], { value: t[1], raw: t[0] }, assert);
 		}));
