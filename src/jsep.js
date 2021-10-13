@@ -681,7 +681,8 @@ export class Jsep {
 	 */
 	gobbleStringLiteral() {
 		let str = '';
-		let quote = this.expr.charAt(this.index++);
+		const startIndex = this.index;
+		const quote = this.expr.charAt(this.index++);
 		let closed = false;
 
 		while (this.index < this.expr.length) {
@@ -717,7 +718,7 @@ export class Jsep {
 		return {
 			type: Jsep.LITERAL,
 			value: str,
-			raw: quote + str + quote
+			raw: this.expr.substring(startIndex, this.index),
 		};
 	}
 

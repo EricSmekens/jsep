@@ -11,6 +11,21 @@ import {testParser, testOpExpression, esprimaComparisonTest, resetJsepDefaults} 
 		testParser('12.3', { value: 12.3 }, assert);
 	});
 
+	QUnit.module('Literal Parsing', () => {
+		[
+			["'a \\w b'", "a w b"],
+			["'a \\' b'", "a ' b"],
+			["'a \\n b'", "a \n b"],
+			["'a \\r b'", "a \r b"],
+			["'a \\t b'", "a \t b"],
+			["'a \\b b'", "a \b b"],
+			["'a \\f b'", "a \f b"],
+			["'a \\v b'", "a \v b"],
+		].forEach((t) => QUnit.test(`Should parse ${t[0]}`, (assert) => {
+			testParser(t[0], { value: t[1], raw: t[0] }, assert);
+		}));
+	});
+
 	QUnit.test('Variables', function (assert) {
 		testParser('abc', { name: 'abc' }, assert);
 		testParser('a.b[c[0]]', {
