@@ -63,9 +63,20 @@ export default {
 		});
 
 		jsep.hooks.add('after-expression', function gobbleAssignment(env) {
-			if (env.node && assignmentOperators.has(env.node.operator)) {
-				env.node.type = 'AssignmentExpression';
+			if (env.node) {
+				// Note: Binaries can be chained in a single expression to respect
+				// operator precedence (i.e. a = b = 1 + 2 + 3)
+				// Update all binary assignment nodes in the tree
+				updateBinariessToAssignments(env.node);
 			}
 		});
+
+		function updateBinariessToAssignments(node) {
+			if (assignmentOperators.has(node.operator)) {
+				node.type = 'AssignmentExpression';
+				updateBinariessToAssignments(node.left);
+				updateBinariessToAssignments(node.right);
+			}
+		}
 	},
 };

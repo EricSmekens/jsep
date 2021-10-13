@@ -41,6 +41,46 @@ const { test } = QUnit;
 			}, assert);
 		}));
 
+		test('should correctly parse chained assignment', (assert) => {
+			testParser('a = b = c + 1 = d', {
+				type: 'AssignmentExpression',
+				operator: '=',
+				left: {
+					type: 'AssignmentExpression',
+					operator: '=',
+					left: {
+						type: 'AssignmentExpression',
+						operator: '=',
+						left: {
+							type: 'Identifier',
+							name: 'a'
+						},
+						right: {
+							type: 'Identifier',
+							name: 'b'
+						}
+					},
+					right: {
+						type: 'BinaryExpression',
+						operator: '+',
+						left: {
+							type: 'Identifier',
+							name: 'c'
+						},
+						right: {
+							type: 'Literal',
+							value: 1,
+							raw: '1'
+						}
+					}
+				},
+				right: {
+					type: 'Identifier',
+					name: 'd'
+				}
+			}, assert);
+		});
+
 		[
 			{ expr: 'a++', expect: { operator: '++', prefix: false } },
 			{ expr: 'a--', expect: { operator: '--', prefix: false } },
