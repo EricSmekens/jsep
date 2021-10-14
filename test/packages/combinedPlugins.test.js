@@ -62,10 +62,11 @@ const { test } = QUnit;
 			'await a.find(async v => await v)',
 			'a.find(async ([v]) => await v)',
 			'a.find(async () => await x)',
-			'a /* ignore this */ > 1 // ignore this too', // especially with regex plugin
-			'a /* ignore *\r\n *this */ > 1 // ignore this too',
-			'a // ignore this\r\n > 1',
-			'a /** {param} \r\n */ > 1',
+			'a /* ignore this */> 1 // ignore this too', // especially with regex plugin
+			'a /* ignore *\r\n *this */> 1 // ignore this too',
+			'a // ignore this\r\n> 1',
+			'a /** {param} \r\n*/ > 1',
+			'// a\na > 1',
 			'new Date(123)',
 			'new A().b',
 			'new A() != null',
