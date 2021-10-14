@@ -13,7 +13,7 @@ export default {
 					// '//': read to end of line/input
 					this.index += 2;
 					while (ch !== jsep.LF_CODE && !isNaN(ch)) {
-						ch = this.expr.charCodeAt(++this.index);
+						ch = this.expr.charCodeAt(this.index++);
 					}
 				}
 				else if (ch === ASTSK_CODE) {

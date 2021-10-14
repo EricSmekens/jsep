@@ -10,12 +10,13 @@ const { test } = QUnit;
 		qunit.after(resetJsepDefaults);
 
 		[
-			'a /* ignore this */ > 1 // ignore this too',
-			'a /* ignore *\r\n *this */ > 1 // ignore this too',
-			'a // ignore this\r\n > 1',
-			'a /** {param} \r\n */ > 1',
+			'a /* ignore this */> 1 // ignore this too',
+			'a /* ignore *\r\n *this */> 1 // ignore this too',
+			'a // ignore this\r\n> 1',
+			'a /** {param} \r\n */> 1',
+			'// a\na > 1',
 		].forEach(expr => test(`should parse out comments from expression ${expr}`, (assert) => {
-			testParser('a /* ignore this */ > 1 // ignore this too', {
+			testParser(expr, {
 				type: 'BinaryExpression',
 				operator: '>',
 				left: { name: 'a' },
