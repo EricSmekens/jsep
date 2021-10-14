@@ -11,10 +11,14 @@ const { test } = QUnit;
 
 		[
 			'a /* ignore this */> 1 // ignore this too',
+			'a/* ignore this */    > 1 // ignore this too',
+			'(a/* ignore this */  )>/**/ 1 // ignore this too',
 			'a /* ignore *\r\n *this */> 1 // ignore this too',
+			'a /*ignore *\r\n *this *///\n> 1 // ignore this too',
 			'a // ignore this\r\n> 1',
 			'a /** {param} \r\n */> 1',
 			'// a\na > 1',
+			'// a\n   //\n    a > 1',
 		].forEach(expr => test(`should parse out comments from expression ${expr}`, (assert) => {
 			testParser(expr, {
 				type: 'BinaryExpression',
