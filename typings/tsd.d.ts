@@ -53,6 +53,7 @@ declare module 'jsep' {
 			computed: boolean;
 			object: Expression;
 			property: Expression;
+			optional?: boolean;
 		}
 
 		export interface ThisExpression extends Expression {

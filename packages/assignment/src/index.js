@@ -1,36 +1,34 @@
 const PLUS_CODE = 43; // +
 const MINUS_CODE = 45; // -
 
-export default {
+const plugin = {
 	name: 'assignment',
 
-	init(jsep) {
-		// Assignment and Update support
-		const assignmentOperators = new Set([
-			'=',
-			'*=',
-			'**=',
-			'/=',
-			'%=',
-			'+=',
-			'-=',
-			'<<=',
-			'>>=',
-			'>>>=',
-			'&=',
-			'^=',
-			'|=',
-		]);
-		const updateOperators = [PLUS_CODE, MINUS_CODE];
-		const updateNodeTypes = [jsep.IDENTIFIER, jsep.MEMBER_EXP];
+	assignmentOperators: new Set([
+		'=',
+		'*=',
+		'**=',
+		'/=',
+		'%=',
+		'+=',
+		'-=',
+		'<<=',
+		'>>=',
+		'>>>=',
+		'&=',
+		'^=',
+		'|=',
+	]),
+	updateOperators: [PLUS_CODE, MINUS_CODE],
+	assignmentPrecedence: 0.9,
 
-		// See operator precedence https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_Precedence
-		// We need lower priority than || and && which start at 1
-		assignmentOperators.forEach(op => jsep.addBinaryOp(op, 0.9));
+	init(jsep) {
+		const updateNodeTypes = [jsep.IDENTIFIER, jsep.MEMBER_EXP];
+		plugin.assignmentOperators.forEach(op => jsep.addBinaryOp(op, plugin.assignmentPrecedence));
 
 		jsep.hooks.add('gobble-token', function gobbleUpdatePrefix(env) {
 			const code = this.code;
-			if (updateOperators.some(c => c === code && c === this.expr.charCodeAt(this.index + 1))) {
+			if (plugin.updateOperators.some(c => c === code && c === this.expr.charCodeAt(this.index + 1))) {
 				this.index += 2;
 				env.node = {
 					type: 'UpdateExpression',
@@ -47,7 +45,7 @@ export default {
 		jsep.hooks.add('after-token', function gobbleUpdatePostfix(env) {
 			if (env.node) {
 				const code = this.code;
-				if (updateOperators.some(c => c === code && c === this.expr.charCodeAt(this.index + 1))) {
+				if (plugin.updateOperators.some(c => c === code && c === this.expr.charCodeAt(this.index + 1))) {
 					if (!updateNodeTypes.includes(env.node.type)) {
 						this.throwError(`Unexpected ${env.node.operator}`);
 					}
@@ -63,9 +61,21 @@ export default {
 		});
 
 		jsep.hooks.add('after-expression', function gobbleAssignment(env) {
-			if (env.node && assignmentOperators.has(env.node.operator)) {
-				env.node.type = 'AssignmentExpression';
+			if (env.node) {
+				// Note: Binaries can be chained in a single expression to respect
+				// operator precedence (i.e. a = b = 1 + 2 + 3)
+				// Update all binary assignment nodes in the tree
+				updateBinariessToAssignments(env.node);
 			}
 		});
+
+		function updateBinariessToAssignments(node) {
+			if (plugin.assignmentOperators.has(node.operator)) {
+				node.type = 'AssignmentExpression';
+				updateBinariessToAssignments(node.left);
+				updateBinariessToAssignments(node.right);
+			}
+		}
 	},
 };
+export default plugin;

@@ -224,11 +224,6 @@ const { test } = QUnit;
 							}
 						},
 						alternate: {
-							left: {
-								type: 'Literal',
-								value: 6,
-								raw: '6'
-							},
 							type: 'Literal',
 							value: 6,
 							raw: '6'

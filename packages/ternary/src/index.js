@@ -76,6 +76,20 @@ export default {
 				else {
 					this.throwError('Expected :');
 				}
+
+				// ? and : precedence are before '||' (which defaults to 1)
+				// object plugin sets : precedence to 0.95, so check for less than that
+				// (which would capture assignment operators, which the plugin sets at 0.9)
+				if (env.node.test && env.node.test.operator && jsep.binary_ops[env.node.test.operator] < 0.95) {
+					const node = env.node;
+					env.node = node.test;
+					env.node.right = {
+						type: CONDITIONAL_EXP,
+						test: node.test.right,
+						consequent: node.consequent,
+					 alternate: node.alternate,
+					};
+				}
 			}
 		});
 

@@ -41,6 +41,125 @@ const { test } = QUnit;
 			}, assert);
 		}));
 
+		test('should correctly parse chained assignment', (assert) => {
+			testParser('a = b = c + 1 = d', {
+				type: 'AssignmentExpression',
+				operator: '=',
+				left: {
+					type: 'AssignmentExpression',
+					operator: '=',
+					left: {
+						type: 'AssignmentExpression',
+						operator: '=',
+						left: {
+							type: 'Identifier',
+							name: 'a'
+						},
+						right: {
+							type: 'Identifier',
+							name: 'b'
+						}
+					},
+					right: {
+						type: 'BinaryExpression',
+						operator: '+',
+						left: {
+							type: 'Identifier',
+							name: 'c'
+						},
+						right: {
+							type: 'Literal',
+							value: 1,
+							raw: '1'
+						}
+					}
+				},
+				right: {
+					type: 'Identifier',
+					name: 'd'
+				}
+			}, assert);
+		});
+
+		test('should correctly parse chained assignment in ternary', (assert) => {
+			testParser('a = b = c ? d : e = 2', {
+				type: 'AssignmentExpression',
+				operator: '=',
+				left: {
+					type: 'AssignmentExpression',
+					operator: '=',
+					left: {
+						type: 'Identifier',
+						name: 'a'
+					},
+					right: {
+						type: 'Identifier',
+						name: 'b'
+					}
+				},
+				right: {
+					type: 'ConditionalExpression',
+					test: {
+						type: 'Identifier',
+						name: 'c'
+					},
+					consequent: {
+						type: 'Identifier',
+						name: 'd'
+					},
+					alternate: {
+						type: 'AssignmentExpression',
+						operator: '=',
+						left: {
+							type: 'Identifier',
+							name: 'e'
+						},
+						right: {
+							type: 'Literal',
+							value: 2,
+							raw: '2'
+						}
+					}
+				}
+			}, assert);
+		});
+
+		test('should correctly parse assignment in ternary alternate', (assert) => {
+			testParser('a ? fn(a) : a = 1', {
+				type: 'ConditionalExpression',
+				test: {
+					type: 'Identifier',
+					name: 'a'
+				},
+				consequent: {
+					type: 'CallExpression',
+					arguments: [
+						{
+							type: 'Identifier',
+							name: 'a'
+						}
+					],
+					callee: {
+						type: 'Identifier',
+						name: 'fn'
+					}
+				},
+				alternate: {
+					type: 'AssignmentExpression',
+					operator: '=',
+					left: {
+						type: 'Identifier',
+						name: 'a'
+					},
+					right: {
+						type: 'Literal',
+						value: 1,
+						raw: '1'
+					}
+				}
+			}, assert);
+		});
+
 		[
 			{ expr: 'a++', expect: { operator: '++', prefix: false } },
 			{ expr: 'a--', expect: { operator: '--', prefix: false } },
