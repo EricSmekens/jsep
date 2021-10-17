@@ -1,3 +1,10 @@
+## [1.1.2](https://github.com/EricSmekens/jsep/compare/v1.1.1...v1.1.2) (2021-10-17)
+
+
+### Bug Fixes
+
+* add missing `optional` property to types ([e2f758e](https://github.com/EricSmekens/jsep/commit/e2f758ea1a23675942e411d25629f01b6d45d867)), closes [#185](https://github.com/EricSmekens/jsep/issues/185)
+
 ## [1.1.1](https://github.com/EricSmekens/jsep/compare/v1.1.0...v1.1.1) (2021-10-13)
 
 
