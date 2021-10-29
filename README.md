@@ -61,7 +61,11 @@ const parse_tree = Jsep.parse('1 + 1');
 
 ```javascript
 // Add a custom ^ binary operator with precedence 10
+// (Note that higher number = higher precedence)
 jsep.addBinaryOp("^", 10);
+
+// Add exponentiation operator (right-to-left)
+jsep.addBinaryOp('**', 11, true);
 
 // Add a custom @ unary operator
 jsep.addUnaryOp('@');

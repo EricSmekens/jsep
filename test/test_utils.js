@@ -6,6 +6,7 @@ export const binOps = {
 	'*': (a, b) => a * b,
 	'/': (a, b) => a / b,
 	'%': (a, b) => a % b,
+	'**': (a, b) => a ** b, // ES2016
 };
 
 export const unOps = {

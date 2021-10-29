@@ -136,11 +136,12 @@ declare module 'jsep' {
 
 		let unary_ops: { [op: string]: any };
 		let binary_ops: { [op: string]: number };
+		let right_associative: Set<string>;
 		let additional_identifier_chars: Set<string>;
 		let literals: { [literal: string]: any };
 		let this_str: string;
 
-		function addBinaryOp(operatorName: string, precedence: number): void;
+		function addBinaryOp(operatorName: string, precedence: number, rightToLeft?: boolean): void;
 
 		function addUnaryOp(operatorName: string): void;
 
