@@ -55,6 +55,7 @@
 	"release": {
 		"commitPaths": [
 			"src/",
+			"ternary/src/",
 			"types",
 			"typings/",
 			".npmignore",
