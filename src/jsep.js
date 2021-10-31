@@ -36,11 +36,18 @@ export class Jsep {
 	 * @method jsep.addBinaryOp
 	 * @param {string} op_name The name of the binary op to add
 	 * @param {number} precedence The precedence of the binary op (can be a float). Higher number = higher precedence
+	 * @param {boolean} [isRightAssociative=false] whether operator is right-associative
 	 * @returns {Jsep}
 	 */
-	static addBinaryOp(op_name, precedence) {
+	static addBinaryOp(op_name, precedence, isRightAssociative) {
 		Jsep.max_binop_len = Math.max(op_name.length, Jsep.max_binop_len);
 		Jsep.binary_ops[op_name] = precedence;
+		if (isRightAssociative) {
+			Jsep.right_associative.add(op_name);
+		}
+		else {
+			Jsep.right_associative.delete(op_name);
+		}
 		return Jsep;
 	}
 
@@ -110,6 +117,7 @@ export class Jsep {
 		if (op_name.length === Jsep.max_binop_len) {
 			Jsep.max_binop_len = Jsep.getMaxKeyLen(Jsep.binary_ops);
 		}
+		Jsep.right_associative.delete(op_name);
 
 		return Jsep;
 	}
@@ -402,7 +410,7 @@ export class Jsep {
 
 		// Otherwise, we need to start a stack to properly place the binary operations in their
 		// precedence structure
-		biop_info = { value: biop, prec: Jsep.binaryPrecedence(biop)};
+		biop_info = { value: biop, prec: Jsep.binaryPrecedence(biop), right_a: Jsep.right_associative.has(biop) };
 
 		right = this.gobbleToken();
 
@@ -421,12 +429,15 @@ export class Jsep {
 				break;
 			}
 
-			biop_info = { value: biop, prec };
+			biop_info = { value: biop, prec, right_a: Jsep.right_associative.has(biop) };
 
 			cur_biop = biop;
 
 			// Reduce: make a binary expression from the three topmost entries.
-			while ((stack.length > 2) && (prec <= stack[stack.length - 2].prec)) {
+			const comparePrev = prev => biop_info.right_a && prev.right_a
+				? prec > prev.prec
+				: prec <= prev.prec;
+			while ((stack.length > 2) && comparePrev(stack[stack.length - 2])) {
 				right = stack.pop();
 				biop = stack.pop().value;
 				left = stack.pop();
@@ -928,6 +939,9 @@ Object.assign(Jsep, {
 		'+': 9, '-': 9,
 		'*': 10, '/': 10, '%': 10
 	},
+
+	// sets specific binary_ops as right-associative
+	right_associative: new Set(),
 
 	// Additional valid identifier chars, apart from a-z, A-Z and 0-9 (except on the starting char)
 	additional_identifier_chars: new Set(['$', '_']),

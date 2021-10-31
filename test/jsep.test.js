@@ -61,15 +61,27 @@ import {testParser, testOpExpression, esprimaComparisonTest, resetJsepDefaults} 
 		}, assert);
 	});
 
-	QUnit.test('Ops', function (assert) {
-		testOpExpression('1', assert);
-		testOpExpression('1+2', assert);
-		testOpExpression('1*2', assert);
-		testOpExpression('1*(2+3)', assert);
-		testOpExpression('(1+2)*3', assert);
-		testOpExpression('(1+2)*3+4-2-5+2/2*3', assert);
-		testOpExpression('1 + 2-   3*	4 /8', assert);
-		testOpExpression('\n1\r\n+\n2\n', assert);
+	QUnit.module('Ops', function (qunit) {
+		qunit.before(() => {
+			jsep.addBinaryOp('**', 11, true); // ES2016, right-associative
+		});
+		qunit.after(resetJsepDefaults);
+
+		[
+			'1',
+			'1+2',
+			'1*2',
+			'1*(2+3)',
+			'(1+2)*3',
+			'(1+2)*3+4-2-5+2/2*3',
+			'1 + 2-   3*	4 /8',
+			'\n1\r\n+\n2\n',
+			'1 + -2',
+			'-1 + -2 * -3 * 2',
+			'2 ** 3 ** 4',
+			'2 ** 3 ** 4 * 5 ** 6 ** 7 * (8 + 9)',
+			'(2 ** 3) ** 4 * (5 ** 6 ** 7) * (8 + 9)',
+		].forEach(expr => QUnit.test(`Expr: ${expr}`, assert => testOpExpression(expr, assert)));
 	});
 
 	QUnit.test('Custom operators', function (assert) {
