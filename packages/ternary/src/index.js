@@ -31,92 +31,10 @@ export default {
 						alternate,
 					};
 				}
-				// if binary operator is custom-added (i.e. object plugin), then correct it to a ternary node:
-				// Note: BinaryExpressions can be stacked (similar to 1 + 1 + 1), so we have to collapse the stack
-				// Only do one level at a time so we can unroll as we pop the ternary stack
-				else if (test.operator === ':') {
-					// this happens when the alternate is a ternary
-					if (!consequent.right) {
-						this.throwError('Expected :');
-					}
-					const node = findLastBinaryNode(consequent);
-					test.right = {
-						type: CONDITIONAL_EXP,
-						test: test.right,
-						consequent: node.left,
-						alternate: node === consequent ? node.right : {
-							// temporary values because we still have to wait to pop the consequent...
-							operator: ':',
-							left: node.right,
-							right: consequent.right,
-						},
-					};
-					env.node = test;
-				}
-				else if (consequent.operator === ':') {
-					convertBinaryToConditional(findLastBinaryNode(consequent), test);
-					env.node = consequent;
-				}
-				else if (consequent.alternate) {
-					// cleanup the temporary placeholder we made, now that we have the consequent
-					let alternate = consequent.alternate;
-					while (alternate.alternate) {
-						alternate = alternate.alternate;
-					}
-					env.node = {
-						type: CONDITIONAL_EXP,
-						test,
-						consequent,
-						alternate: alternate.right,
-					};
-					delete alternate.operator;
-					delete alternate.right;
-					Object.assign(alternate, alternate.left);
-				}
 				else {
 					this.throwError('Expected :');
 				}
-
-				// ? and : precedence are before '||' (which defaults to 1)
-				// object plugin sets : precedence to 0.95, so check for less than that
-				// (which would capture assignment operators, which the plugin sets at 0.9)
-				if (env.node.test && env.node.test.operator && jsep.binary_ops[env.node.test.operator] < 0.95) {
-					const node = env.node;
-					env.node = node.test;
-					env.node.right = {
-						type: CONDITIONAL_EXP,
-						test: node.test.right,
-						consequent: node.consequent,
-					 alternate: node.alternate,
-					};
-				}
 			}
 		});
-
-		/**
-		 * @param {jsep.Expression} node
-		 * @returns {jsep.Expression}
-		 */
-		function findLastBinaryNode(node) {
-			while (node.left && node.left.operator === ':') {
-				node = node.left;
-			}
-			return node;
-		}
-
-		/**
-		 * @param {jsep.BinaryExpression} node
-		 * @param {jsep.Expression} test
-		 * @returns {jsep.ConditionalExpression}
-		 */
-		function convertBinaryToConditional(node, test) {
-			node.type = CONDITIONAL_EXP;
-			node.test = test;
-			node.consequent = node.left;
-			node.alternate = node.right;
-			delete node.operator;
-			delete node.left;
-			delete node.right;
-		}
 	},
 };
