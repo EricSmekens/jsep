@@ -95,6 +95,7 @@ const { test } = QUnit;
 			'fn(..."abc")',
 			'[1, ...[2, 3]]',
 			'[1, ...(a ? b : c)]',
+			'{ ...a, ...b, c }',
 			'`hi ${name}`',
 			'abc`token ${`nested ${`deeply` + "str"} blah`}`',
 			'`hi ${last}, ${first} ${middle}!`',
