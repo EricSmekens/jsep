@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/EricSmekens/jsep/compare/v1.1.2...v1.2.0) (2021-10-31)
+
+
+### Features
+
+* add right-associative support for binary operators ([2da8834](https://github.com/EricSmekens/jsep/commit/2da88343910685f1b65f3b3560896ca4212bd130)), closes [#195](https://github.com/EricSmekens/jsep/issues/195)
+
 ## [1.1.2](https://github.com/EricSmekens/jsep/compare/v1.1.1...v1.1.2) (2021-10-17)
 
 

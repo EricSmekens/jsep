@@ -9,6 +9,6 @@ pnpx semantic-release "$@"
 
 packages=($(ls -d packages/*))
 for package in "${packages[@]}"; do
-  echo "Semantic-Release $package"
+  printf "\n\nSemantic-Release $package\n"
   (cd $package && pwd && pnpx semantic-release -e semantic-release-monorepo "$@")
 done
