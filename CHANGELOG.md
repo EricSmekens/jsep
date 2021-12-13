@@ -1,3 +1,16 @@
+# [1.3.0-beta.1](https://github.com/EricSmekens/jsep/compare/v1.2.0...v1.3.0-beta.1) (2021-12-13)
+
+
+### Bug Fixes
+
+* types for optional member expression now in generic baseType ([79fb0dc](https://github.com/EricSmekens/jsep/commit/79fb0dc0420a682896becee18e9b8ebc23652df9)), closes [#200](https://github.com/EricSmekens/jsep/issues/200)
+
+
+### Features
+
+* assignment right-to-left and precedence with ternary ([e5652eb](https://github.com/EricSmekens/jsep/commit/e5652ebfff9c7d9b730bb0f21a1f4f22b1e3787d)), closes [#189](https://github.com/EricSmekens/jsep/issues/189)
+* simplify ternary since to stop handling ':' binary operator ([4196623](https://github.com/EricSmekens/jsep/commit/419662398101bfc07c646375b966a7427713fb70))
+
 # [1.2.0](https://github.com/EricSmekens/jsep/compare/v1.1.2...v1.2.0) (2021-10-31)
 
 
