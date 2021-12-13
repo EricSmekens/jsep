@@ -1,3 +1,11 @@
+# [@jsep-plugin/ternary-v1.1.0-beta.1](https://github.com/EricSmekens/jsep/compare/@jsep-plugin/ternary-v1.0.2...@jsep-plugin/ternary-v1.1.0-beta.1) (2021-12-13)
+
+
+### Features
+
+* assignment right-to-left and precedence with ternary ([e5652eb](https://github.com/EricSmekens/jsep/commit/e5652ebfff9c7d9b730bb0f21a1f4f22b1e3787d)), closes [#189](https://github.com/EricSmekens/jsep/issues/189)
+* simplify ternary since to stop handling ':' binary operator ([4196623](https://github.com/EricSmekens/jsep/commit/419662398101bfc07c646375b966a7427713fb70))
+
 # [@jsep-plugin/ternary-v1.0.2](https://github.com/EricSmekens/jsep/compare/@jsep-plugin/ternary-v1.0.1...@jsep-plugin/ternary-v1.0.2) (2021-10-17)
 
 
