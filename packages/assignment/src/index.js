@@ -24,7 +24,7 @@ const plugin = {
 
 	init(jsep) {
 		const updateNodeTypes = [jsep.IDENTIFIER, jsep.MEMBER_EXP];
-		plugin.assignmentOperators.forEach(op => jsep.addBinaryOp(op, plugin.assignmentPrecedence));
+		plugin.assignmentOperators.forEach(op => jsep.addBinaryOp(op, plugin.assignmentPrecedence, true));
 
 		jsep.hooks.add('gobble-token', function gobbleUpdatePrefix(env) {
 			const code = this.code;
@@ -65,15 +65,22 @@ const plugin = {
 				// Note: Binaries can be chained in a single expression to respect
 				// operator precedence (i.e. a = b = 1 + 2 + 3)
 				// Update all binary assignment nodes in the tree
-				updateBinariessToAssignments(env.node);
+				updateBinariesToAssignments(env.node);
 			}
 		});
 
-		function updateBinariessToAssignments(node) {
+		function updateBinariesToAssignments(node) {
 			if (plugin.assignmentOperators.has(node.operator)) {
 				node.type = 'AssignmentExpression';
-				updateBinariessToAssignments(node.left);
-				updateBinariessToAssignments(node.right);
+				updateBinariesToAssignments(node.left);
+				updateBinariesToAssignments(node.right);
+			}
+			else if (!node.operator) {
+				Object.values(node).forEach((val) => {
+					if (val && typeof val === 'object') {
+						updateBinariesToAssignments(val);
+					}
+				});
 			}
 		}
 	},

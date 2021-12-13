@@ -42,41 +42,32 @@ const { test } = QUnit;
 		}));
 
 		test('should correctly parse chained assignment', (assert) => {
-			testParser('a = b = c + 1 = d', {
+			testParser('a = b = c = d', {
 				type: 'AssignmentExpression',
 				operator: '=',
 				left: {
+					type: 'Identifier',
+					name: 'a'
+				},
+				right: {
 					type: 'AssignmentExpression',
 					operator: '=',
 					left: {
-						type: 'AssignmentExpression',
-						operator: '=',
-						left: {
-							type: 'Identifier',
-							name: 'a'
-						},
-						right: {
-							type: 'Identifier',
-							name: 'b'
-						}
+						type: 'Identifier',
+						name: 'b'
 					},
 					right: {
-						type: 'BinaryExpression',
-						operator: '+',
+						type: 'AssignmentExpression',
+						operator: '=',
 						left: {
 							type: 'Identifier',
 							name: 'c'
 						},
 						right: {
-							type: 'Literal',
-							value: 1,
-							raw: '1'
+							type: 'Identifier',
+							name: 'd'
 						}
 					}
-				},
-				right: {
-					type: 'Identifier',
-					name: 'd'
 				}
 			}, assert);
 		});
@@ -86,38 +77,38 @@ const { test } = QUnit;
 				type: 'AssignmentExpression',
 				operator: '=',
 				left: {
+					type: 'Identifier',
+					name: 'a'
+				},
+				right: {
 					type: 'AssignmentExpression',
 					operator: '=',
 					left: {
 						type: 'Identifier',
-						name: 'a'
+						name: 'b'
 					},
 					right: {
-						type: 'Identifier',
-						name: 'b'
-					}
-				},
-				right: {
-					type: 'ConditionalExpression',
-					test: {
-						type: 'Identifier',
-						name: 'c'
-					},
-					consequent: {
-						type: 'Identifier',
-						name: 'd'
-					},
-					alternate: {
-						type: 'AssignmentExpression',
-						operator: '=',
-						left: {
+						type: 'ConditionalExpression',
+						test: {
 							type: 'Identifier',
-							name: 'e'
+							name: 'c'
 						},
-						right: {
-							type: 'Literal',
-							value: 2,
-							raw: '2'
+						consequent: {
+							type: 'Identifier',
+							name: 'd'
+						},
+						alternate: {
+							type: 'AssignmentExpression',
+							operator: '=',
+							left: {
+								type: 'Identifier',
+								name: 'e'
+							},
+							right: {
+								type: 'Literal',
+								value: 2,
+								raw: '2'
+							}
 						}
 					}
 				}
@@ -155,6 +146,59 @@ const { test } = QUnit;
 						type: 'Literal',
 						value: 1,
 						raw: '1'
+					}
+				}
+			}, assert);
+		});
+
+		test('should correctly parse assignment in consequent and alternate', (assert) => {
+			testParser('a = b + 2 ? c = 3 : d = 4', {
+				type: 'AssignmentExpression',
+				operator: '=',
+				left: {
+					type: 'Identifier',
+					name: 'a'
+				},
+				right: {
+					type: 'ConditionalExpression',
+					test: {
+						type: 'BinaryExpression',
+						left: {
+							type: 'Identifier',
+							name: 'b'
+						},
+						operator: '+',
+						right: {
+							type: 'Literal',
+							value: 2,
+							raw: '2'
+						}
+					},
+					consequent: {
+						type: 'AssignmentExpression',
+						operator: '=',
+						left: {
+							type: 'Identifier',
+							name: 'c'
+						},
+						right: {
+							type: 'Literal',
+							value: 3,
+							raw: '3'
+						}
+					},
+					alternate: {
+						type: 'AssignmentExpression',
+						operator: '=',
+						left: {
+							type: 'Identifier',
+							name: 'd'
+						},
+						right: {
+							type: 'Literal',
+							value: 4,
+							raw: '4'
+						}
 					}
 				}
 			}, assert);

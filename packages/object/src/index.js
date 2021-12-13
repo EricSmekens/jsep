@@ -7,45 +7,72 @@ export default {
 	name: 'object',
 
 	init(jsep) {
-		jsep.addBinaryOp(':', 0.95); // > assignment operators at 0.9
-
 		// Object literal support
 		function gobbleObjectExpression(env) {
 			if (this.code === OCURLY_CODE) {
 				this.index++;
-				const properties = this.gobbleArguments(CCURLY_CODE)
-					.map((arg) => {
-						if (arg.type === jsep.IDENTIFIER) {
-							return {
-								type: PROPERTY,
-								computed: false,
-								key: arg,
-								value: arg,
-								shorthand: true,
-							};
+				const properties = [];
+
+				while (!isNaN(this.code)) {
+					this.gobbleSpaces();
+					if (this.code === CCURLY_CODE) {
+						this.index++;
+						env.node = this.gobbleTokenProperty({
+							type: OBJECT_EXP,
+							properties,
+						});
+						return;
+					}
+
+					// Note: using gobbleExpression instead of gobbleToken to support object destructuring
+					const key = this.gobbleExpression();
+					if (!key) {
+						break; // missing }
+					}
+
+					this.gobbleSpaces();
+					if (key.type === jsep.IDENTIFIER && (this.code === jsep.COMMA_CODE || this.code === CCURLY_CODE)) {
+						// property value shorthand
+						properties.push({
+							type: PROPERTY,
+							computed: false,
+							key,
+							value: key,
+							shorthand: true,
+						});
+					}
+					else if (this.code === jsep.COLON_CODE) {
+						this.index++;
+						const value = this.gobbleExpression();
+
+						if (!value) {
+							this.throwError('unexpected object property');
 						}
-						if (arg.type === jsep.BINARY_EXP) {
-							const computed = arg.left.type === jsep.ARRAY_EXP;
-							return {
-								type: PROPERTY,
-								computed,
-								key: computed
-									? arg.left.elements[0]
-									: arg.left,
-								value: arg.right,
-								shorthand: false,
-							};
-						}
-						// complex value (i.e. ternary, spread)
-						return arg;
-					});
-				env.node = this.gobbleTokenProperty({
-					type: OBJECT_EXP,
-					properties,
-				});
+						const computed = key.type === jsep.ARRAY_EXP;
+						properties.push({
+							type: PROPERTY,
+							computed,
+							key: computed
+								? key.elements[0]
+								: key,
+							value: value,
+							shorthand: false,
+						});
+						this.gobbleSpaces();
+					}
+					else if (key) {
+						// spread, assignment (object destructuring with defaults), etc.
+						properties.push(key);
+					}
+
+					if (this.code === jsep.COMMA_CODE) {
+						this.index++;
+					}
+				}
+				this.throwError('missing }');
 			}
 		}
+
 		jsep.hooks.add('gobble-token', gobbleObjectExpression);
-		jsep.hooks.add('after-token', gobbleObjectExpression);
 	}
 };
