@@ -22,7 +22,7 @@ export default {
 					const biop = this.gobbleBinaryOp();
 					if (biop === '=>') {
 						// () => ...
-						const body = this.gobbleToken();
+						const body = this.gobbleBinaryExpression();
 						if (!body) {
 							this.throwError("Expected expression after " + biop);
 						}

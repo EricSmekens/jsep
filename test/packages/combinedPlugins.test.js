@@ -308,5 +308,60 @@ const { test } = QUnit;
 				},
 			}, assert);
 		});
+
+		([
+			'(() => (x + 1))',
+			'() => x + 1',
+			'() => (x + 1)',
+		]).forEach(expr => {
+			test(`should parse arrow body ${expr} same, whether parenthesized or not`, function (assert) {
+				testParser(			expr, {
+					type: 'ArrowFunctionExpression',
+					params: null,
+					body: {
+						type: 'BinaryExpression',
+						operator: '+',
+						left: {
+							type: 'Identifier',
+							name: 'x',
+						},
+						right: {
+							type: 'Literal',
+							value: 1,
+							raw: '1',
+						},
+					},
+				}, assert);
+			});
+		});
+
+		test('should parse ()-enclosed, nested arrow correctly', (assert) => {
+			testParser(			'x => (() => x + 1)', {
+				type: 'ArrowFunctionExpression',
+				params: [
+					{
+						type: 'Identifier',
+						name: 'x',
+					}
+				],
+				body: {
+					type: 'ArrowFunctionExpression',
+					params: null,
+					body: {
+						type: 'BinaryExpression',
+						operator: '+',
+						left: {
+							type: 'Identifier',
+							name: 'x',
+						},
+						right: {
+							type: 'Literal',
+							value: 1,
+							raw: '1',
+						},
+					},
+				},
+			}, assert);
+		});
 	});
 }());
