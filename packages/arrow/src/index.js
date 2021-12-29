@@ -5,7 +5,7 @@ export default {
 
 	init(jsep) {
 		// arrow-function expressions: () => x, v => v, (a, b) => v
-		jsep.addBinaryOp('=>', 0);
+		jsep.addBinaryOp('=>', 0.1, true);
 
 		// this hook searches for the special case () => ...
 		// which would normally throw an error because of the invalid LHS to the bin op
@@ -39,16 +39,30 @@ export default {
 		});
 
 		jsep.hooks.add('after-expression', function fixBinaryArrow(env) {
-			if (env.node && env.node.operator === '=>') {
-				env.node = {
-					type: ARROW_EXP,
-					params: env.node.left ? [env.node.left] : null,
-					body: env.node.right,
-				};
-				if (env.node.params && env.node.params[0].type === jsep.SEQUENCE_EXP) {
-					env.node.params = env.node.params[0].expressions;
+			updateBinariesToArrows(env.node);
+		});
+
+		function updateBinariesToArrows(node) {
+			if (node) {
+				// Traverse full tree, converting any sub-object nodes as needed
+				Object.values(node).forEach((val) => {
+					if (val && typeof val === 'object') {
+						updateBinariesToArrows(val);
+					}
+				});
+
+				if (node.operator === '=>') {
+					node.type = ARROW_EXP;
+					node.params = node.left ? [node.left] : null;
+					node.body = node.right;
+					if (node.params && node.params[0].type === jsep.SEQUENCE_EXP) {
+						node.params = node.params[0].expressions;
+					}
+					delete node.left;
+					delete node.right;
+					delete node.operator;
 				}
 			}
-		});
+		}
 	}
 };

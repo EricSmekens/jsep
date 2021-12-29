@@ -267,5 +267,46 @@ const { test } = QUnit;
 				callee: {},
 			}, assert);
 		});
+
+		test('should parse assignment to nested arrow function correctly', (assert) => {
+			testParser(			'f = x => y => x + y', {
+				type: 'AssignmentExpression',
+				operator: '=',
+				left: {
+					type: 'Identifier',
+					name: 'f',
+				},
+				right: {
+					type: 'ArrowFunctionExpression',
+					params: [
+						{
+							type: 'Identifier',
+							name: 'x',
+						}
+					],
+					body: {
+						type: 'ArrowFunctionExpression',
+						params: [
+							{
+								type: 'Identifier',
+								name: 'y',
+							}
+						],
+						body: {
+							type: 'BinaryExpression',
+							operator: '+',
+							left: {
+								type: 'Identifier',
+								name: 'x',
+							},
+							right: {
+								type: 'Identifier',
+								name: 'y',
+							},
+						},
+					},
+				},
+			}, assert);
+		});
 	});
 }());
