@@ -5,7 +5,7 @@ export default {
 
 	init(jsep) {
 		// arrow-function expressions: () => x, v => v, (a, b) => v
-		jsep.addBinaryOp('=>', 0.95, true);
+		jsep.addBinaryOp('=>', 0.1, true);
 
 		// this hook searches for the special case () => ...
 		// which would normally throw an error because of the invalid LHS to the bin op
