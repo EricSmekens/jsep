@@ -8,6 +8,7 @@ export * from '../packages/async-await/test/index.test.js';
 export * from '../packages/ternary/test/index.test.js';
 export * from '../packages/comment/test/index.test.js';
 export * from '../packages/new/test/index.test.js';
+export * from '../packages/numbers/test/index.test.js';
 export * from '../packages/object/test/index.test.js';
 export * from '../packages/regex/test/index.test.js';
 export * from '../packages/spread/test/index.test.js';
