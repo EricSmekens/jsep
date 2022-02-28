@@ -374,20 +374,20 @@ const { test } = QUnit;
 			}, assert);
 		});
 
-		test('should not throw any errors', (assert) => {
-			[
-				'{ a: b ? 1 : 2, c }', // mixed object/ternary
-				'fn({ a: 1 })', // function argument
-				'a ? 0 : b ? 1 : 2', // nested ternary with no ()
-			].forEach(expr => testParser(expr, {}, assert));
-		});
+		[
+			'{ a: b ? 1 : 2, c }', // mixed object/ternary
+			'fn({ a: 1 })', // function argument
+			'a ? 0 : b ? 1 : 2', // nested ternary with no ()
+		].forEach(expr => test(`should not throw an error ${expr}`, (assert) => {
+			testParser(expr, {}, assert);
+		}));
 
-		test('should give an error for invalid expressions', (assert) => {
-			[
-				'{ a: }', // missing value
-				'{ a: 1 ', // missing }
-				'{ a: 2 ? 3, b }', // missing : in ternary
-			].forEach(expr => assert.throws(() => jsep(expr)));
-		});
+		[
+			'{ a: }', // missing value
+			'{ a: 1 ', // missing }
+			'{ a: 2 ? 3, b }', // missing : in ternary
+		].forEach(expr => test(`should give an error for invalid expression: "${expr}"`, (assert) => {
+			assert.throws(() => jsep(expr));
+		}));
 	});
 }());

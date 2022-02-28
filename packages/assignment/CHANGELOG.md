@@ -1,3 +1,10 @@
+# [@jsep-plugin/assignment-v1.2.0-beta.1](https://github.com/EricSmekens/jsep/compare/@jsep-plugin/assignment-v1.1.0...@jsep-plugin/assignment-v1.2.0-beta.1) (2021-12-13)
+
+
+### Features
+
+* assignment right-to-left and precedence with ternary ([e5652eb](https://github.com/EricSmekens/jsep/commit/e5652ebfff9c7d9b730bb0f21a1f4f22b1e3787d)), closes [#189](https://github.com/EricSmekens/jsep/issues/189)
+
 # [@jsep-plugin/assignment-v1.1.0](https://github.com/EricSmekens/jsep/compare/@jsep-plugin/assignment-v1.0.1...@jsep-plugin/assignment-v1.1.0) (2021-10-17)
 
 

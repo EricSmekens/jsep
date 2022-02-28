@@ -137,6 +137,39 @@ const { test } = QUnit;
 			}, assert);
 		});
 
+		test('should parse nested arrow function correctly', (assert) => {
+			testParser('x => y => a + b', {
+				type: 'ArrowFunctionExpression',
+				params: [
+					{
+						type: 'Identifier',
+						name: 'x'
+					}
+				],
+				body: {
+					type: 'ArrowFunctionExpression',
+					params: [
+						{
+							type: 'Identifier',
+							name: 'y'
+						}
+					],
+					body: {
+						type: 'BinaryExpression',
+						operator: '+',
+						left: {
+							type: 'Identifier',
+							name: 'a'
+						},
+						right: {
+							type: 'Identifier',
+							name: 'b'
+						}
+					}
+				}
+			}, assert);
+		});
+
 		[
 			'(["a", "b"].find(v => v === "b").length > 1 || 2) === true',
 			'a.find(val => key === "abc")',

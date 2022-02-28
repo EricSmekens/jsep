@@ -117,6 +117,7 @@ const { test } = QUnit;
 			'fn(..."abc")',
 			'[1, ...[2, 3]]',
 			'[1, ...(a ? b : c)]',
+			'{ ...a, ...b, c }',
 			'`hi ${name}`',
 			'abc`token ${`nested ${`deeply` + "str"} blah`}`',
 			'`hi ${last}, ${first} ${middle}!`',
@@ -287,6 +288,102 @@ const { test } = QUnit;
 					}
 				],
 				callee: {},
+			}, assert);
+		});
+
+		test('should parse assignment to nested arrow function correctly', (assert) => {
+			testParser(			'f = x => y => x + y', {
+				type: 'AssignmentExpression',
+				operator: '=',
+				left: {
+					type: 'Identifier',
+					name: 'f',
+				},
+				right: {
+					type: 'ArrowFunctionExpression',
+					params: [
+						{
+							type: 'Identifier',
+							name: 'x',
+						}
+					],
+					body: {
+						type: 'ArrowFunctionExpression',
+						params: [
+							{
+								type: 'Identifier',
+								name: 'y',
+							}
+						],
+						body: {
+							type: 'BinaryExpression',
+							operator: '+',
+							left: {
+								type: 'Identifier',
+								name: 'x',
+							},
+							right: {
+								type: 'Identifier',
+								name: 'y',
+							},
+						},
+					},
+				},
+			}, assert);
+		});
+
+		([
+			'(() => (x + 1))',
+			'() => x + 1',
+			'() => (x + 1)',
+		]).forEach(expr => {
+			test(`should parse arrow body ${expr} same, whether parenthesized or not`, function (assert) {
+				testParser(			expr, {
+					type: 'ArrowFunctionExpression',
+					params: null,
+					body: {
+						type: 'BinaryExpression',
+						operator: '+',
+						left: {
+							type: 'Identifier',
+							name: 'x',
+						},
+						right: {
+							type: 'Literal',
+							value: 1,
+							raw: '1',
+						},
+					},
+				}, assert);
+			});
+		});
+
+		test('should parse ()-enclosed, nested arrow correctly', (assert) => {
+			testParser(			'x => (() => x + 1)', {
+				type: 'ArrowFunctionExpression',
+				params: [
+					{
+						type: 'Identifier',
+						name: 'x',
+					}
+				],
+				body: {
+					type: 'ArrowFunctionExpression',
+					params: null,
+					body: {
+						type: 'BinaryExpression',
+						operator: '+',
+						left: {
+							type: 'Identifier',
+							name: 'x',
+						},
+						right: {
+							type: 'Literal',
+							value: 1,
+							raw: '1',
+						},
+					},
+				},
 			}, assert);
 		});
 	});
