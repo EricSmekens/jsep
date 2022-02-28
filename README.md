@@ -94,18 +94,19 @@ JSEP supports defining custom hooks for extending or modifying the expression pa
 Plugins are registered by calling `jsep.plugins.register()` with the plugin(s) as the argument(s).
 
 #### JSEP-provided plugins:
-|                                      |                                                                                           |
-| ------------------------------------ | ----------------------------------------------------------------------------------------- |
-| [ternary](packages/ternary)           | Built-in by default, adds support for ternary `a ? b : c` expressions                     |
-| [arrow](packages/arrow)               | Adds arrow-function support: `v => !!v`                                                   |
-| [assignment](packages/assignment)     | Adds assignment and update expression support: `a = 2`, `a++`                             |
-| [comment](packages/comment)           | Adds support for ignoring comments: `a /* ignore this */ > 1 // ignore this too`          |
-| [new](packages/new)                   | Adds 'new' keyword support: `new Date()`                                                  |
-| [object](packages/object)             | Adds object expression support: `{ a: 1, b: { c }}`                                       |
-| [regex](packages/regex)               | Adds support for regular expression literals: `/[a-z]{2}/ig`                              |
-| [spread](packages/spread)             | Adds support for the spread operator, `fn(...[1, ...a])`. Works with `object` plugin, too |
-| [template](packages/template)         | Adds template literal support: `` `hi ${name}` ``                                         |
-|                                      |                                                                                           |
+|                                   |                                                                                           |
+|-----------------------------------|-------------------------------------------------------------------------------------------|
+| [ternary](packages/ternary)       | Built-in by default, adds support for ternary `a ? b : c` expressions                     |
+| [arrow](packages/arrow)           | Adds arrow-function support: `v => !!v`                                                   |
+| [assignment](packages/assignment) | Adds assignment and update expression support: `a = 2`, `a++`                             |
+| [comment](packages/comment)       | Adds support for ignoring comments: `a /* ignore this */ > 1 // ignore this too`          |
+| [new](packages/new)               | Adds 'new' keyword support: `new Date()`                                                  |
+| [numbers](packages/numbers)       | Adds hex, octal, and binary number support, ignore _ char                                 |
+| [object](packages/object)         | Adds object expression support: `{ a: 1, b: { c }}`                                       |
+| [regex](packages/regex)           | Adds support for regular expression literals: `/[a-z]{2}/ig`                              |
+| [spread](packages/spread)         | Adds support for the spread operator, `fn(...[1, ...a])`. Works with `object` plugin, too |
+| [template](packages/template)     | Adds template literal support: `` `hi ${name}` ``                                         |
+|                                   |                                                                                           |
 
 #### How to add plugins:
 Plugins have a `name` property so that they can only be registered once.

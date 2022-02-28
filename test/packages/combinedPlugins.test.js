@@ -4,6 +4,7 @@ import jsepAssignment from '../../packages/assignment/src/index.js';
 import jsepAsyncAwait from '../../packages/async-await/src/index.js';
 import jsepComment from '../../packages/comment/src/index.js';
 import jsepNew from '../../packages/new/src/index.js';
+import jsepNumbers from '../../packages/numbers/src/index.js';
 import jsepObject from '../../packages/object/src/index.js';
 import jsepRegex from '../../packages/regex/src/index.js';
 import jsepSpread from '../../packages/spread/src/index.js';
@@ -22,6 +23,7 @@ const { test } = QUnit;
 				jsepAsyncAwait,
 				jsepComment,
 				jsepNew,
+				jsepNumbers,
 				jsepObject,
 				jsepRegex,
 				jsepSpread,
@@ -74,6 +76,26 @@ const { test } = QUnit;
 			'[new A(), new A()]',
 			'new A("1")',
 			'new A(1, 2)',
+
+			// numbers plugin:
+			'0xA',
+			'0xfF',
+			'0xA_a',
+			'0b01010101',
+			'0b0000_0111',
+			'0b1000_0000__0000_0000__0000_0000__0000_0000',
+			'0755',
+			'0o644',
+			'0795',
+			'115_200',
+			'10_000E1',
+			'1_0E2_0',
+			'1_0E+2_0',
+			'1E-2',
+			'1_234.567_89',
+			'0.1',
+			'.1',
+
 			'({ a: 1, b: 2 })',
 			'{ [key || key2]: { a: 0 } }',
 			'{ a: { b: { c: 1 } } }',

@@ -80,6 +80,14 @@ importers:
       rollup: 2.55.1
       rollup-plugin-delete: 2.0.0
 
+  packages/numbers:
+    specifiers:
+      rollup: ^2.44.0
+      rollup-plugin-delete: ^2.0.0
+    devDependencies:
+      rollup: 2.55.1
+      rollup-plugin-delete: 2.0.0
+
   packages/object:
     specifiers:
       rollup: ^2.44.0
