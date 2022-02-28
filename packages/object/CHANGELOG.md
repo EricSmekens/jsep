@@ -1,3 +1,10 @@
+# [@jsep-plugin/object-v1.2.0](https://github.com/EricSmekens/jsep/compare/@jsep-plugin/object-v1.1.0...@jsep-plugin/object-v1.2.0) (2022-02-28)
+
+
+### Features
+
+* rewrite object plugin to avoid adding ':' as a binary operator ([9a5feb1](https://github.com/EricSmekens/jsep/commit/9a5feb1f831215a7d8e55047c8e3aea8293736f8))
+
 # [@jsep-plugin/object-v1.2.0-beta.1](https://github.com/EricSmekens/jsep/compare/@jsep-plugin/object-v1.1.0...@jsep-plugin/object-v1.2.0-beta.1) (2021-12-13)
 
 
