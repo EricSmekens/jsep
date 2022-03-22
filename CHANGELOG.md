@@ -1,3 +1,11 @@
+## [1.3.1](https://github.com/6utt3rfly/jsep/compare/v1.3.0...v1.3.1) (2022-03-22)
+
+
+### Bug Fixes
+
+* test change to ternary ([33f0494](https://github.com/6utt3rfly/jsep/commit/33f0494683c037d2ec88a00e2babcc4e218792d8))
+* test change to ternary ([fca0aa5](https://github.com/6utt3rfly/jsep/commit/fca0aa573db774aa63596d3a7868a0c4884a73ea))
+
 # [1.3.0](https://github.com/EricSmekens/jsep/compare/v1.2.0...v1.3.0) (2022-02-28)
 
 
