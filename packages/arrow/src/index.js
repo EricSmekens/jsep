@@ -4,6 +4,7 @@ const ARROW_EXP = 'ArrowFunctionExpression';
 
 export default {
 	name: 'arrow',
+
 	version: '<%= version %>',
 
 	init(jsep) {
