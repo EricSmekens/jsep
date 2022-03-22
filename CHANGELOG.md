@@ -1,3 +1,11 @@
+## [1.3.2](https://github.com/6utt3rfly/jsep/compare/v1.3.1...v1.3.2) (2022-03-22)
+
+
+### Bug Fixes
+
+* pass next version into build script ([8270873](https://github.com/6utt3rfly/jsep/commit/8270873d38066f2f53b6da53c88530ceae0560d6))
+* update commitPaths ([3a1cc14](https://github.com/6utt3rfly/jsep/commit/3a1cc14fdf3d470027b81093f970da1f4fad8273))
+
 ## [1.3.1](https://github.com/6utt3rfly/jsep/compare/v1.3.0...v1.3.1) (2022-03-22)
 
 
