@@ -123,12 +123,6 @@
 			[
 				"@semantic-release/git",
 				{
-					"prepareCmd": "NEXT_VERSION=${nextRelease.version} pnpm run build"
-				}
-			],
-			[
-				"@semantic-release/git",
-				{
 					"message": "build: ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
 				}
 			],
