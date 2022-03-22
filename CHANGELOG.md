@@ -1,3 +1,10 @@
+## [1.3.3](https://github.com/6utt3rfly/jsep/compare/v1.3.2...v1.3.3) (2022-03-22)
+
+
+### Bug Fixes
+
+* add version to plugin for testing ([1a148c7](https://github.com/6utt3rfly/jsep/commit/1a148c77e0ec0cf4edc4f107da7aa7c453c72e3e))
+
 ## [1.3.2](https://github.com/6utt3rfly/jsep/compare/v1.3.1...v1.3.2) (2022-03-22)
 
 
