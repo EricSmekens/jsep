@@ -1,3 +1,11 @@
+# [@jsep-plugin/ternary-v1.1.1](https://github.com/EricSmekens/jsep/compare/@jsep-plugin/ternary-v1.1.0...@jsep-plugin/ternary-v1.1.1) (2022-03-22)
+
+
+### Bug Fixes
+
+* test change to ternary ([33f0494](https://github.com/EricSmekens/jsep/commit/33f0494683c037d2ec88a00e2babcc4e218792d8))
+* test change to ternary ([fca0aa5](https://github.com/EricSmekens/jsep/commit/fca0aa573db774aa63596d3a7868a0c4884a73ea))
+
 # [@jsep-plugin/ternary-v1.1.0](https://github.com/EricSmekens/jsep/compare/@jsep-plugin/ternary-v1.0.2...@jsep-plugin/ternary-v1.1.0) (2022-02-28)
 
 
