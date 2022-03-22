@@ -5,10 +5,10 @@
 # (or npm run release -- --debug --no-cli --dry-run)
 
 echo "Semantic-Release JSEP"
-pnpx semantic-release "$@"
+pnpx semantic-release "$@" --no-ci
 
 packages=($(ls -d packages/*))
 for package in "${packages[@]}"; do
   printf "\n\nSemantic-Release $package\n"
-  (cd $package && pwd && pnpx semantic-release -e semantic-release-monorepo "$@")
+  (cd $package && pwd && pnpx semantic-release --no-ci -e semantic-release-monorepo "$@")
 done
