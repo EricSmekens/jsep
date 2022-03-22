@@ -1,3 +1,10 @@
+## [1.3.4](https://github.com/EricSmekens/jsep/compare/v1.3.3...v1.3.4) (2022-03-22)
+
+
+### Bug Fixes
+
+* embed correct version into builds ([9e90f3d](https://github.com/EricSmekens/jsep/commit/9e90f3d7045002c67269d28a8cdddeb0abaef7e1)), closes [#216](https://github.com/EricSmekens/jsep/issues/216)
+
 ## [1.3.3](https://github.com/6utt3rfly/jsep/compare/v1.3.2...v1.3.3) (2022-03-22)
 
 
