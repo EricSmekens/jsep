@@ -1,11 +1,7 @@
 const ARROW_EXP = 'ArrowFunctionExpression';
 
-// test arrow change
-
 export default {
 	name: 'arrow',
-
-	version: '<%= version %>',
 
 	init(jsep) {
 		// arrow-function expressions: () => x, v => v, (a, b) => v
