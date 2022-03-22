@@ -1,3 +1,10 @@
+# [@jsep-plugin/ternary-v1.1.2](https://github.com/EricSmekens/jsep/compare/@jsep-plugin/ternary-v1.1.1...@jsep-plugin/ternary-v1.1.2) (2022-03-22)
+
+
+### Bug Fixes
+
+* embed correct version into builds ([9e90f3d](https://github.com/EricSmekens/jsep/commit/9e90f3d7045002c67269d28a8cdddeb0abaef7e1)), closes [#216](https://github.com/EricSmekens/jsep/issues/216)
+
 # [@jsep-plugin/ternary-v1.1.1](https://github.com/EricSmekens/jsep/compare/@jsep-plugin/ternary-v1.1.0...@jsep-plugin/ternary-v1.1.1) (2022-03-22)
 
 
