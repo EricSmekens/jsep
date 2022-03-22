@@ -1,3 +1,13 @@
+# [@jsep-plugin/arrow-v1.0.3](https://github.com/EricSmekens/jsep/compare/@jsep-plugin/arrow-v1.0.2...@jsep-plugin/arrow-v1.0.3) (2022-03-22)
+
+
+### Bug Fixes
+
+* add version to plugin for testing ([a0d0933](https://github.com/EricSmekens/jsep/commit/a0d09339713714787f0e7df5e1942f5f620bee21))
+* add version to plugin for testing ([1a148c7](https://github.com/EricSmekens/jsep/commit/1a148c77e0ec0cf4edc4f107da7aa7c453c72e3e))
+* test arrow change ([d081d7a](https://github.com/EricSmekens/jsep/commit/d081d7a4eb963dd801716896e030204b1ac7bd1f))
+* test arrow change ([1a228e6](https://github.com/EricSmekens/jsep/commit/1a228e6004988482bbbc0932deb2dcb664546ea3))
+
 # [@jsep-plugin/arrow-v1.0.2](https://github.com/EricSmekens/jsep/compare/@jsep-plugin/arrow-v1.0.1...@jsep-plugin/arrow-v1.0.2) (2022-02-28)
 
 
