@@ -8,6 +8,7 @@ importers:
       '@commitlint/config-angular': ^13.1.0
       '@rollup/plugin-replace': ^2.4.2
       '@semantic-release/changelog': ^5.0.1
+      '@semantic-release/exec': ^6.0.3
       '@semantic-release/git': ^9.0.0
       benchmark: ^2.1.4
       docco: ^0.8.1
@@ -26,6 +27,7 @@ importers:
       '@commitlint/config-angular': 13.1.0
       '@rollup/plugin-replace': 2.4.2_rollup@2.55.1
       '@semantic-release/changelog': 5.0.1
+      '@semantic-release/exec': 6.0.3
       '@semantic-release/git': 9.0.0
       benchmark: 2.1.4
       docco: 0.8.1
@@ -506,6 +508,27 @@ packages:
 
   /@semantic-release/error/2.2.0:
     resolution: {integrity: sha512-9Tj/qn+y2j+sjCI3Jd+qseGtHjOAeg7dU2/lVcqIQ9TV3QDaDXDYXcoOHU+7o2Hwh8L8ymL4gfuO7KxDs3q2zg==}
+    dev: true
+
+  /@semantic-release/error/3.0.0:
+    resolution: {integrity: sha512-5hiM4Un+tpl4cKw3lV4UgzJj+SmfNIDCLLw0TepzQxz9ZGV5ixnqkzIVF+3tp0ZHgcMKE+VNGHJjEeyFG2dcSw==}
+    engines: {node: '>=14.17'}
+    dev: true
+
+  /@semantic-release/exec/6.0.3:
+    resolution: {integrity: sha512-bxAq8vLOw76aV89vxxICecEa8jfaWwYITw6X74zzlO0mc/Bgieqx9kBRz9z96pHectiTAtsCwsQcUyLYWnp3VQ==}
+    engines: {node: '>=14.17'}
+    peerDependencies:
+      semantic-release: '>=18.0.0'
+    dependencies:
+      '@semantic-release/error': 3.0.0
+      aggregate-error: 3.1.0
+      debug: 4.3.2
+      execa: 5.1.1
+      lodash: 4.17.21
+      parse-json: 5.2.0
+    transitivePeerDependencies:
+      - supports-color
     dev: true
 
   /@semantic-release/git/9.0.0:
