@@ -33,6 +33,14 @@ const { test } = QUnit;
 			}, assert);
 		});
 
+		test('should be able to escape / properly', (assert) => {
+			testParser('/^\\/$/', {
+				type: 'Literal',
+				value: /^\/$/,
+				raw: '/^\\/$/',
+			}, assert);
+		});
+
 		test('should parse more complex regex within expression', (assert) => {
 			testParser('a && /[a-z]{3}/ig.test(b)', {
 				type: 'BinaryExpression', // Note: Esprima = LogicalExpression, but but jsep has `&&` as a binary op
@@ -68,10 +76,19 @@ const { test } = QUnit;
 
 		[
 			'/[a-z]{3}/ig.test(b)',
-			'/\d(?=px)/',
+			'/\\d(?=px)/',
 			'a / 2', // regex should not interfere with binary operator
+			'/\\//',
+			'/\\//',     // => /\//
+			'/[\\/]/',   // => /[\/]/
+			'/[/]/',     // => /[/]/
+			'/[\\]/]/',     // => /[\]]/
+			'/\\\\\\//', // => /\\\//
+			'/\\[/',     // => /\[/
+			'2 / 3', // binop
+			'2 / 3 / 4', // binop
 		].forEach((expr) => {
-			test('should match Esprima', function (assert) {
+			test(`${expr} should match Esprima`, function (assert) {
 				esprimaComparisonTest(expr, assert);
 			});
 		});
@@ -93,6 +110,8 @@ const { test } = QUnit;
 			'/a/xyz.test(a)', // invalid flag
 			'/a(/', // unclosed (
 			'/a[/', // unclosed [
+			'/[\\]/', // unclosed [
+			'/\\/', // unclosed regex
 		].forEach(expr => test(`should give an error for invalid expression ${expr}`, (assert) => {
 			assert.throws(() => jsep(expr));
 		}));
