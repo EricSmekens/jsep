@@ -2,7 +2,9 @@ import { terser } from "rollup-plugin-terser";
 import replace from '@rollup/plugin-replace';
 import del from 'rollup-plugin-delete';
 
-const { version } = require('./package.json');
+const { version: pkgVersion } = require('./package.json');
+
+const version = process.env.NEXT_VERSION || pkgVersion;
 
 export const terserConfig = {
 	compress: true,

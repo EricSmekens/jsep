@@ -109,16 +109,16 @@
 			],
 			"@semantic-release/changelog",
 			[
+				"@semantic-release/exec",
+				{
+					"prepareCmd": "NEXT_VERSION=${nextRelease.version} pnpm run build"
+				}
+			],
+			[
 				"@semantic-release/npm",
 				{
 					"npmPublish": false,
 					"tarballDir": "./"
-				}
-			],
-			[
-				"@semantic-release/exec",
-				{
-					"prepareCmd": "npm run build"
 				}
 			],
 			[
