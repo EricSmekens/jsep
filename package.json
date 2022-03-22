@@ -60,8 +60,8 @@
 			"types",
 			"typings/",
 			".npmignore",
-			"package",
-			"rollup"
+			"package*",
+			"*rollup*"
 		],
 		"branches": [
 			"master",
