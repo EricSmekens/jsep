@@ -111,6 +111,7 @@
 			[
 				"@semantic-release/npm",
 				{
+					"npmPublish": false,
 					"tarballDir": "./"
 				}
 			],
