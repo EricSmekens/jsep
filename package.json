@@ -24,9 +24,6 @@
 	},
 	"typings": "typings/tsd.d.ts",
 	"private": false,
-	"workspaces": [
-		"./packages/*"
-	],
 	"devDependencies": {
 		"@commitlint/cli": "^13.1.0",
 		"@commitlint/config-angular": "^13.1.0",
