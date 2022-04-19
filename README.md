@@ -131,7 +131,7 @@ Here's a simple plugin example:
 const plugin = {
   name: 'the plugin',
   init(jsep) {
-    jsep.addAdentifierChar('@');
+    jsep.addIdentifierChar('@');
     jsep.hooks.add('gobble-expression', function myPlugin(env) {
       if (this.char === '@') {
         this.index += 1;
