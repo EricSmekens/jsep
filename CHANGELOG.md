@@ -1,3 +1,10 @@
+## [1.3.6](https://github.com/EricSmekens/jsep/compare/v1.3.5...v1.3.6) (2022-04-27)
+
+
+### Bug Fixes
+
+* update release on package.json change ([c1ceb54](https://github.com/EricSmekens/jsep/commit/c1ceb54c80a923bdf2f799499c7840043aa7b537))
+
 ## [1.3.4](https://github.com/EricSmekens/jsep/compare/v1.3.3...v1.3.4) (2022-03-22)
 
 
