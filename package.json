@@ -19,7 +19,8 @@
 	"exports": {
 		".": {
 			"require": "./dist/cjs/jsep.cjs.js",
-			"default": "./dist/jsep.js"
+			"default": "./dist/jsep.js",
+			"types": "typings/tsd.d.ts"
 		}
 	},
 	"typings": "typings/tsd.d.ts",
