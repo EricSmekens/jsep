@@ -18,6 +18,7 @@
 	"module": "./dist/jsep.js",
 	"exports": {
 		".": {
+			"types": "typings/tsd.d.ts",
 			"require": "./dist/cjs/jsep.cjs.js",
 			"default": "./dist/jsep.js"
 		}
