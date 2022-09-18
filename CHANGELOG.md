@@ -1,3 +1,11 @@
+## [1.3.7](https://github.com/EricSmekens/jsep/compare/v1.3.6...v1.3.7) (2022-09-18)
+
+
+### Bug Fixes
+
+* add "types" export ([505a81a](https://github.com/EricSmekens/jsep/commit/505a81a4f46202d64b6d832cbb993850c6dcc6f3))
+* export default IPlugin from all plugins ([cd38da5](https://github.com/EricSmekens/jsep/commit/cd38da58e0a32d8cc05fe1e4ac3791459ee90986)), closes [#231](https://github.com/EricSmekens/jsep/issues/231)
+
 ## [1.3.6](https://github.com/EricSmekens/jsep/compare/v1.3.5...v1.3.6) (2022-04-27)
 
 
