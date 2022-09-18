@@ -1,3 +1,10 @@
+# [@jsep-plugin/object-v1.2.1](https://github.com/EricSmekens/jsep/compare/@jsep-plugin/object-v1.2.0...@jsep-plugin/object-v1.2.1) (2022-09-18)
+
+
+### Bug Fixes
+
+* export default IPlugin from all plugins ([cd38da5](https://github.com/EricSmekens/jsep/commit/cd38da58e0a32d8cc05fe1e4ac3791459ee90986)), closes [#231](https://github.com/EricSmekens/jsep/issues/231)
+
 # [@jsep-plugin/object-v1.2.0](https://github.com/EricSmekens/jsep/compare/@jsep-plugin/object-v1.1.0...@jsep-plugin/object-v1.2.0) (2022-02-28)
 
 
