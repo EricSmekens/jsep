@@ -1,6 +1,6 @@
 {
 	"name": "@jsep-plugin/numbers",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "Adds support for binary, hex, and octal number formats, including _",
 	"author": "Shelly (https://github.com/6utt3rfly)",
 	"maintainers": [
