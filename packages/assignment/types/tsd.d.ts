@@ -1,5 +1,5 @@
 import * as jsep from 'jsep';
-import { Expression } from 'jsep';
+import { Expression, IPlugin } from 'jsep';
 export const name: string;
 export const assignmentOperators: Set<string>;
 export const updateOperators: number[];
@@ -31,3 +31,6 @@ export interface AssignmentExpression extends Expression {
 	left: Expression;
 	right: Expression;
 }
+
+declare const _export: IPlugin;
+export default _export;
