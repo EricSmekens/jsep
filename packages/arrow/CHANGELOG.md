@@ -1,3 +1,10 @@
+# [@jsep-plugin/arrow-v1.0.5](https://github.com/EricSmekens/jsep/compare/@jsep-plugin/arrow-v1.0.4...@jsep-plugin/arrow-v1.0.5) (2022-09-18)
+
+
+### Bug Fixes
+
+* export default IPlugin from all plugins ([cd38da5](https://github.com/EricSmekens/jsep/commit/cd38da58e0a32d8cc05fe1e4ac3791459ee90986)), closes [#231](https://github.com/EricSmekens/jsep/issues/231)
+
 # [@jsep-plugin/arrow-v1.0.4](https://github.com/EricSmekens/jsep/compare/@jsep-plugin/arrow-v1.0.3...@jsep-plugin/arrow-v1.0.4) (2022-03-22)
 
 
