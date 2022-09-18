@@ -1,7 +1,7 @@
 declare module 'jsep' {
 
 	namespace jsep {
-		export type baseTypes = string | number | boolean | RegExp | null | undefined;
+		export type baseTypes = string | number | boolean | RegExp | null | undefined | object;
 		export interface Expression {
 			type: string;
 			[key: string]: baseTypes | Expression | Array<baseTypes | Expression>;
