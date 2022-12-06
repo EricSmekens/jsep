@@ -1,3 +1,10 @@
+## [1.3.8](https://github.com/EricSmekens/jsep/compare/v1.3.7...v1.3.8) (2022-12-06)
+
+
+### Bug Fixes
+
+* support TypeScript's Node16 resolution ([0c2cb45](https://github.com/EricSmekens/jsep/commit/0c2cb45c8b6c7eca165c65c664abdb967f376d02))
+
 ## [1.3.7](https://github.com/EricSmekens/jsep/compare/v1.3.6...v1.3.7) (2022-09-18)
 
 
