@@ -49,6 +49,68 @@ const { test } = QUnit;
 			}, assert);
 		});
 
+		test('should parse multiple nested new expressions', (assert) => {
+			testParser('new Date(new Date().setDate(new Date().getDate() - 5))', {
+				type: 'NewExpression',
+				arguments: [
+					{
+						type: 'CallExpression',
+						arguments: [
+							{
+								type: 'BinaryExpression',
+								operator: '-',
+								left: {
+									type: 'CallExpression',
+									arguments: [],
+									callee: {
+										type: 'MemberExpression',
+										computed: false,
+										object: {
+											type: 'NewExpression',
+											arguments: [],
+											callee: {
+												type: 'Identifier',
+												name: 'Date'
+											}
+										},
+										property: {
+											type: 'Identifier',
+											name: 'getDate'
+										}
+									}
+								},
+								right: {
+									type: 'Literal',
+									value: 5,
+									raw: '5'
+								}
+							}
+						],
+						callee: {
+							type: 'MemberExpression',
+							computed: false,
+							object: {
+								type: 'NewExpression',
+								arguments: [],
+								callee: {
+									type: 'Identifier',
+									name: 'Date'
+								}
+							},
+							property: {
+								type: 'Identifier',
+								name: 'setDate'
+							}
+						}
+					}
+				],
+				callee: {
+					type: 'Identifier',
+					name: 'Date'
+				}
+			}, assert);
+		});
+
 		[
 			'new A().b',
 			'new A()["b"].c + 2',
