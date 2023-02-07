@@ -12,10 +12,13 @@ export default {
 				}
 				env.node = node.argument;
 
-				// Change CALL_EXP to NewExpression (could be a nested member)
+				// Change CALL_EXP to NewExpression (could be a nested member, even within a call expr)
 				let callNode = env.node;
-				while (callNode.type === 'MemberExpression') {
-					callNode = callNode.object;
+				while (callNode.type === jsep.MEMBER_EXP || (
+					callNode.type === jsep.CALL_EXP && callNode.callee.type === jsep.MEMBER_EXP)) {
+					callNode = callNode.type === jsep.MEMBER_EXP
+						? callNode.object
+						: callNode.callee.object;
 				}
 				callNode.type = 'NewExpression';
 			}
