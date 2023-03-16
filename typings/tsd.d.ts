@@ -9,7 +9,8 @@ declare module 'jsep' {
 
 		export interface ArrayExpression extends Expression {
 			type: 'ArrayExpression';
-			elements: Expression[];
+			/** The expression can be null in the case of array holes ([ , , ]) */
+			elements: Array<null | Expression>;
 		}
 
 		export interface BinaryExpression extends Expression {
