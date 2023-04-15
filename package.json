@@ -143,7 +143,7 @@
 		"build:watch": "npx rollup -c --watch",
 		"build:all": "pnpm run build -r",
 		"test": "npx http-server -p 49649 --silent & npx node-qunit-puppeteer http://localhost:49649/test/unit_tests.html",
-		"test:all": "npx http-server -p 49649 --silent & pnpm run test -r",
+		"test:all": "npx http-server -p 49649 --silent & pnpm run test -r --workspace-concurrency=1",
 		"test:performance": "node test/performance.test.js",
 		"docco": "npx docco src/jsep.js --css=src/docco.css --output=annotated_source/",
 		"lint": "npx eslint src/**/*.js test/*.js test/packages/**/*.js packages/**/*.js",
