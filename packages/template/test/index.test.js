@@ -118,6 +118,93 @@ const { test } = QUnit;
 			}, assert);
 		});
 
+		test('should parse String.raw tagged, nested template literal expression', (assert) => {
+			testParser('String.raw`token ${`nested ${`deeply` + "str"} blah`}`', {
+				type: 'TaggedTemplateExpression',
+				tag: {
+					type: "MemberExpression",
+					computed: false,
+					object: {
+						type: "Identifier",
+						name: "String"
+					},
+					property: {
+						type: "Identifier",
+						name:"raw"
+					}
+				},
+				quasi: {
+					type: 'TemplateLiteral',
+					quasis: [
+						{
+							type: 'TemplateElement',
+							value: {
+								raw: 'token ',
+								cooked: 'token ',
+							},
+							tail: false,
+						},
+						{
+							type: 'TemplateElement',
+							value: {
+								raw: '',
+								cooked: '',
+							},
+							tail: true,
+						},
+					],
+					expressions: [
+						{
+							type: 'TemplateLiteral',
+							quasis: [
+								{
+									type: 'TemplateElement',
+									value: {
+										raw: 'nested ',
+										cooked: 'nested ',
+									},
+									tail: false,
+								},
+								{
+									type: 'TemplateElement',
+									value: {
+										raw: ' blah',
+										cooked: ' blah',
+									},
+									tail: true,
+								},
+							],
+							expressions: [
+								{
+									type: 'BinaryExpression',
+									operator: '+',
+									left: {
+										type: 'TemplateLiteral',
+										quasis: [
+											{
+												type: 'TemplateElement',
+												value: {
+													raw: 'deeply',
+													cooked: 'deeply',
+												},
+												tail: true,
+											},
+										],
+										expressions: [],
+									},
+									right: {
+										type: 'Literal',
+										value: 'str',
+										raw: '"str"',
+									},
+								},
+							],
+						},
+					],
+				},
+			}, assert);
+		});		
+
 		test('should parse multiple vars within template literal expression', (assert) => {
 			testParser('`hi ${last}, ${first} ${middle}!`', {
 				type: 'TemplateLiteral',
