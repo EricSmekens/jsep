@@ -1,3 +1,10 @@
+# [@jsep-plugin/template-v1.0.3](https://github.com/EricSmekens/jsep/compare/@jsep-plugin/template-v1.0.2...@jsep-plugin/template-v1.0.3) (2023-07-19)
+
+
+### Bug Fixes
+
+* support member exp before tagged template (String.raw) ([92e6de0](https://github.com/EricSmekens/jsep/commit/92e6de0ae588da408b214cd923f6e15d6568f9ff))
+
 # [@jsep-plugin/template-v1.0.2](https://github.com/EricSmekens/jsep/compare/@jsep-plugin/template-v1.0.1...@jsep-plugin/template-v1.0.2) (2022-09-18)
 
 
