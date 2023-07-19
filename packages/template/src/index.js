@@ -77,7 +77,7 @@ export default {
 		jsep.hooks.add('gobble-token', gobbleTemplateLiteral);
 
 		jsep.hooks.add('after-token', function gobbleTaggedTemplateIdentifier(env) {
-			if (env.node.type === jsep.IDENTIFIER && this.code === BTICK_CODE) {
+			if ((env.node.type === jsep.IDENTIFIER || env.node.type === jsep.MEMBER_EXP) && this.code === BTICK_CODE) {
 				env.node = {
 					type: TAGGED_TEMPLATE_EXPRESSION,
 					tag: env.node,
