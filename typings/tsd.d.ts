@@ -153,6 +153,12 @@ declare module 'jsep' {
 
 		function removeIdentifierChar(identifierName: string): void;
 
+		function addLiteral(literalName: string, literalValue: any): void;
+
+		function removeLiteral(literalName: string): void;
+
+		function removeAllLiterals(): void;
+
 		const version: string;
 	}
 
