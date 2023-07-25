@@ -110,7 +110,7 @@ declare module 'jsep' {
 			gobbleArguments: (untilICode: number) => PossibleExpression;
 			gobbleGroup: () => Expression;
 			gobbleArray: () => PossibleExpression;
-			throwError: (msg: string) => void;
+			throwError: (msg: string) => never;
 		}
 
 		export type HookType = 'gobble-expression' | 'after-expression' | 'gobble-token' | 'after-token' | 'gobble-spaces';
