@@ -8,7 +8,7 @@ export default {
 	name: 'jsepTemplateLiteral',
 
 	init(jsep) {
-		function gobbleTemplateLiteral(env) {
+		function gobbleTemplateLiteral(env, gobbleMember = true) {
 			if (this.code === BTICK_CODE) {
 				const node = {
 					type: TEMPLATE_LITERAL,
@@ -37,7 +37,13 @@ export default {
 						pushQuasi();
 
 						env.node = node;
-						return node;
+
+						if (gobbleMember) {
+						  // allow . [] and () after template: `foo`.length
+						  env.node = this.gobbleTokenProperty(env.node);
+						}
+
+						return env.node;
 					}
 					else if (ch === '$' && this.expr.charAt(this.index + 1) === '{') {
 						this.index += 2;
@@ -81,8 +87,13 @@ export default {
 				env.node = {
 					type: TAGGED_TEMPLATE_EXPRESSION,
 					tag: env.node,
-					quasi: gobbleTemplateLiteral.bind(this)(env),
+					quasi: gobbleTemplateLiteral.bind(this)(env, false),
 				};
+
+				// allow . [] and () after tagged template: bar`foo`.length
+				env.node = this.gobbleTokenProperty(env.node);
+
+				return env.node;
 			}
 		});
 	}
