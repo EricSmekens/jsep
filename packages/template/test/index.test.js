@@ -39,6 +39,71 @@ const { test } = QUnit;
 			}, assert);
 		});
 
+		test('should parse template literal member access', (assert) => {
+			testParser('`foo`.bar', {
+				type: 'MemberExpression',
+				computed: false,
+				object: {
+					type: 'TemplateLiteral',
+					quasis: [
+						{
+							type: 'TemplateElement',
+							value: {
+								raw: 'foo',
+								cooked: 'foo',
+							},
+							tail: true,
+						}
+					],
+					expressions: []
+				},
+				property: {
+					type: 'Identifier',
+					name: 'bar'
+				}
+			}, assert);
+		});
+
+		test('should parse tagged template literal member access', (assert) => {
+			testParser('String.raw`foo`.bar', {
+				type: "MemberExpression",
+				computed: false,
+				object: {
+					type: "TaggedTemplateExpression",
+					tag: {
+						type: "MemberExpression",
+						computed: false,
+						object: {
+							type: "Identifier",
+							name: "String"
+						},
+						property: {
+							type: "Identifier",
+							name: "raw"
+						}
+					},
+					quasi: {
+						type: "TemplateLiteral",
+						quasis: [
+							{
+								type: "TemplateElement",
+								value: {
+									raw: "foo",
+									cooked: "foo"
+								},
+								tail: true
+							}
+						],
+						expressions: []
+					}
+				},
+				property: {
+					type: "Identifier",
+					name: "bar"
+				}
+			}, assert);
+		});
+
 		test('should parse tagged, nested template literal expression', (assert) => {
 			testParser('abc`token ${`nested ${`deeply` + "str"} blah`}`', {
 				type: 'TaggedTemplateExpression',
