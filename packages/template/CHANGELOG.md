@@ -1,3 +1,10 @@
+# [@jsep-plugin/template-v1.0.4](https://github.com/EricSmekens/jsep/compare/@jsep-plugin/template-v1.0.3...@jsep-plugin/template-v1.0.4) (2024-03-27)
+
+
+### Bug Fixes
+
+* support member exp after template and tagged template ([69dc0b1](https://github.com/EricSmekens/jsep/commit/69dc0b1e23ce6de43a3762a27017f7b5a1ca6aad)), closes [#259](https://github.com/EricSmekens/jsep/issues/259)
+
 # [@jsep-plugin/template-v1.0.3](https://github.com/EricSmekens/jsep/compare/@jsep-plugin/template-v1.0.2...@jsep-plugin/template-v1.0.3) (2023-07-19)
 
 
