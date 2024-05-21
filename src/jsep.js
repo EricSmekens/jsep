@@ -966,7 +966,7 @@ const jsep = expr => (new Jsep(expr)).parse();
 const staticMethods = Object.getOwnPropertyNames(Jsep);
 staticMethods
 	.forEach((m) => {
-		if (jsep[m] === undefined && m !== 'prototype') {
+		if (m !== 'prototype' && m !== 'caller' && m !== 'callee' && m !== 'arguments' && jsep[m] === undefined) {
 			jsep[m] = Jsep[m];
 		}
 	});
