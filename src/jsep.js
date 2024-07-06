@@ -589,6 +589,9 @@ export class Jsep {
 					object: node,
 					property: this.gobbleExpression()
 				};
+				if (!node.property) {
+					this.throwError('Unexpected "' + this.char + '"');
+				}
 				this.gobbleSpaces();
 				ch = this.code;
 				if (ch !== Jsep.CBRACK_CODE) {
@@ -963,12 +966,11 @@ Jsep.max_binop_len = Jsep.getMaxKeyLen(Jsep.binary_ops);
 
 // Backward Compatibility:
 const jsep = expr => (new Jsep(expr)).parse();
-const staticMethods = Object.getOwnPropertyNames(Jsep);
-staticMethods
+const stdClassProps = Object.getOwnPropertyNames(class Test{});
+Object.getOwnPropertyNames(Jsep)
+	.filter(prop => !stdClassProps.includes(prop) && jsep[prop] === undefined)
 	.forEach((m) => {
-		if (jsep[m] === undefined && m !== 'prototype') {
-			jsep[m] = Jsep[m];
-		}
+		jsep[m] = Jsep[m];
 	});
 jsep.Jsep = Jsep; // allows for const { Jsep } = require('jsep');
 export default jsep;

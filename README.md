@@ -182,7 +182,7 @@ export interface HookScope {
     gobbleArguments: (untilICode: number) => PossibleExpression;
     gobbleGroup: () => Expression;
     gobbleArray: () => PossibleExpression;
-    throwError: (msg: string) => void;
+    throwError: (msg: string) => never;
 }
 ```
 
