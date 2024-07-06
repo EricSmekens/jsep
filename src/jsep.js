@@ -589,6 +589,9 @@ export class Jsep {
 					object: node,
 					property: this.gobbleExpression()
 				};
+				if (!node.property) {
+					this.throwError('Unexpected "' + this.char + '"');
+				}
 				this.gobbleSpaces();
 				ch = this.code;
 				if (ch !== Jsep.CBRACK_CODE) {

@@ -39,6 +39,7 @@ import {testParser, testOpExpression, esprimaComparisonTest, resetJsepDefaults} 
 			type: 'MemberExpression',
 			optional: true,
 		}, assert);
+		assert.throws(() => jsep('[1,2][]'), 'Unexpected "]"');
 	});
 
 	QUnit.test('Function Calls', function (assert) {
