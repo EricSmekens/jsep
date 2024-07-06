@@ -146,13 +146,23 @@ declare module 'jsep' {
 
 		function addUnaryOp(operatorName: string): void;
 
+		function addLiteral(literalName: string, literalValue: any): void;
+
+		function addIdentifierChar(identifierName: string): void;
+
 		function removeBinaryOp(operatorName: string): void;
 
 		function removeUnaryOp(operatorName: string): void;
 
-		function addIdentifierChar(identifierName: string): void;
+		function removeLiteral(literalName: string): void;
 
 		function removeIdentifierChar(identifierName: string): void;
+
+		function removeAllBinaryOps(): void;
+
+		function removeAllUnaryOps(): void;
+
+		function removeAllLiterals(): void;
 
 		const version: string;
 	}
