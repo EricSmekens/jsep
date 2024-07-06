@@ -31,6 +31,11 @@ declare module 'jsep' {
 			body: Expression[];
 		}
 
+		export interface SequenceExpression extends Expression {
+			type: 'SequenceExpression';
+			expressions: Expression[];
+		}
+
 		export interface ConditionalExpression extends Expression {
 			type: 'ConditionalExpression';
 			test: Expression;
@@ -70,6 +75,7 @@ declare module 'jsep' {
 
 		export type ExpressionType =
 			'Compound'
+			| 'SequenceExpression'
 			| 'Identifier'
 			| 'MemberExpression'
 			| 'Literal'
@@ -85,6 +91,7 @@ declare module 'jsep' {
 			| BinaryExpression
 			| CallExpression
 			| Compound
+			| SequenceExpression
 			| ConditionalExpression
 			| Identifier
 			| Literal
