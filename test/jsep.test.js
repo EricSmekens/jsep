@@ -39,6 +39,7 @@ import {testParser, testOpExpression, esprimaComparisonTest, resetJsepDefaults} 
 			type: 'MemberExpression',
 			optional: true,
 		}, assert);
+		assert.throws(() => jsep('[1,2][]'), 'Unexpected "]"');
 	});
 
 	QUnit.test('Function Calls', function (assert) {
@@ -54,7 +55,18 @@ import {testParser, testOpExpression, esprimaComparisonTest, resetJsepDefaults} 
 
 	QUnit.test('Arrays', function (assert) {
 		testParser('[]', { type: 'ArrayExpression', elements: [] }, assert);
-
+		testParser('[,,1]', {
+			type: 'ArrayExpression',
+			elements: [
+				null,
+				null,
+				{
+					raw: '1',
+					type: 'Literal',
+					value: 1
+				}
+			],
+		}, assert);
 		testParser('[a]', {
 			type: 'ArrayExpression',
 			elements: [{ type: 'Identifier', name: 'a' }],

@@ -9,7 +9,8 @@ declare module 'jsep' {
 
 		export interface ArrayExpression extends Expression {
 			type: 'ArrayExpression';
-			elements: Expression[];
+			/** The expression can be null in the case of array holes ([ , , ]) */
+			elements: Array<null | Expression>;
 		}
 
 		export interface BinaryExpression extends Expression {
@@ -28,6 +29,11 @@ declare module 'jsep' {
 		export interface Compound extends Expression {
 			type: 'Compound';
 			body: Expression[];
+		}
+
+		export interface SequenceExpression extends Expression {
+			type: 'SequenceExpression';
+			expressions: Expression[];
 		}
 
 		export interface ConditionalExpression extends Expression {
@@ -69,6 +75,7 @@ declare module 'jsep' {
 
 		export type ExpressionType =
 			'Compound'
+			| 'SequenceExpression'
 			| 'Identifier'
 			| 'MemberExpression'
 			| 'Literal'
@@ -84,6 +91,7 @@ declare module 'jsep' {
 			| BinaryExpression
 			| CallExpression
 			| Compound
+			| SequenceExpression
 			| ConditionalExpression
 			| Identifier
 			| Literal
@@ -110,7 +118,7 @@ declare module 'jsep' {
 			gobbleArguments: (untilICode: number) => PossibleExpression;
 			gobbleGroup: () => Expression;
 			gobbleArray: () => PossibleExpression;
-			throwError: (msg: string) => void;
+			throwError: (msg: string) => never;
 		}
 
 		export type HookType = 'gobble-expression' | 'after-expression' | 'gobble-token' | 'after-token' | 'gobble-spaces';
@@ -145,13 +153,23 @@ declare module 'jsep' {
 
 		function addUnaryOp(operatorName: string): void;
 
+		function addLiteral(literalName: string, literalValue: any): void;
+
+		function addIdentifierChar(identifierName: string): void;
+
 		function removeBinaryOp(operatorName: string): void;
 
 		function removeUnaryOp(operatorName: string): void;
 
-		function addIdentifierChar(identifierName: string): void;
+		function removeLiteral(literalName: string): void;
 
 		function removeIdentifierChar(identifierName: string): void;
+
+		function removeAllBinaryOps(): void;
+
+		function removeAllUnaryOps(): void;
+
+		function removeAllLiterals(): void;
 
 		const version: string;
 	}
