@@ -1,3 +1,15 @@
+## [1.3.9](https://github.com/EricSmekens/jsep/compare/v1.3.8...v1.3.9) (2024-07-12)
+
+
+### Bug Fixes
+
+* add types add/remove/removeAll functions ([b4a5b1a](https://github.com/EricSmekens/jsep/commit/b4a5b1a9f3163f493b80bd13390c716a0f88fab3)), closes [#238](https://github.com/EricSmekens/jsep/issues/238)
+* add types for SequenceExpressions ([d0cf015](https://github.com/EricSmekens/jsep/commit/d0cf015b08b5b3f16e6645be97402186932a555d)), closes [#261](https://github.com/EricSmekens/jsep/issues/261)
+* detect unexpected ] in expression "[1,2][]" ([70b8ea6](https://github.com/EricSmekens/jsep/commit/70b8ea6942380feec8ad49b876dec8a7c125ea31)), closes [#256](https://github.com/EricSmekens/jsep/issues/256)
+* do not access prototype ([037d1db](https://github.com/EricSmekens/jsep/commit/037d1dbf5f4bd9b98dd6a7ae4c7251f018452cce)), closes [#239](https://github.com/EricSmekens/jsep/issues/239)
+* throwError return type ([e0df539](https://github.com/EricSmekens/jsep/commit/e0df539e188d9dfc1da21be57f227567788c951f)), closes [#252](https://github.com/EricSmekens/jsep/issues/252)
+* update Array elements typing ([097ae12](https://github.com/EricSmekens/jsep/commit/097ae12a681f78720f1d6158184734bd5e7eea1c))
+
 ## [1.3.8](https://github.com/EricSmekens/jsep/compare/v1.3.7...v1.3.8) (2022-12-06)
 
 
