@@ -935,16 +935,18 @@ Object.assign(Jsep, {
 	// binary precedence for quick reference (higher number = higher precedence)
 	// see [Order of operations](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_Precedence)
 	binary_ops: {
-		'||': 1, '&&': 2, '|': 3, '^': 4, '&': 5,
+		'||': 1, '??': 1,
+		'&&': 2, '|': 3, '^': 4, '&': 5,
 		'==': 6, '!=': 6, '===': 6, '!==': 6,
 		'<': 7, '>': 7, '<=': 7, '>=': 7,
 		'<<': 8, '>>': 8, '>>>': 8,
 		'+': 9, '-': 9,
-		'*': 10, '/': 10, '%': 10
+		'*': 10, '/': 10, '%': 10,
+		'**': 11,
 	},
 
 	// sets specific binary_ops as right-associative
-	right_associative: new Set(),
+	right_associative: new Set(['**']),
 
 	// Additional valid identifier chars, apart from a-z, A-Z and 0-9 (except on the starting char)
 	additional_identifier_chars: new Set(['$', '_']),

@@ -74,9 +74,6 @@ import {testParser, testOpExpression, esprimaComparisonTest, resetJsepDefaults} 
 	});
 
 	QUnit.module('Ops', function (qunit) {
-		qunit.before(() => {
-			jsep.addBinaryOp('**', 11, true); // ES2016, right-associative
-		});
 		qunit.after(resetJsepDefaults);
 
 		[
@@ -93,6 +90,7 @@ import {testParser, testOpExpression, esprimaComparisonTest, resetJsepDefaults} 
 			'2 ** 3 ** 4',
 			'2 ** 3 ** 4 * 5 ** 6 ** 7 * (8 + 9)',
 			'(2 ** 3) ** 4 * (5 ** 6 ** 7) * (8 + 9)',
+			'null ?? 1',
 		].forEach(expr => QUnit.test(`Expr: ${expr}`, assert => testOpExpression(expr, assert)));
 	});
 
@@ -151,6 +149,51 @@ import {testParser, testOpExpression, esprimaComparisonTest, resetJsepDefaults} 
 			name: 'notes',
 		}, assert);
 		jsep.removeUnaryOp('notes');
+	});
+
+	QUnit.test('Right-Associative Operators', function (assert) {
+		testParser('a ** b ** c', { // right-associative
+			type: 'BinaryExpression',
+			operator: '**',
+			left: {
+				type: 'Identifier',
+				name: 'a',
+			},
+			right: {
+				type: 'BinaryExpression',
+				operator: '**',
+				left: {
+					type: 'Identifier',
+					name: 'b',
+				},
+				right: {
+					type: 'Identifier',
+					name: 'c'
+				}
+			}
+		}, assert);
+
+		const expr = 'a * b * c';
+		testParser(expr, {
+			type: 'BinaryExpression',
+			operator: '*',
+			left: {
+				type: 'BinaryExpression',
+				operator: '*',
+				left: {
+					type: 'Identifier',
+					name: 'a'
+				},
+				right: {
+					type: 'Identifier',
+					name: 'b'
+				}
+			},
+			right: {
+				type: 'Identifier',
+				name: 'c',
+			}
+		}, assert);
 	});
 
 	QUnit.test('Custom alphanumeric operators', function (assert) {
@@ -231,6 +274,7 @@ import {testParser, testOpExpression, esprimaComparisonTest, resetJsepDefaults} 
 		'*x',
 		'||x',
 		'?a:b',
+		'a ??',
 		'.',
 		'()()',
 		// '()', should throw 'unexpected )'...
