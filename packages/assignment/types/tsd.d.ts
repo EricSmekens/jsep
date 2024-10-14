@@ -27,7 +27,10 @@ export interface AssignmentExpression extends Expression {
 		| '>>>='
 		| '&='
 		| '^='
-		| '|=';
+		| '|='
+	  | '||='
+	  | '&&='
+	  | '??=';
 	left: Expression;
 	right: Expression;
 }

@@ -20,6 +20,9 @@ const { test } = QUnit;
 			'&=',
 			'^=',
 			'|=',
+			'||=',
+			'&&=',
+			'??=',
 		];
 
 		qunit.before(() => jsep.plugins.register(assignment));
@@ -234,7 +237,7 @@ const { test } = QUnit;
 
 		[
 			...operators
-				.filter(op => op !== '**=') // not supported by esprima
+				.filter(op => !['**=', '||=', '&&=', '??='].includes(op)) // not supported by esprima
 				.map(op => `a ${op} 2`),
 			'a++',
 			'++a',
