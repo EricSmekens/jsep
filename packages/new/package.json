@@ -32,7 +32,7 @@
 		"node": ">= 10.16.0"
 	},
 	"scripts": {
-		"build": "rollup -c ../../plugin.rollup.config.js && cp ../../package-cjs.json dist/cjs/package.json",
+		"build": "rollup -c ../../plugin.rollup.config.js && cp ../../package-cjs.json dist/cjs/package.json && cp ../../LICENSE ./",
 		"test": "cd ../../ && http-server -p 49649 --silent & node-qunit-puppeteer http://localhost:49649/packages/new/test/unit_tests.html",
 		"lint": "eslint src/**/*.js test/**/*.js"
 	}
