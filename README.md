@@ -65,7 +65,7 @@ const parse_tree = Jsep.parse('1 + 1');
 jsep.addBinaryOp("^", 10);
 
 // Add exponentiation operator (right-to-left)
-jsep.addBinaryOp('**', 11, true);
+jsep.addBinaryOp('**', 11, true); // now included by default
 
 // Add a custom @ unary operator
 jsep.addUnaryOp('@');
@@ -87,6 +87,19 @@ jsep.addIdentifierChar("@");
 
 // Removes a custom @ identifier
 jsep.removeIdentifierChar('@');
+```
+
+#### Custom Literals
+
+You can add or remove additional valid literals. By default, only `true`, `false`, and `null` are defined
+```javascript
+// Add standard JS literals:
+jsep.addLiteral('undefined', undefined);
+jsep.addLiteral('Infinity', Infinity);
+jsep.addLiteral('NaN', NaN);
+
+// Remove "null" literal from default definition
+jsep.removeLiteral('null');
 ```
 
 ### Plugins
