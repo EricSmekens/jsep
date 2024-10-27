@@ -1,7 +1,7 @@
 {
 	"ignorePatterns": ["**/dist/**/*.js"],
 	"parserOptions": {
-		"ecmaVersion": 6,
+		"ecmaVersion": 2020,
 		"sourceType": "module",
 		"ecmaFeatures": {
 			"impliedStrict": true
@@ -11,14 +11,6 @@
 		"browser": true,
 		"node": true
 	},
-	"overrides": [
-		{
-			"files": ["test/**/*.js", "*.test.js"],
-			"parserOptions": {
-				"ecmaVersion": 7
-			}
-		}
-	],
 	"rules": {
 		"semi": 1,
 		"no-dupe-args": 1,
