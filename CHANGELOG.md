@@ -1,3 +1,15 @@
+# [1.4.0](https://github.com/EricSmekens/jsep/compare/v1.3.9...v1.4.0) (2024-11-05)
+
+
+### Bug Fixes
+
+* add license file to build output ([f6678fb](https://github.com/EricSmekens/jsep/commit/f6678fb0869188e9c9575fed231864f75e99af74)), closes [#267](https://github.com/EricSmekens/jsep/issues/267)
+
+
+### Features
+
+* add nullish coallescing (??) and exponentiation (**) binary_ops ([7321a7b](https://github.com/EricSmekens/jsep/commit/7321a7be17e48868495a177e7ab3e690fdf84c9f)), closes [#268](https://github.com/EricSmekens/jsep/issues/268)
+
 ## [1.3.9](https://github.com/EricSmekens/jsep/compare/v1.3.8...v1.3.9) (2024-07-12)
 
 
