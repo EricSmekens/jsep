@@ -33,7 +33,7 @@
 		"@semantic-release/exec": "^6.0.3",
 		"@semantic-release/git": "^9.0.0",
 		"benchmark": "^2.1.4",
-		"docco": "^0.8.1",
+		"docco": "^0.9.1",
 		"eslint": "^7.23.0",
 		"http-server": "^14.1.1",
 		"husky": "^7.0.0",

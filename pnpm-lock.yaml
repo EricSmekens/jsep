@@ -11,7 +11,7 @@ importers:
       '@semantic-release/exec': ^6.0.3
       '@semantic-release/git': ^9.0.0
       benchmark: ^2.1.4
-      docco: ^0.8.1
+      docco: ^0.9.1
       eslint: ^7.23.0
       http-server: ^14.1.1
       husky: ^7.0.0
@@ -30,7 +30,7 @@ importers:
       '@semantic-release/exec': 6.0.3
       '@semantic-release/git': 9.0.0
       benchmark: 2.1.4
-      docco: 0.8.1
+      docco: 0.9.1
       eslint: 7.32.0
       http-server: 14.1.1
       husky: 7.0.2
@@ -1037,8 +1037,8 @@ packages:
     resolution: {integrity: sha512-GpVkmM8vF2vQUkj2LvZmD35JxeJOLCwJ9cUkugyk2nuhbv3+mJvpLYYt+0+USMxE+oj+ey/lJEnhZw75x/OMcQ==}
     dev: true
 
-  /commander/8.1.0:
-    resolution: {integrity: sha512-mf45ldcuHSYShkplHHGKWb4TrmwQadxOn7v4WuhDJy0ZVoY5JFajaRDKD0PNe5qXzBX0rhovjTnP6Kz9LETcuA==}
+  /commander/8.3.0:
+    resolution: {integrity: sha512-OkTL9umf+He2DZkUq8f8J9of7yL6RJKI24dVITBmNfZBmri9zYZQrKkuXiKhyfPSu8tUhnVBB1iKXevvnlR4Ww==}
     engines: {node: '>= 12'}
     dev: true
 
@@ -1269,15 +1269,15 @@ packages:
       path-type: 4.0.0
     dev: true
 
-  /docco/0.8.1:
-    resolution: {integrity: sha512-OFVdjpxw4aTI+FThrCY2NEWZV/nvGDFlfeQxUTMkKL+oY2gD2sMl0N5ogoAj3YLZU05UDBSh64ROYzLFzxSoSQ==}
+  /docco/0.9.1:
+    resolution: {integrity: sha512-B1jUzcAc4AmicWUnmPTxUGM2lqJ11X4DiLUXyhzUVb7A1NNGTSNo3LtGzhHMyRAuJyxrHwHiOCDGuE/n9xRhmA==}
     engines: {node: '>=0.2.0'}
     hasBin: true
     dependencies:
-      commander: 8.1.0
+      commander: 8.3.0
       fs-extra: 10.0.0
-      highlight.js: 11.2.0
-      marked: 2.1.3
+      highlight.js: 11.3.1
+      marked: 4.0.19
       underscore: 1.13.1
     dev: true
 
@@ -1855,8 +1855,8 @@ packages:
     hasBin: true
     dev: true
 
-  /highlight.js/11.2.0:
-    resolution: {integrity: sha512-JOySjtOEcyG8s4MLR2MNbLUyaXqUunmSnL2kdV/KuGJOmHZuAR5xC54Ko7goAXBWNhf09Vy3B+U7vR62UZ/0iw==}
+  /highlight.js/11.3.1:
+    resolution: {integrity: sha512-PUhCRnPjLtiLHZAQ5A/Dt5F8cWZeMyj9KRsACsWT+OD6OP0x6dp5OmT5jdx0JgEyPxPZZIPQpRN2TciUT7occw==}
     engines: {node: '>=12.0.0'}
     dev: true
 
@@ -2319,14 +2319,14 @@ packages:
       supports-hyperlinks: 2.2.0
     dev: true
 
-  /marked/2.1.3:
-    resolution: {integrity: sha512-/Q+7MGzaETqifOMWYEA7HVMaZb4XbcRfaOzcSsHZEith83KGlvaSG33u0SKu89Mj5h+T8V2hM+8O45Qc5XTgwA==}
-    engines: {node: '>= 10'}
+  /marked/3.0.2:
+    resolution: {integrity: sha512-TMJQQ79Z0e3rJYazY0tIoMsFzteUGw9fB3FD+gzuIT3zLuG9L9ckIvUfF51apdJkcqc208jJN2KbtPbOvXtbjA==}
+    engines: {node: '>= 12'}
     hasBin: true
     dev: true
 
-  /marked/3.0.2:
-    resolution: {integrity: sha512-TMJQQ79Z0e3rJYazY0tIoMsFzteUGw9fB3FD+gzuIT3zLuG9L9ckIvUfF51apdJkcqc208jJN2KbtPbOvXtbjA==}
+  /marked/4.0.19:
+    resolution: {integrity: sha512-rgQF/OxOiLcvgUAj1Q1tAf4Bgxn5h5JZTp04Fx4XUkVhs7B+7YA9JEWJhJpoO8eJt8MkZMwqLCNeNqj1bCREZQ==}
     engines: {node: '>= 12'}
     hasBin: true
     dev: true

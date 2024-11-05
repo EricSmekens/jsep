@@ -7,6 +7,7 @@ export const binOps = {
 	'/': (a, b) => a / b,
 	'%': (a, b) => a % b,
 	'**': (a, b) => a ** b, // ES2016
+	'??': (a, b) => a ?? b, // ES2020
 };
 
 export const unOps = {
