@@ -1,3 +1,15 @@
+# [@jsep-plugin/assignment-v1.3.0](https://github.com/EricSmekens/jsep/compare/@jsep-plugin/assignment-v1.2.1...@jsep-plugin/assignment-v1.3.0) (2024-11-05)
+
+
+### Bug Fixes
+
+* add license file to build output ([f6678fb](https://github.com/EricSmekens/jsep/commit/f6678fb0869188e9c9575fed231864f75e99af74)), closes [#267](https://github.com/EricSmekens/jsep/issues/267)
+
+
+### Features
+
+* add logical assignment operators ||= &&= ??= (es2021) ([773a063](https://github.com/EricSmekens/jsep/commit/773a0631785648862baceb76ba5c5574237fe999))
+
 # [@jsep-plugin/assignment-v1.2.1](https://github.com/EricSmekens/jsep/compare/@jsep-plugin/assignment-v1.2.0...@jsep-plugin/assignment-v1.2.1) (2022-09-18)
 
 
