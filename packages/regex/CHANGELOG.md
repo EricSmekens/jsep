@@ -1,3 +1,10 @@
+# [@jsep-plugin/regex-v1.0.4](https://github.com/EricSmekens/jsep/compare/@jsep-plugin/regex-v1.0.3...@jsep-plugin/regex-v1.0.4) (2024-11-05)
+
+
+### Bug Fixes
+
+* add license file to build output ([f6678fb](https://github.com/EricSmekens/jsep/commit/f6678fb0869188e9c9575fed231864f75e99af74)), closes [#267](https://github.com/EricSmekens/jsep/issues/267)
+
 # [@jsep-plugin/regex-v1.0.3](https://github.com/EricSmekens/jsep/compare/@jsep-plugin/regex-v1.0.2...@jsep-plugin/regex-v1.0.3) (2022-09-18)
 
 
