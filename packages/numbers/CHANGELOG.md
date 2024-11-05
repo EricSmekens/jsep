@@ -1,3 +1,10 @@
+# [@jsep-plugin/numbers-v1.0.2](https://github.com/EricSmekens/jsep/compare/@jsep-plugin/numbers-v1.0.1...@jsep-plugin/numbers-v1.0.2) (2024-11-05)
+
+
+### Bug Fixes
+
+* add license file to build output ([f6678fb](https://github.com/EricSmekens/jsep/commit/f6678fb0869188e9c9575fed231864f75e99af74)), closes [#267](https://github.com/EricSmekens/jsep/issues/267)
+
 # [@jsep-plugin/numbers-v1.0.1](https://github.com/EricSmekens/jsep/compare/@jsep-plugin/numbers-v1.0.0...@jsep-plugin/numbers-v1.0.1) (2022-09-18)
 
 
