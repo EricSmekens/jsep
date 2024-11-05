@@ -1,3 +1,10 @@
+# [@jsep-plugin/object-v1.2.2](https://github.com/EricSmekens/jsep/compare/@jsep-plugin/object-v1.2.1...@jsep-plugin/object-v1.2.2) (2024-11-05)
+
+
+### Bug Fixes
+
+* add license file to build output ([f6678fb](https://github.com/EricSmekens/jsep/commit/f6678fb0869188e9c9575fed231864f75e99af74)), closes [#267](https://github.com/EricSmekens/jsep/issues/267)
+
 # [@jsep-plugin/object-v1.2.1](https://github.com/EricSmekens/jsep/compare/@jsep-plugin/object-v1.2.0...@jsep-plugin/object-v1.2.1) (2022-09-18)
 
 
