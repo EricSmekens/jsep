@@ -1,0 +1,1399 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>jsep.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="..\docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+    <ul class="sections">
+        
+          <li id="title">
+              <div class="annotation">
+                  <h1>jsep.js</h1>
+              </div>
+          </li>
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-1">&#x00a7;</a>
+              </div>
+              <pre><code><span class="hljs-title class_">JavaScript</span> <span class="hljs-title class_">Expression</span> <span class="hljs-title class_">Parser</span> (<span class="hljs-variable constant_">JSEP</span>) &lt;%= version %&gt;
+<span class="hljs-variable constant_">JSEP</span> may be freely distributed under the <span class="hljs-variable constant_">MIT</span> <span class="hljs-title class_">License</span>
+<span class="hljs-attr">https</span>:<span class="hljs-comment">//ericsmekens.github.io/jsep/</span>
+</code></pre>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">import</span> <span class="hljs-title class_">Hooks</span> <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;./hooks.js&#x27;</span>;
+<span class="hljs-keyword">import</span> <span class="hljs-title class_">Plugins</span> <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;./plugins.js&#x27;</span>;
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Jsep</span> {
+	<span class="hljs-comment">/**
+	 * <span class="hljs-doctag">@returns</span> {<span class="hljs-type">string</span>}
+	 */</span>
+	<span class="hljs-keyword">static</span> <span class="hljs-keyword">get</span> <span class="hljs-title function_">version</span>() {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-2">&#x00a7;</a>
+              </div>
+              <p>To be filled in by the template</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>		<span class="hljs-keyword">return</span> <span class="hljs-string">&#x27;&lt;%= version %&gt;&#x27;</span>;
+	}
+
+	<span class="hljs-comment">/**
+	 * <span class="hljs-doctag">@returns</span> {<span class="hljs-type">string</span>}
+	 */</span>
+	<span class="hljs-keyword">static</span> <span class="hljs-title function_">toString</span>(<span class="hljs-params"></span>) {
+		<span class="hljs-keyword">return</span> <span class="hljs-string">&#x27;JavaScript Expression Parser (JSEP) v&#x27;</span> + <span class="hljs-title class_">Jsep</span>.<span class="hljs-property">version</span>;
+	};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-3">&#x00a7;</a>
+              </div>
+              <p>==================== CONFIG ================================</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>	<span class="hljs-comment">/**
+	 * <span class="hljs-doctag">@method</span> <span class="hljs-variable">addUnaryOp</span>
+	 * <span class="hljs-doctag">@param</span> {<span class="hljs-type">string</span>} op_name The name of the unary op to add
+	 * <span class="hljs-doctag">@returns</span> {<span class="hljs-type">Jsep</span>}
+	 */</span>
+	<span class="hljs-keyword">static</span> <span class="hljs-title function_">addUnaryOp</span>(<span class="hljs-params">op_name</span>) {
+		<span class="hljs-title class_">Jsep</span>.<span class="hljs-property">max_unop_len</span> = <span class="hljs-title class_">Math</span>.<span class="hljs-title function_">max</span>(op_name.<span class="hljs-property">length</span>, <span class="hljs-title class_">Jsep</span>.<span class="hljs-property">max_unop_len</span>);
+		<span class="hljs-title class_">Jsep</span>.<span class="hljs-property">unary_ops</span>[op_name] = <span class="hljs-number">1</span>;
+		<span class="hljs-keyword">return</span> <span class="hljs-title class_">Jsep</span>;
+	}
+
+	<span class="hljs-comment">/**
+	 * <span class="hljs-doctag">@method</span> jsep.addBinaryOp
+	 * <span class="hljs-doctag">@param</span> {<span class="hljs-type">string</span>} op_name The name of the binary op to add
+	 * <span class="hljs-doctag">@param</span> {<span class="hljs-type">number</span>} precedence The precedence of the binary op (can be a float). Higher number = higher precedence
+	 * <span class="hljs-doctag">@param</span> {<span class="hljs-type">boolean</span>} [isRightAssociative=false] whether operator is right-associative
+	 * <span class="hljs-doctag">@returns</span> {<span class="hljs-type">Jsep</span>}
+	 */</span>
+	<span class="hljs-keyword">static</span> <span class="hljs-title function_">addBinaryOp</span>(<span class="hljs-params">op_name, precedence, isRightAssociative</span>) {
+		<span class="hljs-title class_">Jsep</span>.<span class="hljs-property">max_binop_len</span> = <span class="hljs-title class_">Math</span>.<span class="hljs-title function_">max</span>(op_name.<span class="hljs-property">length</span>, <span class="hljs-title class_">Jsep</span>.<span class="hljs-property">max_binop_len</span>);
+		<span class="hljs-title class_">Jsep</span>.<span class="hljs-property">binary_ops</span>[op_name] = precedence;
+		<span class="hljs-keyword">if</span> (isRightAssociative) {
+			<span class="hljs-title class_">Jsep</span>.<span class="hljs-property">right_associative</span>.<span class="hljs-title function_">add</span>(op_name);
+		}
+		<span class="hljs-keyword">else</span> {
+			<span class="hljs-title class_">Jsep</span>.<span class="hljs-property">right_associative</span>.<span class="hljs-title function_">delete</span>(op_name);
+		}
+		<span class="hljs-keyword">return</span> <span class="hljs-title class_">Jsep</span>;
+	}
+
+	<span class="hljs-comment">/**
+	 * <span class="hljs-doctag">@method</span> <span class="hljs-variable">addIdentifierChar</span>
+	 * <span class="hljs-doctag">@param</span> {<span class="hljs-type">string</span>} char The additional character to treat as a valid part of an identifier
+	 * <span class="hljs-doctag">@returns</span> {<span class="hljs-type">Jsep</span>}
+	 */</span>
+	<span class="hljs-keyword">static</span> <span class="hljs-title function_">addIdentifierChar</span>(<span class="hljs-params">char</span>) {
+		<span class="hljs-title class_">Jsep</span>.<span class="hljs-property">additional_identifier_chars</span>.<span class="hljs-title function_">add</span>(char);
+		<span class="hljs-keyword">return</span> <span class="hljs-title class_">Jsep</span>;
+	}
+
+	<span class="hljs-comment">/**
+	 * <span class="hljs-doctag">@method</span> <span class="hljs-variable">addLiteral</span>
+	 * <span class="hljs-doctag">@param</span> {<span class="hljs-type">string</span>} literal_name The name of the literal to add
+	 * <span class="hljs-doctag">@param</span> {<span class="hljs-type">*</span>} literal_value The value of the literal
+	 * <span class="hljs-doctag">@returns</span> {<span class="hljs-type">Jsep</span>}
+	 */</span>
+	<span class="hljs-keyword">static</span> <span class="hljs-title function_">addLiteral</span>(<span class="hljs-params">literal_name, literal_value</span>) {
+		<span class="hljs-title class_">Jsep</span>.<span class="hljs-property">literals</span>[literal_name] = literal_value;
+		<span class="hljs-keyword">return</span> <span class="hljs-title class_">Jsep</span>;
+	}
+
+	<span class="hljs-comment">/**
+	 * <span class="hljs-doctag">@method</span> <span class="hljs-variable">removeUnaryOp</span>
+	 * <span class="hljs-doctag">@param</span> {<span class="hljs-type">string</span>} op_name The name of the unary op to remove
+	 * <span class="hljs-doctag">@returns</span> {<span class="hljs-type">Jsep</span>}
+	 */</span>
+	<span class="hljs-keyword">static</span> <span class="hljs-title function_">removeUnaryOp</span>(<span class="hljs-params">op_name</span>) {
+		<span class="hljs-keyword">delete</span> <span class="hljs-title class_">Jsep</span>.<span class="hljs-property">unary_ops</span>[op_name];
+		<span class="hljs-keyword">if</span> (op_name.<span class="hljs-property">length</span> === <span class="hljs-title class_">Jsep</span>.<span class="hljs-property">max_unop_len</span>) {
+			<span class="hljs-title class_">Jsep</span>.<span class="hljs-property">max_unop_len</span> = <span class="hljs-title class_">Jsep</span>.<span class="hljs-title function_">getMaxKeyLen</span>(<span class="hljs-title class_">Jsep</span>.<span class="hljs-property">unary_ops</span>);
+		}
+		<span class="hljs-keyword">return</span> <span class="hljs-title class_">Jsep</span>;
+	}
+
+	<span class="hljs-comment">/**
+	 * <span class="hljs-doctag">@method</span> <span class="hljs-variable">removeAllUnaryOps</span>
+	 * <span class="hljs-doctag">@returns</span> {<span class="hljs-type">Jsep</span>}
+	 */</span>
+	<span class="hljs-keyword">static</span> <span class="hljs-title function_">removeAllUnaryOps</span>(<span class="hljs-params"></span>) {
+		<span class="hljs-title class_">Jsep</span>.<span class="hljs-property">unary_ops</span> = {};
+		<span class="hljs-title class_">Jsep</span>.<span class="hljs-property">max_unop_len</span> = <span class="hljs-number">0</span>;
+
+		<span class="hljs-keyword">return</span> <span class="hljs-title class_">Jsep</span>;
+	}
+
+	<span class="hljs-comment">/**
+	 * <span class="hljs-doctag">@method</span> <span class="hljs-variable">removeIdentifierChar</span>
+	 * <span class="hljs-doctag">@param</span> {<span class="hljs-type">string</span>} char The additional character to stop treating as a valid part of an identifier
+	 * <span class="hljs-doctag">@returns</span> {<span class="hljs-type">Jsep</span>}
+	 */</span>
+	<span class="hljs-keyword">static</span> <span class="hljs-title function_">removeIdentifierChar</span>(<span class="hljs-params">char</span>) {
+		<span class="hljs-title class_">Jsep</span>.<span class="hljs-property">additional_identifier_chars</span>.<span class="hljs-title function_">delete</span>(char);
+		<span class="hljs-keyword">return</span> <span class="hljs-title class_">Jsep</span>;
+	}
+
+	<span class="hljs-comment">/**
+	 * <span class="hljs-doctag">@method</span> <span class="hljs-variable">removeBinaryOp</span>
+	 * <span class="hljs-doctag">@param</span> {<span class="hljs-type">string</span>} op_name The name of the binary op to remove
+	 * <span class="hljs-doctag">@returns</span> {<span class="hljs-type">Jsep</span>}
+	 */</span>
+	<span class="hljs-keyword">static</span> <span class="hljs-title function_">removeBinaryOp</span>(<span class="hljs-params">op_name</span>) {
+		<span class="hljs-keyword">delete</span> <span class="hljs-title class_">Jsep</span>.<span class="hljs-property">binary_ops</span>[op_name];
+
+		<span class="hljs-keyword">if</span> (op_name.<span class="hljs-property">length</span> === <span class="hljs-title class_">Jsep</span>.<span class="hljs-property">max_binop_len</span>) {
+			<span class="hljs-title class_">Jsep</span>.<span class="hljs-property">max_binop_len</span> = <span class="hljs-title class_">Jsep</span>.<span class="hljs-title function_">getMaxKeyLen</span>(<span class="hljs-title class_">Jsep</span>.<span class="hljs-property">binary_ops</span>);
+		}
+		<span class="hljs-title class_">Jsep</span>.<span class="hljs-property">right_associative</span>.<span class="hljs-title function_">delete</span>(op_name);
+
+		<span class="hljs-keyword">return</span> <span class="hljs-title class_">Jsep</span>;
+	}
+
+	<span class="hljs-comment">/**
+	 * <span class="hljs-doctag">@method</span> <span class="hljs-variable">removeAllBinaryOps</span>
+	 * <span class="hljs-doctag">@returns</span> {<span class="hljs-type">Jsep</span>}
+	 */</span>
+	<span class="hljs-keyword">static</span> <span class="hljs-title function_">removeAllBinaryOps</span>(<span class="hljs-params"></span>) {
+		<span class="hljs-title class_">Jsep</span>.<span class="hljs-property">binary_ops</span> = {};
+		<span class="hljs-title class_">Jsep</span>.<span class="hljs-property">max_binop_len</span> = <span class="hljs-number">0</span>;
+
+		<span class="hljs-keyword">return</span> <span class="hljs-title class_">Jsep</span>;
+	}
+
+	<span class="hljs-comment">/**
+	 * <span class="hljs-doctag">@method</span> <span class="hljs-variable">removeLiteral</span>
+	 * <span class="hljs-doctag">@param</span> {<span class="hljs-type">string</span>} literal_name The name of the literal to remove
+	 * <span class="hljs-doctag">@returns</span> {<span class="hljs-type">Jsep</span>}
+	 */</span>
+	<span class="hljs-keyword">static</span> <span class="hljs-title function_">removeLiteral</span>(<span class="hljs-params">literal_name</span>) {
+		<span class="hljs-keyword">delete</span> <span class="hljs-title class_">Jsep</span>.<span class="hljs-property">literals</span>[literal_name];
+		<span class="hljs-keyword">return</span> <span class="hljs-title class_">Jsep</span>;
+	}
+
+	<span class="hljs-comment">/**
+	 * <span class="hljs-doctag">@method</span> <span class="hljs-variable">removeAllLiterals</span>
+	 * <span class="hljs-doctag">@returns</span> {<span class="hljs-type">Jsep</span>}
+	 */</span>
+	<span class="hljs-keyword">static</span> <span class="hljs-title function_">removeAllLiterals</span>(<span class="hljs-params"></span>) {
+		<span class="hljs-title class_">Jsep</span>.<span class="hljs-property">literals</span> = {};
+
+		<span class="hljs-keyword">return</span> <span class="hljs-title class_">Jsep</span>;
+	}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-4">&#x00a7;</a>
+              </div>
+              <p>==================== END CONFIG ============================</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>
+
+	<span class="hljs-comment">/**
+	 * <span class="hljs-doctag">@returns</span> {<span class="hljs-type">string</span>}
+	 */</span>
+	<span class="hljs-keyword">get</span> <span class="hljs-title function_">char</span>() {
+		<span class="hljs-keyword">return</span> <span class="hljs-variable language_">this</span>.<span class="hljs-property">expr</span>.<span class="hljs-title function_">charAt</span>(<span class="hljs-variable language_">this</span>.<span class="hljs-property">index</span>);
+	}
+
+	<span class="hljs-comment">/**
+	 * <span class="hljs-doctag">@returns</span> {<span class="hljs-type">number</span>}
+	 */</span>
+	<span class="hljs-keyword">get</span> <span class="hljs-title function_">code</span>() {
+		<span class="hljs-keyword">return</span> <span class="hljs-variable language_">this</span>.<span class="hljs-property">expr</span>.<span class="hljs-title function_">charCodeAt</span>(<span class="hljs-variable language_">this</span>.<span class="hljs-property">index</span>);
+	};
+
+
+	<span class="hljs-comment">/**
+	 * <span class="hljs-doctag">@param</span> {<span class="hljs-type">string</span>} expr a string with the passed in express
+	 * <span class="hljs-doctag">@returns</span> <span class="hljs-variable">Jsep</span>
+	 */</span>
+	<span class="hljs-title function_">constructor</span>(<span class="hljs-params">expr</span>) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-5">&#x00a7;</a>
+              </div>
+              <p><code>index</code> stores the character number we are currently at
+All of the gobbles below will modify <code>index</code> as we move along</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>		<span class="hljs-variable language_">this</span>.<span class="hljs-property">expr</span> = expr;
+		<span class="hljs-variable language_">this</span>.<span class="hljs-property">index</span> = <span class="hljs-number">0</span>;
+	}
+
+	<span class="hljs-comment">/**
+	 * static top-level parser
+	 * <span class="hljs-doctag">@returns</span> {<span class="hljs-type">jsep.Expression</span>}
+	 */</span>
+	<span class="hljs-keyword">static</span> <span class="hljs-title function_">parse</span>(<span class="hljs-params">expr</span>) {
+		<span class="hljs-keyword">return</span> (<span class="hljs-keyword">new</span> <span class="hljs-title class_">Jsep</span>(expr)).<span class="hljs-title function_">parse</span>();
+	}
+
+	<span class="hljs-comment">/**
+	 * Get the longest key length of any object
+	 * <span class="hljs-doctag">@param</span> {<span class="hljs-type">object</span>} <span class="hljs-variable">obj</span>
+	 * <span class="hljs-doctag">@returns</span> {<span class="hljs-type">number</span>}
+	 */</span>
+	<span class="hljs-keyword">static</span> <span class="hljs-title function_">getMaxKeyLen</span>(<span class="hljs-params">obj</span>) {
+		<span class="hljs-keyword">return</span> <span class="hljs-title class_">Math</span>.<span class="hljs-title function_">max</span>(<span class="hljs-number">0</span>, ...<span class="hljs-title class_">Object</span>.<span class="hljs-title function_">keys</span>(obj).<span class="hljs-title function_">map</span>(<span class="hljs-function"><span class="hljs-params">k</span> =&gt;</span> k.<span class="hljs-property">length</span>));
+	}
+
+	<span class="hljs-comment">/**
+	 * `ch` is a character code in the next three functions
+	 * <span class="hljs-doctag">@param</span> {<span class="hljs-type">number</span>} <span class="hljs-variable">ch</span>
+	 * <span class="hljs-doctag">@returns</span> {<span class="hljs-type">boolean</span>}
+	 */</span>
+	<span class="hljs-keyword">static</span> <span class="hljs-title function_">isDecimalDigit</span>(<span class="hljs-params">ch</span>) {
+		<span class="hljs-keyword">return</span> (ch &gt;= <span class="hljs-number">48</span> &amp;&amp; ch &lt;= <span class="hljs-number">57</span>); <span class="hljs-comment">// 0...9</span>
+	}
+
+	<span class="hljs-comment">/**
+	 * Returns the precedence of a binary operator or `0` if it isn&#x27;t a binary operator. Can be float.
+	 * <span class="hljs-doctag">@param</span> {<span class="hljs-type">string</span>} <span class="hljs-variable">op_val</span>
+	 * <span class="hljs-doctag">@returns</span> {<span class="hljs-type">number</span>}
+	 */</span>
+	<span class="hljs-keyword">static</span> <span class="hljs-title function_">binaryPrecedence</span>(<span class="hljs-params">op_val</span>) {
+		<span class="hljs-keyword">return</span> <span class="hljs-title class_">Jsep</span>.<span class="hljs-property">binary_ops</span>[op_val] || <span class="hljs-number">0</span>;
+	}
+
+	<span class="hljs-comment">/**
+	 * Looks for start of identifier
+	 * <span class="hljs-doctag">@param</span> {<span class="hljs-type">number</span>} <span class="hljs-variable">ch</span>
+	 * <span class="hljs-doctag">@returns</span> {<span class="hljs-type">boolean</span>}
+	 */</span>
+	<span class="hljs-keyword">static</span> <span class="hljs-title function_">isIdentifierStart</span>(<span class="hljs-params">ch</span>) {
+		<span class="hljs-keyword">return</span>  (ch &gt;= <span class="hljs-number">65</span> &amp;&amp; ch &lt;= <span class="hljs-number">90</span>) || <span class="hljs-comment">// A...Z</span>
+			(ch &gt;= <span class="hljs-number">97</span> &amp;&amp; ch &lt;= <span class="hljs-number">122</span>) || <span class="hljs-comment">// a...z</span>
+			(ch &gt;= <span class="hljs-number">128</span> &amp;&amp; !<span class="hljs-title class_">Jsep</span>.<span class="hljs-property">binary_ops</span>[<span class="hljs-title class_">String</span>.<span class="hljs-title function_">fromCharCode</span>(ch)]) || <span class="hljs-comment">// any non-ASCII that is not an operator</span>
+			(<span class="hljs-title class_">Jsep</span>.<span class="hljs-property">additional_identifier_chars</span>.<span class="hljs-title function_">has</span>(<span class="hljs-title class_">String</span>.<span class="hljs-title function_">fromCharCode</span>(ch))); <span class="hljs-comment">// additional characters</span>
+	}
+
+	<span class="hljs-comment">/**
+	 * <span class="hljs-doctag">@param</span> {<span class="hljs-type">number</span>} <span class="hljs-variable">ch</span>
+	 * <span class="hljs-doctag">@returns</span> {<span class="hljs-type">boolean</span>}
+	 */</span>
+	<span class="hljs-keyword">static</span> <span class="hljs-title function_">isIdentifierPart</span>(<span class="hljs-params">ch</span>) {
+		<span class="hljs-keyword">return</span> <span class="hljs-title class_">Jsep</span>.<span class="hljs-title function_">isIdentifierStart</span>(ch) || <span class="hljs-title class_">Jsep</span>.<span class="hljs-title function_">isDecimalDigit</span>(ch);
+	}
+
+	<span class="hljs-comment">/**
+	 * throw error at index of the expression
+	 * <span class="hljs-doctag">@param</span> {<span class="hljs-type">string</span>} <span class="hljs-variable">message</span>
+	 * <span class="hljs-doctag">@throws</span>
+	 */</span>
+	<span class="hljs-title function_">throwError</span>(<span class="hljs-params">message</span>) {
+		<span class="hljs-keyword">const</span> error = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Error</span>(message + <span class="hljs-string">&#x27; at character &#x27;</span> + <span class="hljs-variable language_">this</span>.<span class="hljs-property">index</span>);
+		error.<span class="hljs-property">index</span> = <span class="hljs-variable language_">this</span>.<span class="hljs-property">index</span>;
+		error.<span class="hljs-property">description</span> = message;
+		<span class="hljs-keyword">throw</span> error;
+	}
+
+	<span class="hljs-comment">/**
+	 * Run a given hook
+	 * <span class="hljs-doctag">@param</span> {<span class="hljs-type">string</span>} <span class="hljs-variable">name</span>
+	 * <span class="hljs-doctag">@param</span> {<span class="hljs-type">jsep.Expression|false</span>} [node]
+	 * <span class="hljs-doctag">@returns</span> {<span class="hljs-type">?jsep.Expression</span>}
+	 */</span>
+	<span class="hljs-title function_">runHook</span>(<span class="hljs-params">name, node</span>) {
+		<span class="hljs-keyword">if</span> (<span class="hljs-title class_">Jsep</span>.<span class="hljs-property">hooks</span>[name]) {
+			<span class="hljs-keyword">const</span> env = { <span class="hljs-attr">context</span>: <span class="hljs-variable language_">this</span>, node };
+			<span class="hljs-title class_">Jsep</span>.<span class="hljs-property">hooks</span>.<span class="hljs-title function_">run</span>(name, env);
+			<span class="hljs-keyword">return</span> env.<span class="hljs-property">node</span>;
+		}
+		<span class="hljs-keyword">return</span> node;
+	}
+
+	<span class="hljs-comment">/**
+	 * Runs a given hook until one returns a node
+	 * <span class="hljs-doctag">@param</span> {<span class="hljs-type">string</span>} <span class="hljs-variable">name</span>
+	 * <span class="hljs-doctag">@returns</span> {<span class="hljs-type">?jsep.Expression</span>}
+	 */</span>
+	<span class="hljs-title function_">searchHook</span>(<span class="hljs-params">name</span>) {
+		<span class="hljs-keyword">if</span> (<span class="hljs-title class_">Jsep</span>.<span class="hljs-property">hooks</span>[name]) {
+			<span class="hljs-keyword">const</span> env = { <span class="hljs-attr">context</span>: <span class="hljs-variable language_">this</span> };
+			<span class="hljs-title class_">Jsep</span>.<span class="hljs-property">hooks</span>[name].<span class="hljs-title function_">find</span>(<span class="hljs-keyword">function</span> (<span class="hljs-params">callback</span>) {
+				callback.<span class="hljs-title function_">call</span>(env.<span class="hljs-property">context</span>, env);
+				<span class="hljs-keyword">return</span> env.<span class="hljs-property">node</span>;
+			});
+			<span class="hljs-keyword">return</span> env.<span class="hljs-property">node</span>;
+		}
+	}
+
+	<span class="hljs-comment">/**
+	 * Push `index` up to the next non-space character
+	 */</span>
+	<span class="hljs-title function_">gobbleSpaces</span>(<span class="hljs-params"></span>) {
+		<span class="hljs-keyword">let</span> ch = <span class="hljs-variable language_">this</span>.<span class="hljs-property">code</span>;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-6">&#x00a7;</a>
+              </div>
+              <p>Whitespace</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>		<span class="hljs-keyword">while</span> (ch === <span class="hljs-title class_">Jsep</span>.<span class="hljs-property">SPACE_CODE</span>
+		|| ch === <span class="hljs-title class_">Jsep</span>.<span class="hljs-property">TAB_CODE</span>
+		|| ch === <span class="hljs-title class_">Jsep</span>.<span class="hljs-property">LF_CODE</span>
+		|| ch === <span class="hljs-title class_">Jsep</span>.<span class="hljs-property">CR_CODE</span>) {
+			ch = <span class="hljs-variable language_">this</span>.<span class="hljs-property">expr</span>.<span class="hljs-title function_">charCodeAt</span>(++<span class="hljs-variable language_">this</span>.<span class="hljs-property">index</span>);
+		}
+		<span class="hljs-variable language_">this</span>.<span class="hljs-title function_">runHook</span>(<span class="hljs-string">&#x27;gobble-spaces&#x27;</span>);
+	}
+
+	<span class="hljs-comment">/**
+	 * Top-level method to parse all expressions and returns compound or single node
+	 * <span class="hljs-doctag">@returns</span> {<span class="hljs-type">jsep.Expression</span>}
+	 */</span>
+	<span class="hljs-title function_">parse</span>(<span class="hljs-params"></span>) {
+		<span class="hljs-variable language_">this</span>.<span class="hljs-title function_">runHook</span>(<span class="hljs-string">&#x27;before-all&#x27;</span>);
+		<span class="hljs-keyword">const</span> nodes = <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">gobbleExpressions</span>();</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-7">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-7">&#x00a7;</a>
+              </div>
+              <p>If there’s only one expression just try returning the expression</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>		<span class="hljs-keyword">const</span> node = nodes.<span class="hljs-property">length</span> === <span class="hljs-number">1</span>
+		  ? nodes[<span class="hljs-number">0</span>]
+			: {
+				<span class="hljs-attr">type</span>: <span class="hljs-title class_">Jsep</span>.<span class="hljs-property">COMPOUND</span>,
+				<span class="hljs-attr">body</span>: nodes
+			};
+		<span class="hljs-keyword">return</span> <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">runHook</span>(<span class="hljs-string">&#x27;after-all&#x27;</span>, node);
+	}
+
+	<span class="hljs-comment">/**
+	 * top-level parser (but can be reused within as well)
+	 * <span class="hljs-doctag">@param</span> {<span class="hljs-type">number</span>} [untilICode]
+	 * <span class="hljs-doctag">@returns</span> {<span class="hljs-type">jsep.Expression[]</span>}
+	 */</span>
+	<span class="hljs-title function_">gobbleExpressions</span>(<span class="hljs-params">untilICode</span>) {
+		<span class="hljs-keyword">let</span> nodes = [], ch_i, node;
+
+		<span class="hljs-keyword">while</span> (<span class="hljs-variable language_">this</span>.<span class="hljs-property">index</span> &lt; <span class="hljs-variable language_">this</span>.<span class="hljs-property">expr</span>.<span class="hljs-property">length</span>) {
+			ch_i = <span class="hljs-variable language_">this</span>.<span class="hljs-property">code</span>;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-8">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-8">&#x00a7;</a>
+              </div>
+              <p>Expressions can be separated by semicolons, commas, or just inferred without any
+separators</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>			<span class="hljs-keyword">if</span> (ch_i === <span class="hljs-title class_">Jsep</span>.<span class="hljs-property">SEMCOL_CODE</span> || ch_i === <span class="hljs-title class_">Jsep</span>.<span class="hljs-property">COMMA_CODE</span>) {
+				<span class="hljs-variable language_">this</span>.<span class="hljs-property">index</span>++; <span class="hljs-comment">// ignore separators</span>
+			}
+			<span class="hljs-keyword">else</span> {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-9">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-9">&#x00a7;</a>
+              </div>
+              <p>Try to gobble each expression individually</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>				<span class="hljs-keyword">if</span> (node = <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">gobbleExpression</span>()) {
+					nodes.<span class="hljs-title function_">push</span>(node);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-10">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-10">&#x00a7;</a>
+              </div>
+              <p>If we weren’t able to find a binary expression and are out of room, then
+the expression passed in probably has too much</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>				}
+				<span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (<span class="hljs-variable language_">this</span>.<span class="hljs-property">index</span> &lt; <span class="hljs-variable language_">this</span>.<span class="hljs-property">expr</span>.<span class="hljs-property">length</span>) {
+					<span class="hljs-keyword">if</span> (ch_i === untilICode) {
+						<span class="hljs-keyword">break</span>;
+					}
+					<span class="hljs-variable language_">this</span>.<span class="hljs-title function_">throwError</span>(<span class="hljs-string">&#x27;Unexpected &quot;&#x27;</span> + <span class="hljs-variable language_">this</span>.<span class="hljs-property">char</span> + <span class="hljs-string">&#x27;&quot;&#x27;</span>);
+				}
+			}
+		}
+
+		<span class="hljs-keyword">return</span> nodes;
+	}
+
+	<span class="hljs-comment">/**
+	 * The main parsing function.
+	 * <span class="hljs-doctag">@returns</span> {<span class="hljs-type">?jsep.Expression</span>}
+	 */</span>
+	<span class="hljs-title function_">gobbleExpression</span>(<span class="hljs-params"></span>) {
+		<span class="hljs-keyword">const</span> node = <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">searchHook</span>(<span class="hljs-string">&#x27;gobble-expression&#x27;</span>) || <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">gobbleBinaryExpression</span>();
+		<span class="hljs-variable language_">this</span>.<span class="hljs-title function_">gobbleSpaces</span>();
+
+		<span class="hljs-keyword">return</span> <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">runHook</span>(<span class="hljs-string">&#x27;after-expression&#x27;</span>, node);
+	}
+
+	<span class="hljs-comment">/**
+	 * Search for the operation portion of the string (e.g. `+`, `===`)
+	 * Start by taking the longest possible binary operations (3 characters: `===`, `!==`, `&gt;&gt;&gt;`)
+	 * and move down from 3 to 2 to 1 character until a matching binary operation is found
+	 * then, return that binary operation
+	 * <span class="hljs-doctag">@returns</span> {<span class="hljs-type">string|boolean</span>}
+	 */</span>
+	<span class="hljs-title function_">gobbleBinaryOp</span>(<span class="hljs-params"></span>) {
+		<span class="hljs-variable language_">this</span>.<span class="hljs-title function_">gobbleSpaces</span>();
+		<span class="hljs-keyword">let</span> to_check = <span class="hljs-variable language_">this</span>.<span class="hljs-property">expr</span>.<span class="hljs-title function_">substr</span>(<span class="hljs-variable language_">this</span>.<span class="hljs-property">index</span>, <span class="hljs-title class_">Jsep</span>.<span class="hljs-property">max_binop_len</span>);
+		<span class="hljs-keyword">let</span> tc_len = to_check.<span class="hljs-property">length</span>;
+
+		<span class="hljs-keyword">while</span> (tc_len &gt; <span class="hljs-number">0</span>) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-11">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-11">&#x00a7;</a>
+              </div>
+              <p>Don’t accept a binary op when it is an identifier.
+Binary ops that start with a identifier-valid character must be followed
+by a non identifier-part valid character</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>			<span class="hljs-keyword">if</span> (<span class="hljs-title class_">Jsep</span>.<span class="hljs-property">binary_ops</span>.<span class="hljs-title function_">hasOwnProperty</span>(to_check) &amp;&amp; (
+				!<span class="hljs-title class_">Jsep</span>.<span class="hljs-title function_">isIdentifierStart</span>(<span class="hljs-variable language_">this</span>.<span class="hljs-property">code</span>) ||
+				(<span class="hljs-variable language_">this</span>.<span class="hljs-property">index</span> + to_check.<span class="hljs-property">length</span> &lt; <span class="hljs-variable language_">this</span>.<span class="hljs-property">expr</span>.<span class="hljs-property">length</span> &amp;&amp; !<span class="hljs-title class_">Jsep</span>.<span class="hljs-title function_">isIdentifierPart</span>(<span class="hljs-variable language_">this</span>.<span class="hljs-property">expr</span>.<span class="hljs-title function_">charCodeAt</span>(<span class="hljs-variable language_">this</span>.<span class="hljs-property">index</span> + to_check.<span class="hljs-property">length</span>)))
+			)) {
+				<span class="hljs-variable language_">this</span>.<span class="hljs-property">index</span> += tc_len;
+				<span class="hljs-keyword">return</span> to_check;
+			}
+			to_check = to_check.<span class="hljs-title function_">substr</span>(<span class="hljs-number">0</span>, --tc_len);
+		}
+		<span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+	}
+
+	<span class="hljs-comment">/**
+	 * This function is responsible for gobbling an individual expression,
+	 * e.g. `1`, `1+2`, `a+(b*2)-Math.sqrt(2)`
+	 * <span class="hljs-doctag">@returns</span> {<span class="hljs-type">?jsep.BinaryExpression</span>}
+	 */</span>
+	<span class="hljs-title function_">gobbleBinaryExpression</span>(<span class="hljs-params"></span>) {
+		<span class="hljs-keyword">let</span> node, biop, prec, stack, biop_info, left, right, i, cur_biop;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-12">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-12">&#x00a7;</a>
+              </div>
+              <p>First, try to get the leftmost thing
+Then, check to see if there’s a binary operator operating on that leftmost thing
+Don’t gobbleBinaryOp without a left-hand-side</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>		left = <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">gobbleToken</span>();
+		<span class="hljs-keyword">if</span> (!left) {
+			<span class="hljs-keyword">return</span> left;
+		}
+		biop = <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">gobbleBinaryOp</span>();</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-13">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-13">&#x00a7;</a>
+              </div>
+              <p>If there wasn’t a binary operator, just return the leftmost node</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>		<span class="hljs-keyword">if</span> (!biop) {
+			<span class="hljs-keyword">return</span> left;
+		}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-14">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-14">&#x00a7;</a>
+              </div>
+              <p>Otherwise, we need to start a stack to properly place the binary operations in their
+precedence structure</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>		biop_info = { <span class="hljs-attr">value</span>: biop, <span class="hljs-attr">prec</span>: <span class="hljs-title class_">Jsep</span>.<span class="hljs-title function_">binaryPrecedence</span>(biop), <span class="hljs-attr">right_a</span>: <span class="hljs-title class_">Jsep</span>.<span class="hljs-property">right_associative</span>.<span class="hljs-title function_">has</span>(biop) };
+
+		right = <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">gobbleToken</span>();
+
+		<span class="hljs-keyword">if</span> (!right) {
+			<span class="hljs-variable language_">this</span>.<span class="hljs-title function_">throwError</span>(<span class="hljs-string">&quot;Expected expression after &quot;</span> + biop);
+		}
+
+		stack = [left, biop_info, right];</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-15">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-15">&#x00a7;</a>
+              </div>
+              <p>Properly deal with precedence using <a href="http://www.engr.mun.ca/~theo/Misc/exp_parsing.htm">recursive descent</a></p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>		<span class="hljs-keyword">while</span> ((biop = <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">gobbleBinaryOp</span>())) {
+			prec = <span class="hljs-title class_">Jsep</span>.<span class="hljs-title function_">binaryPrecedence</span>(biop);
+
+			<span class="hljs-keyword">if</span> (prec === <span class="hljs-number">0</span>) {
+				<span class="hljs-variable language_">this</span>.<span class="hljs-property">index</span> -= biop.<span class="hljs-property">length</span>;
+				<span class="hljs-keyword">break</span>;
+			}
+
+			biop_info = { <span class="hljs-attr">value</span>: biop, prec, <span class="hljs-attr">right_a</span>: <span class="hljs-title class_">Jsep</span>.<span class="hljs-property">right_associative</span>.<span class="hljs-title function_">has</span>(biop) };
+
+			cur_biop = biop;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-16">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-16">&#x00a7;</a>
+              </div>
+              <p>Reduce: make a binary expression from the three topmost entries.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>			<span class="hljs-keyword">const</span> <span class="hljs-title function_">comparePrev</span> = prev =&gt; biop_info.<span class="hljs-property">right_a</span> &amp;&amp; prev.<span class="hljs-property">right_a</span>
+				? prec &gt; prev.<span class="hljs-property">prec</span>
+				: prec &lt;= prev.<span class="hljs-property">prec</span>;
+			<span class="hljs-keyword">while</span> ((stack.<span class="hljs-property">length</span> &gt; <span class="hljs-number">2</span>) &amp;&amp; <span class="hljs-title function_">comparePrev</span>(stack[stack.<span class="hljs-property">length</span> - <span class="hljs-number">2</span>])) {
+				right = stack.<span class="hljs-title function_">pop</span>();
+				biop = stack.<span class="hljs-title function_">pop</span>().<span class="hljs-property">value</span>;
+				left = stack.<span class="hljs-title function_">pop</span>();
+				node = {
+					<span class="hljs-attr">type</span>: <span class="hljs-title class_">Jsep</span>.<span class="hljs-property">BINARY_EXP</span>,
+					<span class="hljs-attr">operator</span>: biop,
+					left,
+					right
+				};
+				stack.<span class="hljs-title function_">push</span>(node);
+			}
+
+			node = <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">gobbleToken</span>();
+
+			<span class="hljs-keyword">if</span> (!node) {
+				<span class="hljs-variable language_">this</span>.<span class="hljs-title function_">throwError</span>(<span class="hljs-string">&quot;Expected expression after &quot;</span> + cur_biop);
+			}
+
+			stack.<span class="hljs-title function_">push</span>(biop_info, node);
+		}
+
+		i = stack.<span class="hljs-property">length</span> - <span class="hljs-number">1</span>;
+		node = stack[i];
+
+		<span class="hljs-keyword">while</span> (i &gt; <span class="hljs-number">1</span>) {
+			node = {
+				<span class="hljs-attr">type</span>: <span class="hljs-title class_">Jsep</span>.<span class="hljs-property">BINARY_EXP</span>,
+				<span class="hljs-attr">operator</span>: stack[i - <span class="hljs-number">1</span>].<span class="hljs-property">value</span>,
+				<span class="hljs-attr">left</span>: stack[i - <span class="hljs-number">2</span>],
+				<span class="hljs-attr">right</span>: node
+			};
+			i -= <span class="hljs-number">2</span>;
+		}
+
+		<span class="hljs-keyword">return</span> node;
+	}
+
+	<span class="hljs-comment">/**
+	 * An individual part of a binary expression:
+	 * e.g. `foo.bar(baz)`, `1`, `&quot;abc&quot;`, `(a % 2)` (because it&#x27;s in parenthesis)
+	 * <span class="hljs-doctag">@returns</span> {<span class="hljs-type">boolean|jsep.Expression</span>}
+	 */</span>
+	<span class="hljs-title function_">gobbleToken</span>(<span class="hljs-params"></span>) {
+		<span class="hljs-keyword">let</span> ch, to_check, tc_len, node;
+
+		<span class="hljs-variable language_">this</span>.<span class="hljs-title function_">gobbleSpaces</span>();
+		node = <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">searchHook</span>(<span class="hljs-string">&#x27;gobble-token&#x27;</span>);
+		<span class="hljs-keyword">if</span> (node) {
+			<span class="hljs-keyword">return</span> <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">runHook</span>(<span class="hljs-string">&#x27;after-token&#x27;</span>, node);
+		}
+
+		ch = <span class="hljs-variable language_">this</span>.<span class="hljs-property">code</span>;
+
+		<span class="hljs-keyword">if</span> (<span class="hljs-title class_">Jsep</span>.<span class="hljs-title function_">isDecimalDigit</span>(ch) || ch === <span class="hljs-title class_">Jsep</span>.<span class="hljs-property">PERIOD_CODE</span>) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-17">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-17">&#x00a7;</a>
+              </div>
+              <p>Char code 46 is a dot <code>.</code> which can start off a numeric literal</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>			<span class="hljs-keyword">return</span> <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">gobbleNumericLiteral</span>();
+		}
+
+		<span class="hljs-keyword">if</span> (ch === <span class="hljs-title class_">Jsep</span>.<span class="hljs-property">SQUOTE_CODE</span> || ch === <span class="hljs-title class_">Jsep</span>.<span class="hljs-property">DQUOTE_CODE</span>) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-18">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-18">&#x00a7;</a>
+              </div>
+              <p>Single or double quotes</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>			node = <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">gobbleStringLiteral</span>();
+		}
+		<span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (ch === <span class="hljs-title class_">Jsep</span>.<span class="hljs-property">OBRACK_CODE</span>) {
+			node = <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">gobbleArray</span>();
+		}
+		<span class="hljs-keyword">else</span> {
+			to_check = <span class="hljs-variable language_">this</span>.<span class="hljs-property">expr</span>.<span class="hljs-title function_">substr</span>(<span class="hljs-variable language_">this</span>.<span class="hljs-property">index</span>, <span class="hljs-title class_">Jsep</span>.<span class="hljs-property">max_unop_len</span>);
+			tc_len = to_check.<span class="hljs-property">length</span>;
+
+			<span class="hljs-keyword">while</span> (tc_len &gt; <span class="hljs-number">0</span>) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-19">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-19">&#x00a7;</a>
+              </div>
+              <p>Don’t accept an unary op when it is an identifier.
+Unary ops that start with a identifier-valid character must be followed
+by a non identifier-part valid character</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>				<span class="hljs-keyword">if</span> (<span class="hljs-title class_">Jsep</span>.<span class="hljs-property">unary_ops</span>.<span class="hljs-title function_">hasOwnProperty</span>(to_check) &amp;&amp; (
+					!<span class="hljs-title class_">Jsep</span>.<span class="hljs-title function_">isIdentifierStart</span>(<span class="hljs-variable language_">this</span>.<span class="hljs-property">code</span>) ||
+					(<span class="hljs-variable language_">this</span>.<span class="hljs-property">index</span> + to_check.<span class="hljs-property">length</span> &lt; <span class="hljs-variable language_">this</span>.<span class="hljs-property">expr</span>.<span class="hljs-property">length</span> &amp;&amp; !<span class="hljs-title class_">Jsep</span>.<span class="hljs-title function_">isIdentifierPart</span>(<span class="hljs-variable language_">this</span>.<span class="hljs-property">expr</span>.<span class="hljs-title function_">charCodeAt</span>(<span class="hljs-variable language_">this</span>.<span class="hljs-property">index</span> + to_check.<span class="hljs-property">length</span>)))
+				)) {
+					<span class="hljs-variable language_">this</span>.<span class="hljs-property">index</span> += tc_len;
+					<span class="hljs-keyword">const</span> argument = <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">gobbleToken</span>();
+					<span class="hljs-keyword">if</span> (!argument) {
+						<span class="hljs-variable language_">this</span>.<span class="hljs-title function_">throwError</span>(<span class="hljs-string">&#x27;missing unaryOp argument&#x27;</span>);
+					}
+					<span class="hljs-keyword">return</span> <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">runHook</span>(<span class="hljs-string">&#x27;after-token&#x27;</span>, {
+						<span class="hljs-attr">type</span>: <span class="hljs-title class_">Jsep</span>.<span class="hljs-property">UNARY_EXP</span>,
+						<span class="hljs-attr">operator</span>: to_check,
+						argument,
+						<span class="hljs-attr">prefix</span>: <span class="hljs-literal">true</span>
+					});
+				}
+
+				to_check = to_check.<span class="hljs-title function_">substr</span>(<span class="hljs-number">0</span>, --tc_len);
+			}
+
+			<span class="hljs-keyword">if</span> (<span class="hljs-title class_">Jsep</span>.<span class="hljs-title function_">isIdentifierStart</span>(ch)) {
+				node = <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">gobbleIdentifier</span>();
+				<span class="hljs-keyword">if</span> (<span class="hljs-title class_">Jsep</span>.<span class="hljs-property">literals</span>.<span class="hljs-title function_">hasOwnProperty</span>(node.<span class="hljs-property">name</span>)) {
+					node = {
+						<span class="hljs-attr">type</span>: <span class="hljs-title class_">Jsep</span>.<span class="hljs-property">LITERAL</span>,
+						<span class="hljs-attr">value</span>: <span class="hljs-title class_">Jsep</span>.<span class="hljs-property">literals</span>[node.<span class="hljs-property">name</span>],
+						<span class="hljs-attr">raw</span>: node.<span class="hljs-property">name</span>,
+					};
+				}
+				<span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (node.<span class="hljs-property">name</span> === <span class="hljs-title class_">Jsep</span>.<span class="hljs-property">this_str</span>) {
+					node = { <span class="hljs-attr">type</span>: <span class="hljs-title class_">Jsep</span>.<span class="hljs-property">THIS_EXP</span> };
+				}
+			}
+			<span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (ch === <span class="hljs-title class_">Jsep</span>.<span class="hljs-property">OPAREN_CODE</span>) { <span class="hljs-comment">// open parenthesis</span>
+				node = <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">gobbleGroup</span>();
+			}
+		}
+
+		<span class="hljs-keyword">if</span> (!node) {
+			<span class="hljs-keyword">return</span> <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">runHook</span>(<span class="hljs-string">&#x27;after-token&#x27;</span>, <span class="hljs-literal">false</span>);
+		}
+
+		node = <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">gobbleTokenProperty</span>(node);
+		<span class="hljs-keyword">return</span> <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">runHook</span>(<span class="hljs-string">&#x27;after-token&#x27;</span>, node);
+	}
+
+	<span class="hljs-comment">/**
+	 * Gobble properties of of identifiers/strings/arrays/groups.
+	 * e.g. `foo`, `bar.baz`, `foo[&#x27;bar&#x27;].baz`
+	 * It also gobbles function calls:
+	 * e.g. `Math.acos(obj.angle)`
+	 * <span class="hljs-doctag">@param</span> {<span class="hljs-type">jsep.Expression</span>} <span class="hljs-variable">node</span>
+	 * <span class="hljs-doctag">@returns</span> {<span class="hljs-type">jsep.Expression</span>}
+	 */</span>
+	<span class="hljs-title function_">gobbleTokenProperty</span>(<span class="hljs-params">node</span>) {
+		<span class="hljs-variable language_">this</span>.<span class="hljs-title function_">gobbleSpaces</span>();
+
+		<span class="hljs-keyword">let</span> ch = <span class="hljs-variable language_">this</span>.<span class="hljs-property">code</span>;
+		<span class="hljs-keyword">while</span> (ch === <span class="hljs-title class_">Jsep</span>.<span class="hljs-property">PERIOD_CODE</span> || ch === <span class="hljs-title class_">Jsep</span>.<span class="hljs-property">OBRACK_CODE</span> || ch === <span class="hljs-title class_">Jsep</span>.<span class="hljs-property">OPAREN_CODE</span> || ch === <span class="hljs-title class_">Jsep</span>.<span class="hljs-property">QUMARK_CODE</span>) {
+			<span class="hljs-keyword">let</span> optional;
+			<span class="hljs-keyword">if</span> (ch === <span class="hljs-title class_">Jsep</span>.<span class="hljs-property">QUMARK_CODE</span>) {
+				<span class="hljs-keyword">if</span> (<span class="hljs-variable language_">this</span>.<span class="hljs-property">expr</span>.<span class="hljs-title function_">charCodeAt</span>(<span class="hljs-variable language_">this</span>.<span class="hljs-property">index</span> + <span class="hljs-number">1</span>) !== <span class="hljs-title class_">Jsep</span>.<span class="hljs-property">PERIOD_CODE</span>) {
+					<span class="hljs-keyword">break</span>;
+				}
+				optional = <span class="hljs-literal">true</span>;
+				<span class="hljs-variable language_">this</span>.<span class="hljs-property">index</span> += <span class="hljs-number">2</span>;
+				<span class="hljs-variable language_">this</span>.<span class="hljs-title function_">gobbleSpaces</span>();
+				ch = <span class="hljs-variable language_">this</span>.<span class="hljs-property">code</span>;
+			}
+			<span class="hljs-variable language_">this</span>.<span class="hljs-property">index</span>++;
+
+			<span class="hljs-keyword">if</span> (ch === <span class="hljs-title class_">Jsep</span>.<span class="hljs-property">OBRACK_CODE</span>) {
+				node = {
+					<span class="hljs-attr">type</span>: <span class="hljs-title class_">Jsep</span>.<span class="hljs-property">MEMBER_EXP</span>,
+					<span class="hljs-attr">computed</span>: <span class="hljs-literal">true</span>,
+					<span class="hljs-attr">object</span>: node,
+					<span class="hljs-attr">property</span>: <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">gobbleExpression</span>()
+				};
+				<span class="hljs-keyword">if</span> (!node.<span class="hljs-property">property</span>) {
+					<span class="hljs-variable language_">this</span>.<span class="hljs-title function_">throwError</span>(<span class="hljs-string">&#x27;Unexpected &quot;&#x27;</span> + <span class="hljs-variable language_">this</span>.<span class="hljs-property">char</span> + <span class="hljs-string">&#x27;&quot;&#x27;</span>);
+				}
+				<span class="hljs-variable language_">this</span>.<span class="hljs-title function_">gobbleSpaces</span>();
+				ch = <span class="hljs-variable language_">this</span>.<span class="hljs-property">code</span>;
+				<span class="hljs-keyword">if</span> (ch !== <span class="hljs-title class_">Jsep</span>.<span class="hljs-property">CBRACK_CODE</span>) {
+					<span class="hljs-variable language_">this</span>.<span class="hljs-title function_">throwError</span>(<span class="hljs-string">&#x27;Unclosed [&#x27;</span>);
+				}
+				<span class="hljs-variable language_">this</span>.<span class="hljs-property">index</span>++;
+			}
+			<span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (ch === <span class="hljs-title class_">Jsep</span>.<span class="hljs-property">OPAREN_CODE</span>) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-20">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-20">&#x00a7;</a>
+              </div>
+              <p>A function call is being made; gobble all the arguments</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>				node = {
+					<span class="hljs-attr">type</span>: <span class="hljs-title class_">Jsep</span>.<span class="hljs-property">CALL_EXP</span>,
+					<span class="hljs-string">&#x27;arguments&#x27;</span>: <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">gobbleArguments</span>(<span class="hljs-title class_">Jsep</span>.<span class="hljs-property">CPAREN_CODE</span>),
+					<span class="hljs-attr">callee</span>: node
+				};
+			}
+			<span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (ch === <span class="hljs-title class_">Jsep</span>.<span class="hljs-property">PERIOD_CODE</span> || optional) {
+				<span class="hljs-keyword">if</span> (optional) {
+					<span class="hljs-variable language_">this</span>.<span class="hljs-property">index</span>--;
+				}
+				<span class="hljs-variable language_">this</span>.<span class="hljs-title function_">gobbleSpaces</span>();
+				node = {
+					<span class="hljs-attr">type</span>: <span class="hljs-title class_">Jsep</span>.<span class="hljs-property">MEMBER_EXP</span>,
+					<span class="hljs-attr">computed</span>: <span class="hljs-literal">false</span>,
+					<span class="hljs-attr">object</span>: node,
+					<span class="hljs-attr">property</span>: <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">gobbleIdentifier</span>(),
+				};
+			}
+
+			<span class="hljs-keyword">if</span> (optional) {
+				node.<span class="hljs-property">optional</span> = <span class="hljs-literal">true</span>;
+			} <span class="hljs-comment">// else leave undefined for compatibility with esprima</span>
+
+			<span class="hljs-variable language_">this</span>.<span class="hljs-title function_">gobbleSpaces</span>();
+			ch = <span class="hljs-variable language_">this</span>.<span class="hljs-property">code</span>;
+		}
+
+		<span class="hljs-keyword">return</span> node;
+	}
+
+	<span class="hljs-comment">/**
+	 * Parse simple numeric literals: `12`, `3.4`, `.5`. Do this by using a string to
+	 * keep track of everything in the numeric literal and then calling `parseFloat` on that string
+	 * <span class="hljs-doctag">@returns</span> {<span class="hljs-type">jsep.Literal</span>}
+	 */</span>
+	<span class="hljs-title function_">gobbleNumericLiteral</span>(<span class="hljs-params"></span>) {
+		<span class="hljs-keyword">let</span> number = <span class="hljs-string">&#x27;&#x27;</span>, ch, chCode;
+
+		<span class="hljs-keyword">while</span> (<span class="hljs-title class_">Jsep</span>.<span class="hljs-title function_">isDecimalDigit</span>(<span class="hljs-variable language_">this</span>.<span class="hljs-property">code</span>)) {
+			number += <span class="hljs-variable language_">this</span>.<span class="hljs-property">expr</span>.<span class="hljs-title function_">charAt</span>(<span class="hljs-variable language_">this</span>.<span class="hljs-property">index</span>++);
+		}
+
+		<span class="hljs-keyword">if</span> (<span class="hljs-variable language_">this</span>.<span class="hljs-property">code</span> === <span class="hljs-title class_">Jsep</span>.<span class="hljs-property">PERIOD_CODE</span>) { <span class="hljs-comment">// can start with a decimal marker</span>
+			number += <span class="hljs-variable language_">this</span>.<span class="hljs-property">expr</span>.<span class="hljs-title function_">charAt</span>(<span class="hljs-variable language_">this</span>.<span class="hljs-property">index</span>++);
+
+			<span class="hljs-keyword">while</span> (<span class="hljs-title class_">Jsep</span>.<span class="hljs-title function_">isDecimalDigit</span>(<span class="hljs-variable language_">this</span>.<span class="hljs-property">code</span>)) {
+				number += <span class="hljs-variable language_">this</span>.<span class="hljs-property">expr</span>.<span class="hljs-title function_">charAt</span>(<span class="hljs-variable language_">this</span>.<span class="hljs-property">index</span>++);
+			}
+		}
+
+		ch = <span class="hljs-variable language_">this</span>.<span class="hljs-property">char</span>;
+
+		<span class="hljs-keyword">if</span> (ch === <span class="hljs-string">&#x27;e&#x27;</span> || ch === <span class="hljs-string">&#x27;E&#x27;</span>) { <span class="hljs-comment">// exponent marker</span>
+			number += <span class="hljs-variable language_">this</span>.<span class="hljs-property">expr</span>.<span class="hljs-title function_">charAt</span>(<span class="hljs-variable language_">this</span>.<span class="hljs-property">index</span>++);
+			ch = <span class="hljs-variable language_">this</span>.<span class="hljs-property">char</span>;
+
+			<span class="hljs-keyword">if</span> (ch === <span class="hljs-string">&#x27;+&#x27;</span> || ch === <span class="hljs-string">&#x27;-&#x27;</span>) { <span class="hljs-comment">// exponent sign</span>
+				number += <span class="hljs-variable language_">this</span>.<span class="hljs-property">expr</span>.<span class="hljs-title function_">charAt</span>(<span class="hljs-variable language_">this</span>.<span class="hljs-property">index</span>++);
+			}
+
+			<span class="hljs-keyword">while</span> (<span class="hljs-title class_">Jsep</span>.<span class="hljs-title function_">isDecimalDigit</span>(<span class="hljs-variable language_">this</span>.<span class="hljs-property">code</span>)) { <span class="hljs-comment">// exponent itself</span>
+				number += <span class="hljs-variable language_">this</span>.<span class="hljs-property">expr</span>.<span class="hljs-title function_">charAt</span>(<span class="hljs-variable language_">this</span>.<span class="hljs-property">index</span>++);
+			}
+
+			<span class="hljs-keyword">if</span> (!<span class="hljs-title class_">Jsep</span>.<span class="hljs-title function_">isDecimalDigit</span>(<span class="hljs-variable language_">this</span>.<span class="hljs-property">expr</span>.<span class="hljs-title function_">charCodeAt</span>(<span class="hljs-variable language_">this</span>.<span class="hljs-property">index</span> - <span class="hljs-number">1</span>)) ) {
+				<span class="hljs-variable language_">this</span>.<span class="hljs-title function_">throwError</span>(<span class="hljs-string">&#x27;Expected exponent (&#x27;</span> + number + <span class="hljs-variable language_">this</span>.<span class="hljs-property">char</span> + <span class="hljs-string">&#x27;)&#x27;</span>);
+			}
+		}
+
+		chCode = <span class="hljs-variable language_">this</span>.<span class="hljs-property">code</span>;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-21">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-21">&#x00a7;</a>
+              </div>
+              <p>Check to make sure this isn’t a variable name that start with a number (123abc)</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>		<span class="hljs-keyword">if</span> (<span class="hljs-title class_">Jsep</span>.<span class="hljs-title function_">isIdentifierStart</span>(chCode)) {
+			<span class="hljs-variable language_">this</span>.<span class="hljs-title function_">throwError</span>(<span class="hljs-string">&#x27;Variable names cannot start with a number (&#x27;</span> +
+				number + <span class="hljs-variable language_">this</span>.<span class="hljs-property">char</span> + <span class="hljs-string">&#x27;)&#x27;</span>);
+		}
+		<span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (chCode === <span class="hljs-title class_">Jsep</span>.<span class="hljs-property">PERIOD_CODE</span> || (number.<span class="hljs-property">length</span> === <span class="hljs-number">1</span> &amp;&amp; number.<span class="hljs-title function_">charCodeAt</span>(<span class="hljs-number">0</span>) === <span class="hljs-title class_">Jsep</span>.<span class="hljs-property">PERIOD_CODE</span>)) {
+			<span class="hljs-variable language_">this</span>.<span class="hljs-title function_">throwError</span>(<span class="hljs-string">&#x27;Unexpected period&#x27;</span>);
+		}
+
+		<span class="hljs-keyword">return</span> {
+			<span class="hljs-attr">type</span>: <span class="hljs-title class_">Jsep</span>.<span class="hljs-property">LITERAL</span>,
+			<span class="hljs-attr">value</span>: <span class="hljs-built_in">parseFloat</span>(number),
+			<span class="hljs-attr">raw</span>: number
+		};
+	}
+
+	<span class="hljs-comment">/**
+	 * Parses a string literal, staring with single or double quotes with basic support for escape codes
+	 * e.g. `&quot;hello world&quot;`, `&#x27;this is\nJSEP&#x27;`
+	 * <span class="hljs-doctag">@returns</span> {<span class="hljs-type">jsep.Literal</span>}
+	 */</span>
+	<span class="hljs-title function_">gobbleStringLiteral</span>(<span class="hljs-params"></span>) {
+		<span class="hljs-keyword">let</span> str = <span class="hljs-string">&#x27;&#x27;</span>;
+		<span class="hljs-keyword">const</span> startIndex = <span class="hljs-variable language_">this</span>.<span class="hljs-property">index</span>;
+		<span class="hljs-keyword">const</span> quote = <span class="hljs-variable language_">this</span>.<span class="hljs-property">expr</span>.<span class="hljs-title function_">charAt</span>(<span class="hljs-variable language_">this</span>.<span class="hljs-property">index</span>++);
+		<span class="hljs-keyword">let</span> closed = <span class="hljs-literal">false</span>;
+
+		<span class="hljs-keyword">while</span> (<span class="hljs-variable language_">this</span>.<span class="hljs-property">index</span> &lt; <span class="hljs-variable language_">this</span>.<span class="hljs-property">expr</span>.<span class="hljs-property">length</span>) {
+			<span class="hljs-keyword">let</span> ch = <span class="hljs-variable language_">this</span>.<span class="hljs-property">expr</span>.<span class="hljs-title function_">charAt</span>(<span class="hljs-variable language_">this</span>.<span class="hljs-property">index</span>++);
+
+			<span class="hljs-keyword">if</span> (ch === quote) {
+				closed = <span class="hljs-literal">true</span>;
+				<span class="hljs-keyword">break</span>;
+			}
+			<span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (ch === <span class="hljs-string">&#x27;\\&#x27;</span>) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-22">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-22">&#x00a7;</a>
+              </div>
+              <p>Check for all of the common escape codes</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>				ch = <span class="hljs-variable language_">this</span>.<span class="hljs-property">expr</span>.<span class="hljs-title function_">charAt</span>(<span class="hljs-variable language_">this</span>.<span class="hljs-property">index</span>++);
+
+				<span class="hljs-keyword">switch</span> (ch) {
+					<span class="hljs-keyword">case</span> <span class="hljs-string">&#x27;n&#x27;</span>: str += <span class="hljs-string">&#x27;\n&#x27;</span>; <span class="hljs-keyword">break</span>;
+					<span class="hljs-keyword">case</span> <span class="hljs-string">&#x27;r&#x27;</span>: str += <span class="hljs-string">&#x27;\r&#x27;</span>; <span class="hljs-keyword">break</span>;
+					<span class="hljs-keyword">case</span> <span class="hljs-string">&#x27;t&#x27;</span>: str += <span class="hljs-string">&#x27;\t&#x27;</span>; <span class="hljs-keyword">break</span>;
+					<span class="hljs-keyword">case</span> <span class="hljs-string">&#x27;b&#x27;</span>: str += <span class="hljs-string">&#x27;\b&#x27;</span>; <span class="hljs-keyword">break</span>;
+					<span class="hljs-keyword">case</span> <span class="hljs-string">&#x27;f&#x27;</span>: str += <span class="hljs-string">&#x27;\f&#x27;</span>; <span class="hljs-keyword">break</span>;
+					<span class="hljs-keyword">case</span> <span class="hljs-string">&#x27;v&#x27;</span>: str += <span class="hljs-string">&#x27;\x0B&#x27;</span>; <span class="hljs-keyword">break</span>;
+					<span class="hljs-keyword">default</span> : str += ch;
+				}
+			}
+			<span class="hljs-keyword">else</span> {
+				str += ch;
+			}
+		}
+
+		<span class="hljs-keyword">if</span> (!closed) {
+			<span class="hljs-variable language_">this</span>.<span class="hljs-title function_">throwError</span>(<span class="hljs-string">&#x27;Unclosed quote after &quot;&#x27;</span> + str + <span class="hljs-string">&#x27;&quot;&#x27;</span>);
+		}
+
+		<span class="hljs-keyword">return</span> {
+			<span class="hljs-attr">type</span>: <span class="hljs-title class_">Jsep</span>.<span class="hljs-property">LITERAL</span>,
+			<span class="hljs-attr">value</span>: str,
+			<span class="hljs-attr">raw</span>: <span class="hljs-variable language_">this</span>.<span class="hljs-property">expr</span>.<span class="hljs-title function_">substring</span>(startIndex, <span class="hljs-variable language_">this</span>.<span class="hljs-property">index</span>),
+		};
+	}
+
+	<span class="hljs-comment">/**
+	 * Gobbles only identifiers
+	 * e.g.: `foo`, `_value`, `$x1`
+	 * Also, this function checks if that identifier is a literal:
+	 * (e.g. `true`, `false`, `null`) or `this`
+	 * <span class="hljs-doctag">@returns</span> {<span class="hljs-type">jsep.Identifier</span>}
+	 */</span>
+	<span class="hljs-title function_">gobbleIdentifier</span>(<span class="hljs-params"></span>) {
+		<span class="hljs-keyword">let</span> ch = <span class="hljs-variable language_">this</span>.<span class="hljs-property">code</span>, start = <span class="hljs-variable language_">this</span>.<span class="hljs-property">index</span>;
+
+		<span class="hljs-keyword">if</span> (<span class="hljs-title class_">Jsep</span>.<span class="hljs-title function_">isIdentifierStart</span>(ch)) {
+			<span class="hljs-variable language_">this</span>.<span class="hljs-property">index</span>++;
+		}
+		<span class="hljs-keyword">else</span> {
+			<span class="hljs-variable language_">this</span>.<span class="hljs-title function_">throwError</span>(<span class="hljs-string">&#x27;Unexpected &#x27;</span> + <span class="hljs-variable language_">this</span>.<span class="hljs-property">char</span>);
+		}
+
+		<span class="hljs-keyword">while</span> (<span class="hljs-variable language_">this</span>.<span class="hljs-property">index</span> &lt; <span class="hljs-variable language_">this</span>.<span class="hljs-property">expr</span>.<span class="hljs-property">length</span>) {
+			ch = <span class="hljs-variable language_">this</span>.<span class="hljs-property">code</span>;
+
+			<span class="hljs-keyword">if</span> (<span class="hljs-title class_">Jsep</span>.<span class="hljs-title function_">isIdentifierPart</span>(ch)) {
+				<span class="hljs-variable language_">this</span>.<span class="hljs-property">index</span>++;
+			}
+			<span class="hljs-keyword">else</span> {
+				<span class="hljs-keyword">break</span>;
+			}
+		}
+		<span class="hljs-keyword">return</span> {
+			<span class="hljs-attr">type</span>: <span class="hljs-title class_">Jsep</span>.<span class="hljs-property">IDENTIFIER</span>,
+			<span class="hljs-attr">name</span>: <span class="hljs-variable language_">this</span>.<span class="hljs-property">expr</span>.<span class="hljs-title function_">slice</span>(start, <span class="hljs-variable language_">this</span>.<span class="hljs-property">index</span>),
+		};
+	}
+
+	<span class="hljs-comment">/**
+	 * Gobbles a list of arguments within the context of a function call
+	 * or array literal. This function also assumes that the opening character
+	 * `(` or `[` has already been gobbled, and gobbles expressions and commas
+	 * until the terminator character `)` or `]` is encountered.
+	 * e.g. `foo(bar, baz)`, `my_func()`, or `[bar, baz]`
+	 * <span class="hljs-doctag">@param</span> {<span class="hljs-type">number</span>} <span class="hljs-variable">termination</span>
+	 * <span class="hljs-doctag">@returns</span> {<span class="hljs-type">jsep.Expression[]</span>}
+	 */</span>
+	<span class="hljs-title function_">gobbleArguments</span>(<span class="hljs-params">termination</span>) {
+		<span class="hljs-keyword">const</span> args = [];
+		<span class="hljs-keyword">let</span> closed = <span class="hljs-literal">false</span>;
+		<span class="hljs-keyword">let</span> separator_count = <span class="hljs-number">0</span>;
+
+		<span class="hljs-keyword">while</span> (<span class="hljs-variable language_">this</span>.<span class="hljs-property">index</span> &lt; <span class="hljs-variable language_">this</span>.<span class="hljs-property">expr</span>.<span class="hljs-property">length</span>) {
+			<span class="hljs-variable language_">this</span>.<span class="hljs-title function_">gobbleSpaces</span>();
+			<span class="hljs-keyword">let</span> ch_i = <span class="hljs-variable language_">this</span>.<span class="hljs-property">code</span>;
+
+			<span class="hljs-keyword">if</span> (ch_i === termination) { <span class="hljs-comment">// done parsing</span>
+				closed = <span class="hljs-literal">true</span>;
+				<span class="hljs-variable language_">this</span>.<span class="hljs-property">index</span>++;
+
+				<span class="hljs-keyword">if</span> (termination === <span class="hljs-title class_">Jsep</span>.<span class="hljs-property">CPAREN_CODE</span> &amp;&amp; separator_count &amp;&amp; separator_count &gt;= args.<span class="hljs-property">length</span>){
+					<span class="hljs-variable language_">this</span>.<span class="hljs-title function_">throwError</span>(<span class="hljs-string">&#x27;Unexpected token &#x27;</span> + <span class="hljs-title class_">String</span>.<span class="hljs-title function_">fromCharCode</span>(termination));
+				}
+
+				<span class="hljs-keyword">break</span>;
+			}
+			<span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (ch_i === <span class="hljs-title class_">Jsep</span>.<span class="hljs-property">COMMA_CODE</span>) { <span class="hljs-comment">// between expressions</span>
+				<span class="hljs-variable language_">this</span>.<span class="hljs-property">index</span>++;
+				separator_count++;
+
+				<span class="hljs-keyword">if</span> (separator_count !== args.<span class="hljs-property">length</span>) { <span class="hljs-comment">// missing argument</span>
+					<span class="hljs-keyword">if</span> (termination === <span class="hljs-title class_">Jsep</span>.<span class="hljs-property">CPAREN_CODE</span>) {
+						<span class="hljs-variable language_">this</span>.<span class="hljs-title function_">throwError</span>(<span class="hljs-string">&#x27;Unexpected token ,&#x27;</span>);
+					}
+					<span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (termination === <span class="hljs-title class_">Jsep</span>.<span class="hljs-property">CBRACK_CODE</span>) {
+						<span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> arg = args.<span class="hljs-property">length</span>; arg &lt; separator_count; arg++) {
+							args.<span class="hljs-title function_">push</span>(<span class="hljs-literal">null</span>);
+						}
+					}
+				}
+			}
+			<span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (args.<span class="hljs-property">length</span> !== separator_count &amp;&amp; separator_count !== <span class="hljs-number">0</span>) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-23">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-23">&#x00a7;</a>
+              </div>
+              <p>NOTE: <code>&amp;&amp; separator_count !== 0</code> allows for either all commas, or all spaces as arguments</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>				<span class="hljs-variable language_">this</span>.<span class="hljs-title function_">throwError</span>(<span class="hljs-string">&#x27;Expected comma&#x27;</span>);
+			}
+			<span class="hljs-keyword">else</span> {
+				<span class="hljs-keyword">const</span> node = <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">gobbleExpression</span>();
+
+				<span class="hljs-keyword">if</span> (!node || node.<span class="hljs-property">type</span> === <span class="hljs-title class_">Jsep</span>.<span class="hljs-property">COMPOUND</span>) {
+					<span class="hljs-variable language_">this</span>.<span class="hljs-title function_">throwError</span>(<span class="hljs-string">&#x27;Expected comma&#x27;</span>);
+				}
+
+				args.<span class="hljs-title function_">push</span>(node);
+			}
+		}
+
+		<span class="hljs-keyword">if</span> (!closed) {
+			<span class="hljs-variable language_">this</span>.<span class="hljs-title function_">throwError</span>(<span class="hljs-string">&#x27;Expected &#x27;</span> + <span class="hljs-title class_">String</span>.<span class="hljs-title function_">fromCharCode</span>(termination));
+		}
+
+		<span class="hljs-keyword">return</span> args;
+	}
+
+	<span class="hljs-comment">/**
+	 * Responsible for parsing a group of things within parentheses `()`
+	 * that have no identifier in front (so not a function call)
+	 * This function assumes that it needs to gobble the opening parenthesis
+	 * and then tries to gobble everything within that parenthesis, assuming
+	 * that the next thing it should see is the close parenthesis. If not,
+	 * then the expression probably doesn&#x27;t have a `)`
+	 * <span class="hljs-doctag">@returns</span> {<span class="hljs-type">boolean|jsep.Expression</span>}
+	 */</span>
+	<span class="hljs-title function_">gobbleGroup</span>(<span class="hljs-params"></span>) {
+		<span class="hljs-variable language_">this</span>.<span class="hljs-property">index</span>++;
+		<span class="hljs-keyword">let</span> nodes = <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">gobbleExpressions</span>(<span class="hljs-title class_">Jsep</span>.<span class="hljs-property">CPAREN_CODE</span>);
+		<span class="hljs-keyword">if</span> (<span class="hljs-variable language_">this</span>.<span class="hljs-property">code</span> === <span class="hljs-title class_">Jsep</span>.<span class="hljs-property">CPAREN_CODE</span>) {
+			<span class="hljs-variable language_">this</span>.<span class="hljs-property">index</span>++;
+			<span class="hljs-keyword">if</span> (nodes.<span class="hljs-property">length</span> === <span class="hljs-number">1</span>) {
+				<span class="hljs-keyword">return</span> nodes[<span class="hljs-number">0</span>];
+			}
+			<span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (!nodes.<span class="hljs-property">length</span>) {
+				<span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+			}
+			<span class="hljs-keyword">else</span> {
+				<span class="hljs-keyword">return</span> {
+					<span class="hljs-attr">type</span>: <span class="hljs-title class_">Jsep</span>.<span class="hljs-property">SEQUENCE_EXP</span>,
+					<span class="hljs-attr">expressions</span>: nodes,
+				};
+			}
+		}
+		<span class="hljs-keyword">else</span> {
+			<span class="hljs-variable language_">this</span>.<span class="hljs-title function_">throwError</span>(<span class="hljs-string">&#x27;Unclosed (&#x27;</span>);
+		}
+	}
+
+	<span class="hljs-comment">/**
+	 * Responsible for parsing Array literals `[1, 2, 3]`
+	 * This function assumes that it needs to gobble the opening bracket
+	 * and then tries to gobble the expressions as arguments.
+	 * <span class="hljs-doctag">@returns</span> {<span class="hljs-type">jsep.ArrayExpression</span>}
+	 */</span>
+	<span class="hljs-title function_">gobbleArray</span>(<span class="hljs-params"></span>) {
+		<span class="hljs-variable language_">this</span>.<span class="hljs-property">index</span>++;
+
+		<span class="hljs-keyword">return</span> {
+			<span class="hljs-attr">type</span>: <span class="hljs-title class_">Jsep</span>.<span class="hljs-property">ARRAY_EXP</span>,
+			<span class="hljs-attr">elements</span>: <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">gobbleArguments</span>(<span class="hljs-title class_">Jsep</span>.<span class="hljs-property">CBRACK_CODE</span>)
+		};
+	}
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-24">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-24">&#x00a7;</a>
+              </div>
+              <p>Static fields:</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">const</span> hooks = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Hooks</span>();
+<span class="hljs-title class_">Object</span>.<span class="hljs-title function_">assign</span>(<span class="hljs-title class_">Jsep</span>, {
+	hooks,
+	<span class="hljs-attr">plugins</span>: <span class="hljs-keyword">new</span> <span class="hljs-title class_">Plugins</span>(<span class="hljs-title class_">Jsep</span>),</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-25">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-25">&#x00a7;</a>
+              </div>
+              <h2 id="node-types">Node Types</h2>
+<p>This is the full set of types that any JSEP node can be.
+Store them here to save space when minified</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>	<span class="hljs-attr">COMPOUND</span>:        <span class="hljs-string">&#x27;Compound&#x27;</span>,
+	<span class="hljs-attr">SEQUENCE_EXP</span>:    <span class="hljs-string">&#x27;SequenceExpression&#x27;</span>,
+	<span class="hljs-attr">IDENTIFIER</span>:      <span class="hljs-string">&#x27;Identifier&#x27;</span>,
+	<span class="hljs-attr">MEMBER_EXP</span>:      <span class="hljs-string">&#x27;MemberExpression&#x27;</span>,
+	<span class="hljs-attr">LITERAL</span>:         <span class="hljs-string">&#x27;Literal&#x27;</span>,
+	<span class="hljs-attr">THIS_EXP</span>:        <span class="hljs-string">&#x27;ThisExpression&#x27;</span>,
+	<span class="hljs-attr">CALL_EXP</span>:        <span class="hljs-string">&#x27;CallExpression&#x27;</span>,
+	<span class="hljs-attr">UNARY_EXP</span>:       <span class="hljs-string">&#x27;UnaryExpression&#x27;</span>,
+	<span class="hljs-attr">BINARY_EXP</span>:      <span class="hljs-string">&#x27;BinaryExpression&#x27;</span>,
+	<span class="hljs-attr">ARRAY_EXP</span>:       <span class="hljs-string">&#x27;ArrayExpression&#x27;</span>,
+
+	<span class="hljs-attr">TAB_CODE</span>:    <span class="hljs-number">9</span>,
+	<span class="hljs-attr">LF_CODE</span>:     <span class="hljs-number">10</span>,
+	<span class="hljs-attr">CR_CODE</span>:     <span class="hljs-number">13</span>,
+	<span class="hljs-attr">SPACE_CODE</span>:  <span class="hljs-number">32</span>,
+	<span class="hljs-attr">PERIOD_CODE</span>: <span class="hljs-number">46</span>, <span class="hljs-comment">// &#x27;.&#x27;</span>
+	<span class="hljs-attr">COMMA_CODE</span>:  <span class="hljs-number">44</span>, <span class="hljs-comment">// &#x27;,&#x27;</span>
+	<span class="hljs-attr">SQUOTE_CODE</span>: <span class="hljs-number">39</span>, <span class="hljs-comment">// single quote</span>
+	<span class="hljs-attr">DQUOTE_CODE</span>: <span class="hljs-number">34</span>, <span class="hljs-comment">// double quotes</span>
+	<span class="hljs-attr">OPAREN_CODE</span>: <span class="hljs-number">40</span>, <span class="hljs-comment">// (</span>
+	<span class="hljs-attr">CPAREN_CODE</span>: <span class="hljs-number">41</span>, <span class="hljs-comment">// )</span>
+	<span class="hljs-attr">OBRACK_CODE</span>: <span class="hljs-number">91</span>, <span class="hljs-comment">// [</span>
+	<span class="hljs-attr">CBRACK_CODE</span>: <span class="hljs-number">93</span>, <span class="hljs-comment">// ]</span>
+	<span class="hljs-attr">QUMARK_CODE</span>: <span class="hljs-number">63</span>, <span class="hljs-comment">// ?</span>
+	<span class="hljs-attr">SEMCOL_CODE</span>: <span class="hljs-number">59</span>, <span class="hljs-comment">// ;</span>
+	<span class="hljs-attr">COLON_CODE</span>:  <span class="hljs-number">58</span>, <span class="hljs-comment">// :</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-26">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-26">&#x00a7;</a>
+              </div>
+              <h2 id="operations">Operations</h2>
+<p>Use a quickly-accessible map to store all of the unary operators
+Values are set to <code>1</code> (it really doesn’t matter)</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>	<span class="hljs-attr">unary_ops</span>: {
+		<span class="hljs-string">&#x27;-&#x27;</span>: <span class="hljs-number">1</span>,
+		<span class="hljs-string">&#x27;!&#x27;</span>: <span class="hljs-number">1</span>,
+		<span class="hljs-string">&#x27;~&#x27;</span>: <span class="hljs-number">1</span>,
+		<span class="hljs-string">&#x27;+&#x27;</span>: <span class="hljs-number">1</span>
+	},</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-27">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-27">&#x00a7;</a>
+              </div>
+              <p>Also use a map for the binary operations but set their values to their
+binary precedence for quick reference (higher number = higher precedence)
+see <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_Precedence">Order of operations</a></p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>	<span class="hljs-attr">binary_ops</span>: {
+		<span class="hljs-string">&#x27;||&#x27;</span>: <span class="hljs-number">1</span>, <span class="hljs-string">&#x27;??&#x27;</span>: <span class="hljs-number">1</span>,
+		<span class="hljs-string">&#x27;&amp;&amp;&#x27;</span>: <span class="hljs-number">2</span>, <span class="hljs-string">&#x27;|&#x27;</span>: <span class="hljs-number">3</span>, <span class="hljs-string">&#x27;^&#x27;</span>: <span class="hljs-number">4</span>, <span class="hljs-string">&#x27;&amp;&#x27;</span>: <span class="hljs-number">5</span>,
+		<span class="hljs-string">&#x27;==&#x27;</span>: <span class="hljs-number">6</span>, <span class="hljs-string">&#x27;!=&#x27;</span>: <span class="hljs-number">6</span>, <span class="hljs-string">&#x27;===&#x27;</span>: <span class="hljs-number">6</span>, <span class="hljs-string">&#x27;!==&#x27;</span>: <span class="hljs-number">6</span>,
+		<span class="hljs-string">&#x27;&lt;&#x27;</span>: <span class="hljs-number">7</span>, <span class="hljs-string">&#x27;&gt;&#x27;</span>: <span class="hljs-number">7</span>, <span class="hljs-string">&#x27;&lt;=&#x27;</span>: <span class="hljs-number">7</span>, <span class="hljs-string">&#x27;&gt;=&#x27;</span>: <span class="hljs-number">7</span>,
+		<span class="hljs-string">&#x27;&lt;&lt;&#x27;</span>: <span class="hljs-number">8</span>, <span class="hljs-string">&#x27;&gt;&gt;&#x27;</span>: <span class="hljs-number">8</span>, <span class="hljs-string">&#x27;&gt;&gt;&gt;&#x27;</span>: <span class="hljs-number">8</span>,
+		<span class="hljs-string">&#x27;+&#x27;</span>: <span class="hljs-number">9</span>, <span class="hljs-string">&#x27;-&#x27;</span>: <span class="hljs-number">9</span>,
+		<span class="hljs-string">&#x27;*&#x27;</span>: <span class="hljs-number">10</span>, <span class="hljs-string">&#x27;/&#x27;</span>: <span class="hljs-number">10</span>, <span class="hljs-string">&#x27;%&#x27;</span>: <span class="hljs-number">10</span>,
+		<span class="hljs-string">&#x27;**&#x27;</span>: <span class="hljs-number">11</span>,
+	},</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-28">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-28">&#x00a7;</a>
+              </div>
+              <p>sets specific binary_ops as right-associative</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>	<span class="hljs-attr">right_associative</span>: <span class="hljs-keyword">new</span> <span class="hljs-title class_">Set</span>([<span class="hljs-string">&#x27;**&#x27;</span>]),</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-29">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-29">&#x00a7;</a>
+              </div>
+              <p>Additional valid identifier chars, apart from a-z, A-Z and 0-9 (except on the starting char)</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>	<span class="hljs-attr">additional_identifier_chars</span>: <span class="hljs-keyword">new</span> <span class="hljs-title class_">Set</span>([<span class="hljs-string">&#x27;$&#x27;</span>, <span class="hljs-string">&#x27;_&#x27;</span>]),</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-30">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-30">&#x00a7;</a>
+              </div>
+              <h2 id="literals">Literals</h2>
+<p>Store the values to return for the various literals we may encounter</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>	<span class="hljs-attr">literals</span>: {
+		<span class="hljs-string">&#x27;true&#x27;</span>: <span class="hljs-literal">true</span>,
+		<span class="hljs-string">&#x27;false&#x27;</span>: <span class="hljs-literal">false</span>,
+		<span class="hljs-string">&#x27;null&#x27;</span>: <span class="hljs-literal">null</span>
+	},</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-31">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-31">&#x00a7;</a>
+              </div>
+              <p>Except for <code>this</code>, which is special. This could be changed to something like <code>&#39;self&#39;</code> as well</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>	<span class="hljs-attr">this_str</span>: <span class="hljs-string">&#x27;this&#x27;</span>,
+});
+<span class="hljs-title class_">Jsep</span>.<span class="hljs-property">max_unop_len</span> = <span class="hljs-title class_">Jsep</span>.<span class="hljs-title function_">getMaxKeyLen</span>(<span class="hljs-title class_">Jsep</span>.<span class="hljs-property">unary_ops</span>);
+<span class="hljs-title class_">Jsep</span>.<span class="hljs-property">max_binop_len</span> = <span class="hljs-title class_">Jsep</span>.<span class="hljs-title function_">getMaxKeyLen</span>(<span class="hljs-title class_">Jsep</span>.<span class="hljs-property">binary_ops</span>);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-32">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-32">&#x00a7;</a>
+              </div>
+              <p>Backward Compatibility:</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">const</span> <span class="hljs-title function_">jsep</span> = expr =&gt; (<span class="hljs-keyword">new</span> <span class="hljs-title class_">Jsep</span>(expr)).<span class="hljs-title function_">parse</span>();
+<span class="hljs-keyword">const</span> stdClassProps = <span class="hljs-title class_">Object</span>.<span class="hljs-title function_">getOwnPropertyNames</span>(<span class="hljs-keyword">class</span> <span class="hljs-title class_">Test</span>{});
+<span class="hljs-title class_">Object</span>.<span class="hljs-title function_">getOwnPropertyNames</span>(<span class="hljs-title class_">Jsep</span>)
+	.<span class="hljs-title function_">filter</span>(<span class="hljs-function"><span class="hljs-params">prop</span> =&gt;</span> !stdClassProps.<span class="hljs-title function_">includes</span>(prop) &amp;&amp; jsep[prop] === <span class="hljs-literal">undefined</span>)
+	.<span class="hljs-title function_">forEach</span>(<span class="hljs-function">(<span class="hljs-params">m</span>) =&gt;</span> {
+		jsep[m] = <span class="hljs-title class_">Jsep</span>[m];
+	});
+jsep.<span class="hljs-property">Jsep</span> = <span class="hljs-title class_">Jsep</span>; <span class="hljs-comment">// allows for const { Jsep } = require(&#x27;jsep&#x27;);</span>
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> jsep;</pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>
