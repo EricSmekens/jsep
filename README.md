@@ -57,6 +57,47 @@ const { Jsep } = require('jsep');
 const parse_tree = Jsep.parse('1 + 1');
 ```
 
+### Configuration
+
+By default, JSEP is configured for basic javascript expression parsing:
+- binary operators (
+    `||`, `??`, `&&`, `|`, `^`, `&`,
+    `==`, `!=`, `===`, `!==`, `<`, `>`, `<=`, `>=`,
+    `<<`, `>>`, `>>>`, `+`, `-`, `*`, `/`, `%`, `**`)
+- unary operators (`-`, `!`, `~`, `+`)
+- identifier chars (`&`, `_`)
+- literals (`true`, `false`, `null`)
+    - (NOT `undefined`, `Infinity` or `NaN`)
+- `this`
+- and the ternary plugin (`condition ? true : false`)
+
+The configuration can be modified by calling any of the `addBinaryOp`, `addUnaryOp`, `addLiteral`, or `addIdentifierChar`
+(or their related `remove` and `removeAll` methods).
+
+In addition, the JSEP configuration can be completely cleared by calling `clearConfig`, 
+and reset back to defaults by calling `defaultConfig`.
+
+By default, jsep exports an instance of the Jsep class with its default configuration.
+In order to have a separate instance for another configuration, you can use the `instance` method
+to obtain a new instance, then configure that instance as needed.
+
+```javascript
+import jsep from 'jsep'; // function & Jsep methods
+
+const jsep2 = jsep.instance(); // empty config
+
+jsep('1 + 1') // BinaryExpression
+
+jsep2('1 + 1') // Error - unexpected + (no binary operators)
+jsep2.defaultConfig();
+jsep2.parse('1 + 1') // BinaryExpression
+
+jsep2.addBinaryOp('@', 10);
+jsep2.parse('1 @ 1'); // BinaryExpression
+jsep.parse('1 @ 1'); // Error - unexpected @
+```
+
+
 #### Custom Operators
 
 ```javascript
@@ -182,6 +223,9 @@ export interface HookScope {
     readonly expr: string;
     readonly char: string; // current character of the expression
     readonly code: number; // current character code of the expression
+	  isDecimalDigit: (ch: number) => boolean;
+		isIdentifierStart: (ch: number) => boolean;
+		isIdentifierPart: (ch: number) => boolean;
     gobbleSpaces: () => void;
     gobbleExpressions: (untilICode?: number) => Expression[];
     gobbleExpression: () => Expression;

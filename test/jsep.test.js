@@ -1,5 +1,5 @@
 import jsep from '../src/index.js';
-import {testParser, testOpExpression, esprimaComparisonTest, resetJsepDefaults} from './test_utils.js';
+import {testParser, testOpExpression, esprimaComparisonTest, resetJsepDefaults, filterProps} from './test_utils.js';
 
 (function () {
 	QUnit.module('Expression Parser');
@@ -432,6 +432,53 @@ import {testParser, testOpExpression, esprimaComparisonTest, resetJsepDefaults} 
 				});
 				testParser(expr, { type: 'spread' }, assert);
 			});
+		});
+	});
+
+	QUnit.module('Multi-instance', function (qunit) {
+		let j2;
+		qunit.beforeEach(() => {
+			j2 = jsep.instance(); // empty config (no ops, hooks or plugins)
+		});
+
+		QUnit.test('new instance should start with an empty config, separate from jsep', (assert) => {
+			assert.throws(() => j2('a + 1'), /Unexpected "\+"/);
+			assert.equal(Object.keys(j2.binary_ops).length, 0);
+			assert.equal(Object.keys(j2.plugins.registered).length, 0);
+			assert.equal(Object.keys(j2.hooks).length, 0);
+			assert.equal(j2.COMPOUND, 'Compound');
+			assert.equal(j2.CBRACK_CODE, 93);
+
+			assert.ok(Object.keys(jsep.binary_ops).length > 0);
+			assert.ok(Object.keys(jsep.plugins.registered).length > 0);
+		});
+
+		QUnit.test('import jsep should return the same jsep instance', async (assert) => {
+			j2 = (await import('../src/index.js')).default;
+			assert.strictEqual(jsep, j2);
+		});
+
+		QUnit.test('should support Jsep.parse()', async (assert) => {
+			const { Jsep } = await import('../src/index.js');
+			assert.deepEqual(filterProps(Jsep.parse('123'), { type: 'Literal' }), { type: 'Literal' });
+		});
+
+		QUnit.test('should not have ternary by default, but can be added', (assert) => {
+			const expr = 'a1 ? 1 : 0';
+			const out = { type: 'ConditionalExpression' };
+			assert.throws(() => j2(expr), /Unexpected "\?"/);
+			assert.deepEqual(filterProps(jsep(expr), out), out);
+
+			j2.defaultConfig();
+			assert.deepEqual(filterProps(j2(expr), out), out);
+		});
+
+		QUnit.test('should have separate hooks', (assert) => {
+			j2.hooks.add('after-all', function (env) {
+				env.node = { type: 'done' };
+			});
+			assert.deepEqual(j2('123'), { type: 'done' });
+			assert.deepEqual(filterProps(jsep('123'), { type: 'x' }), { type: 'Literal' });
 		});
 	});
 
