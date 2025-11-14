@@ -41,7 +41,8 @@ export default {
 					raw: this.expr.substring(startIndex, this.index),
 				};
 			}
-			else if (Jsep.isDecimalDigit(this.code) || this.code === Jsep.PERIOD_CODE) {
+			else {
+				// this will return `undefined` if it's not a number
 				gobbleBase10.call(this, env);
 			}
 		});
@@ -106,6 +107,12 @@ export default {
 			const startIndex = this.index;
 			let number = '';
 
+			if (!Jsep.isDecimalDigit(this.code) && !(
+				this.code === Jsep.PERIOD_CODE &&  this.expr.charCodeAt(this.index +1) !== Jsep.PERIOD_CODE
+			)) {
+				return;
+			}
+			
 			const gobbleDigits = () => {
 				while (Jsep.isDecimalDigit(this.code) || this.code === UNDERSCORE) {
 					if (this.code === UNDERSCORE) {
@@ -141,19 +148,20 @@ export default {
 			}
 
 			const chCode = this.code;
+			const prevCode = this.expr.charCodeAt(this.index - 1);
 
 			// Check to make sure this isn't a variable name that start with a number (123abc)
 			if (Jsep.isIdentifierStart(chCode)) {
 				this.throwError('Variable names cannot start with a number (' +
 					number + this.char + ')');
 			}
-			else if (chCode === Jsep.PERIOD_CODE) {
-				if (number.length > 1) {
-					this.throwError(`Unexpected period ${JSON.stringify({ chCode, number }, null, 2)}`);
-				}
-				// leave other error-handling to jsep core. Also allows spread operator.
-				this.index = startIndex;
-				return;
+			else if (chCode === Jsep.PERIOD_CODE && prevCode ===  Jsep.PERIOD_CODE) {
+				// number "ends" with '..', treat it as the start of a new operator, and roll back the index.
+				// note that the possibility of `..` as the first two chars is eliminated above
+				this.index --;
+			}
+			else if (number.length === 1 && number.charCodeAt(0) === Jsep.PERIOD_CODE) {
+				this.throwError('Unexpected period');
 			}
 
 			env.node = {
