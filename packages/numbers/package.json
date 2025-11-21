@@ -1,5 +1,5 @@
 {
-	"name": "@jsep-plugin/numbers",
+	"name": "@nc-jsep-plugin/numbers",
 	"version": "1.0.2",
 	"description": "Adds support for binary, hex, and octal number formats, including _",
 	"author": "Shelly (https://github.com/6utt3rfly)",
@@ -22,7 +22,7 @@
 	"module": "./dist/index.js",
 	"types": "types/tsd.d.ts",
 	"peerDependencies": {
-		"jsep": "^0.4.0||^1.0.0"
+		"nc-jsep": "^1.4.0"
 	},
 	"devDependencies": {
 		"rollup": "^2.44.0",
