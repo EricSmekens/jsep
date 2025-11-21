@@ -4,153 +4,291 @@
 import Hooks from './hooks.js';
 import Plugins from './plugins.js';
 
+/** @typedef {Jsep & ((val: string) => Expression | never)} JsepInstance */
 export class Jsep {
 	/**
-	 * @returns {string}
+	 * @returns {JsepInstance}
 	 */
-	static get version() {
-		// To be filled in by the template
-		return '<%= version %>';
+	static instance() {
+		const instance = new Jsep();
+
+		// return a function (to parse), but rather than assigning all JSEP
+		// API properties and methods to that function, use a Proxy:
+		const jsep = new Proxy(instance.parse.bind(instance), {
+			get: (t, k) => instance[k],
+			set: (t, k, v) => {
+				instance[k] = v;
+				return true;
+			},
+		});
+		jsep.Jsep = jsep; // allows for const { Jsep } = require('jsep'); --> no longer a class though
+
+		return jsep;
 	}
 
 	/**
 	 * @returns {string}
 	 */
-	static toString() {
-		return 'JavaScript Expression Parser (JSEP) v' + Jsep.version;
-	};
+	toString() {
+		return 'JavaScript Expression Parser (JSEP) v' + this.version;
+	}
+
+	constructor() {
+		// NOTE: defining these constants on the instance for backward compatibility
+		Object.assign(this, {
+			version: '<%= version %>', // To be filled in by the builder
+
+			// Node Types
+			// ----------
+			// This is the full set of types that any JSEP node can be.
+			// Store them here to save space when minified
+			COMPOUND:     'Compound',
+			SEQUENCE_EXP: 'SequenceExpression',
+			IDENTIFIER:   'Identifier',
+			MEMBER_EXP:   'MemberExpression',
+			LITERAL:      'Literal',
+			THIS_EXP:     'ThisExpression',
+			CALL_EXP:     'CallExpression',
+			UNARY_EXP:    'UnaryExpression',
+			BINARY_EXP:   'BinaryExpression',
+			ARRAY_EXP:    'ArrayExpression',
+
+			TAB_CODE:    9,
+			LF_CODE:     10,
+			CR_CODE:     13,
+			SPACE_CODE:  32,
+			PERIOD_CODE: 46, // '.'
+			COMMA_CODE:  44, // ','
+			SQUOTE_CODE: 39, // single quote
+			DQUOTE_CODE: 34, // double quotes
+			OPAREN_CODE: 40, // (
+			CPAREN_CODE: 41, // )
+			OBRACK_CODE: 91, // [
+			CBRACK_CODE: 93, // ]
+			QUMARK_CODE: 63, // ?
+			SEMCOL_CODE: 59, // ;
+			COLON_CODE:  58, // :
+		});
+
+		this.expr = '';
+		this.index = 0;
+		this.clearConfig();
+	}
+
+	/**
+	 * @returns {JsepInstance}
+	 */
+	instance() {
+		return Jsep.instance();
+	}
 
 	// ==================== CONFIG ================================
 	/**
-	 * @method addUnaryOp
-	 * @param {string} op_name The name of the unary op to add
-	 * @returns {Jsep}
+	 * set ternary to static property so it can be used by defaultConfig() method
+	 * @param {IPlugin} ternary
 	 */
-	static addUnaryOp(op_name) {
-		Jsep.max_unop_len = Math.max(op_name.length, Jsep.max_unop_len);
-		Jsep.unary_ops[op_name] = 1;
-		return Jsep;
+	registerTernary(ternary) {
+		Jsep.ternary = ternary;
+		this.plugins.register(ternary);
 	}
 
 	/**
-	 * @method jsep.addBinaryOp
+	 * sets config to default JSEP config
+	 * @returns {this}
+	 */
+	defaultConfig() {
+		this.unary_ops = {
+			'-': 1,
+			'!': 1,
+			'~': 1,
+			'+': 1
+		};
+		this.max_unop_len = this.getMaxKeyLen(this.unary_ops);
+
+		// Also use a map for the binary operations but set their values to their
+		// binary precedence for quick reference (higher number = higher precedence)
+		// see [Order of operations](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_Precedence)
+		this.binary_ops = {
+			'||': 1, '??': 1,
+			'&&': 2, '|': 3, '^': 4, '&': 5,
+			'==': 6, '!=': 6, '===': 6, '!==': 6,
+			'<': 7, '>': 7, '<=': 7, '>=': 7,
+			'<<': 8, '>>': 8, '>>>': 8,
+			'+': 9, '-': 9,
+			'*': 10, '/': 10, '%': 10,
+			'**': 11,
+		};
+		this.max_binop_len = this.getMaxKeyLen(this.binary_ops);
+
+		// sets specific binary_ops as right-associative
+		this.right_associative = new Set(['**']);
+
+		// Additional valid identifier chars, apart from a-z, A-Z and 0-9 (except on the starting char)
+		this.additional_identifier_chars = new Set(['$', '_']);
+
+		// Literals
+		// ----------
+		// Store the values to return for the various literals we may encounter
+		this.literals = {
+			'true': true,
+			'false': false,
+			'null': null
+		};
+
+		// Except for `this`, which is special. This could be changed to something like `'self'` as well
+		this.this_str = 'this';
+
+		this.hooks = new Hooks();
+		this.plugins = new Plugins(this);
+		if (Jsep.ternary) {
+			this.plugins.register(Jsep.ternary);
+		}
+		return this;
+	}
+
+	/**
+	 * clears JSEP config
+	 * @returns {this}
+	 */
+	clearConfig() {
+		this.removeAllUnaryOps();
+		this.removeAllBinaryOps();
+		this.removeAllIdentifierChars();
+		this.removeAllLiterals();
+		this.this_str = 'this';
+		this.hooks = new Hooks();
+		this.plugins = new Plugins(this);
+		return this;
+	}
+
+	/**
+	 * @param {string} op_name The name of the unary op to add
+	 * @returns {this}
+	 */
+	addUnaryOp(op_name) {
+		this.max_unop_len = Math.max(op_name.length, this.max_unop_len);
+		this.unary_ops[op_name] = 1;
+		return this;
+	}
+
+	/**
 	 * @param {string} op_name The name of the binary op to add
 	 * @param {number} precedence The precedence of the binary op (can be a float). Higher number = higher precedence
 	 * @param {boolean} [isRightAssociative=false] whether operator is right-associative
-	 * @returns {Jsep}
+	 * @returns {this}
 	 */
-	static addBinaryOp(op_name, precedence, isRightAssociative) {
-		Jsep.max_binop_len = Math.max(op_name.length, Jsep.max_binop_len);
-		Jsep.binary_ops[op_name] = precedence;
+	addBinaryOp(op_name, precedence, isRightAssociative) {
+		this.max_binop_len = Math.max(op_name.length, this.max_binop_len);
+		this.binary_ops[op_name] = precedence;
 		if (isRightAssociative) {
-			Jsep.right_associative.add(op_name);
+			this.right_associative.add(op_name);
 		}
 		else {
-			Jsep.right_associative.delete(op_name);
+			this.right_associative.delete(op_name);
 		}
-		return Jsep;
+		return this;
 	}
 
 	/**
-	 * @method addIdentifierChar
 	 * @param {string} char The additional character to treat as a valid part of an identifier
-	 * @returns {Jsep}
+	 * return {this}
 	 */
-	static addIdentifierChar(char) {
-		Jsep.additional_identifier_chars.add(char);
-		return Jsep;
+	addIdentifierChar(char) {
+		this.additional_identifier_chars.add(char);
+		return this;
 	}
 
 	/**
-	 * @method addLiteral
 	 * @param {string} literal_name The name of the literal to add
 	 * @param {*} literal_value The value of the literal
-	 * @returns {Jsep}
+	 * @returns {this}
 	 */
-	static addLiteral(literal_name, literal_value) {
-		Jsep.literals[literal_name] = literal_value;
-		return Jsep;
+	addLiteral(literal_name, literal_value) {
+		this.literals[literal_name] = literal_value;
+		return this;
 	}
 
 	/**
-	 * @method removeUnaryOp
 	 * @param {string} op_name The name of the unary op to remove
-	 * @returns {Jsep}
+	 * return {this}
 	 */
-	static removeUnaryOp(op_name) {
-		delete Jsep.unary_ops[op_name];
-		if (op_name.length === Jsep.max_unop_len) {
-			Jsep.max_unop_len = Jsep.getMaxKeyLen(Jsep.unary_ops);
+	removeUnaryOp(op_name) {
+		delete this.unary_ops[op_name];
+		if (op_name.length === this.max_unop_len) {
+			this.max_unop_len = this.getMaxKeyLen(this.unary_ops);
 		}
-		return Jsep;
+		return this;
 	}
 
 	/**
-	 * @method removeAllUnaryOps
-	 * @returns {Jsep}
+	 * return {this}
 	 */
-	static removeAllUnaryOps() {
-		Jsep.unary_ops = {};
-		Jsep.max_unop_len = 0;
+	removeAllUnaryOps() {
+		this.unary_ops = {};
+		this.max_unop_len = 0;
 
-		return Jsep;
+		return this;
 	}
 
 	/**
-	 * @method removeIdentifierChar
 	 * @param {string} char The additional character to stop treating as a valid part of an identifier
-	 * @returns {Jsep}
+	 * return {this}
 	 */
-	static removeIdentifierChar(char) {
-		Jsep.additional_identifier_chars.delete(char);
-		return Jsep;
+	removeIdentifierChar(char) {
+		this.additional_identifier_chars.delete(char);
+		return this;
 	}
 
 	/**
-	 * @method removeBinaryOp
+	 * @param {string} char The additional character to stop treating as a valid part of an identifier
+	 * return {this}
+	 */
+	removeAllIdentifierChars() {
+		this.additional_identifier_chars = new Set();
+		return this;
+	}
+
+	/**
 	 * @param {string} op_name The name of the binary op to remove
-	 * @returns {Jsep}
+	 * return {this}
 	 */
-	static removeBinaryOp(op_name) {
-		delete Jsep.binary_ops[op_name];
+	removeBinaryOp(op_name) {
+		delete this.binary_ops[op_name];
 
-		if (op_name.length === Jsep.max_binop_len) {
-			Jsep.max_binop_len = Jsep.getMaxKeyLen(Jsep.binary_ops);
+		if (op_name.length === this.max_binop_len) {
+			this.max_binop_len = this.getMaxKeyLen(this.binary_ops);
 		}
-		Jsep.right_associative.delete(op_name);
+		this.right_associative.delete(op_name);
 
-		return Jsep;
+		return this;
 	}
 
 	/**
-	 * @method removeAllBinaryOps
-	 * @returns {Jsep}
+	 * return {this}
 	 */
-	static removeAllBinaryOps() {
-		Jsep.binary_ops = {};
-		Jsep.max_binop_len = 0;
+	removeAllBinaryOps() {
+		this.binary_ops = {};
+		this.max_binop_len = 0;
+		this.right_associative = new Set();
 
-		return Jsep;
+		return this;
 	}
 
 	/**
-	 * @method removeLiteral
 	 * @param {string} literal_name The name of the literal to remove
-	 * @returns {Jsep}
+	 * return {this}
 	 */
-	static removeLiteral(literal_name) {
-		delete Jsep.literals[literal_name];
-		return Jsep;
+	removeLiteral(literal_name) {
+		delete this.literals[literal_name];
+		return this;
 	}
 
 	/**
-	 * @method removeAllLiterals
-	 * @returns {Jsep}
+	 * return {this}
 	 */
-	static removeAllLiterals() {
-		Jsep.literals = {};
-
-		return Jsep;
+	removeAllLiterals() {
+		this.literals = {};
+		return this;
 	}
 	// ==================== END CONFIG ============================
 
@@ -171,30 +309,11 @@ export class Jsep {
 
 
 	/**
-	 * @param {string} expr a string with the passed in express
-	 * @returns Jsep
-	 */
-	constructor(expr) {
-		// `index` stores the character number we are currently at
-		// All of the gobbles below will modify `index` as we move along
-		this.expr = expr;
-		this.index = 0;
-	}
-
-	/**
-	 * static top-level parser
-	 * @returns {jsep.Expression}
-	 */
-	static parse(expr) {
-		return (new Jsep(expr)).parse();
-	}
-
-	/**
 	 * Get the longest key length of any object
 	 * @param {object} obj
 	 * @returns {number}
 	 */
-	static getMaxKeyLen(obj) {
+	getMaxKeyLen(obj) {
 		return Math.max(0, ...Object.keys(obj).map(k => k.length));
 	}
 
@@ -203,7 +322,7 @@ export class Jsep {
 	 * @param {number} ch
 	 * @returns {boolean}
 	 */
-	static isDecimalDigit(ch) {
+	isDecimalDigit(ch) {
 		return (ch >= 48 && ch <= 57); // 0...9
 	}
 
@@ -212,8 +331,8 @@ export class Jsep {
 	 * @param {string} op_val
 	 * @returns {number}
 	 */
-	static binaryPrecedence(op_val) {
-		return Jsep.binary_ops[op_val] || 0;
+	binaryPrecedence(op_val) {
+		return this.binary_ops[op_val] || 0;
 	}
 
 	/**
@@ -221,19 +340,19 @@ export class Jsep {
 	 * @param {number} ch
 	 * @returns {boolean}
 	 */
-	static isIdentifierStart(ch) {
+	isIdentifierStart(ch) {
 		return  (ch >= 65 && ch <= 90) || // A...Z
 			(ch >= 97 && ch <= 122) || // a...z
-			(ch >= 128 && !Jsep.binary_ops[String.fromCharCode(ch)]) || // any non-ASCII that is not an operator
-			(Jsep.additional_identifier_chars.has(String.fromCharCode(ch))); // additional characters
+			(ch >= 128 && !this.binary_ops[String.fromCharCode(ch)]) || // any non-ASCII that is not an operator
+			(this.additional_identifier_chars.has(String.fromCharCode(ch))); // additional characters
 	}
 
 	/**
 	 * @param {number} ch
 	 * @returns {boolean}
 	 */
-	static isIdentifierPart(ch) {
-		return Jsep.isIdentifierStart(ch) || Jsep.isDecimalDigit(ch);
+	isIdentifierPart(ch) {
+		return this.isIdentifierStart(ch) || this.isDecimalDigit(ch);
 	}
 
 	/**
@@ -255,9 +374,9 @@ export class Jsep {
 	 * @returns {?jsep.Expression}
 	 */
 	runHook(name, node) {
-		if (Jsep.hooks[name]) {
+		if (this.hooks[name]) {
 			const env = { context: this, node };
-			Jsep.hooks.run(name, env);
+			this.hooks.run(name, env);
 			return env.node;
 		}
 		return node;
@@ -269,9 +388,9 @@ export class Jsep {
 	 * @returns {?jsep.Expression}
 	 */
 	searchHook(name) {
-		if (Jsep.hooks[name]) {
+		if (this.hooks[name]) {
 			const env = { context: this };
-			Jsep.hooks[name].find(function (callback) {
+			this.hooks[name].find(function (callback) {
 				callback.call(env.context, env);
 				return env.node;
 			});
@@ -285,10 +404,10 @@ export class Jsep {
 	gobbleSpaces() {
 		let ch = this.code;
 		// Whitespace
-		while (ch === Jsep.SPACE_CODE
-		|| ch === Jsep.TAB_CODE
-		|| ch === Jsep.LF_CODE
-		|| ch === Jsep.CR_CODE) {
+		while (ch === this.SPACE_CODE
+		|| ch === this.TAB_CODE
+		|| ch === this.LF_CODE
+		|| ch === this.CR_CODE) {
 			ch = this.expr.charCodeAt(++this.index);
 		}
 		this.runHook('gobble-spaces');
@@ -296,9 +415,12 @@ export class Jsep {
 
 	/**
 	 * Top-level method to parse all expressions and returns compound or single node
+	 * @params {string} expr
 	 * @returns {jsep.Expression}
 	 */
-	parse() {
+	parse(expr) {
+		this.expr = expr;
+		this.index = 0;
 		this.runHook('before-all');
 		const nodes = this.gobbleExpressions();
 
@@ -306,7 +428,7 @@ export class Jsep {
 		const node = nodes.length === 1
 		  ? nodes[0]
 			: {
-				type: Jsep.COMPOUND,
+				type: this.COMPOUND,
 				body: nodes
 			};
 		return this.runHook('after-all', node);
@@ -325,7 +447,7 @@ export class Jsep {
 
 			// Expressions can be separated by semicolons, commas, or just inferred without any
 			// separators
-			if (ch_i === Jsep.SEMCOL_CODE || ch_i === Jsep.COMMA_CODE) {
+			if (ch_i === this.SEMCOL_CODE || ch_i === this.COMMA_CODE) {
 				this.index++; // ignore separators
 			}
 			else {
@@ -367,16 +489,16 @@ export class Jsep {
 	 */
 	gobbleBinaryOp() {
 		this.gobbleSpaces();
-		let to_check = this.expr.substr(this.index, Jsep.max_binop_len);
+		let to_check = this.expr.substr(this.index, this.max_binop_len);
 		let tc_len = to_check.length;
 
 		while (tc_len > 0) {
 			// Don't accept a binary op when it is an identifier.
 			// Binary ops that start with a identifier-valid character must be followed
 			// by a non identifier-part valid character
-			if (Jsep.binary_ops.hasOwnProperty(to_check) && (
-				!Jsep.isIdentifierStart(this.code) ||
-				(this.index + to_check.length < this.expr.length && !Jsep.isIdentifierPart(this.expr.charCodeAt(this.index + to_check.length)))
+			if (this.binary_ops.hasOwnProperty(to_check) && (
+				!this.isIdentifierStart(this.code) ||
+				(this.index + to_check.length < this.expr.length && !this.isIdentifierPart(this.expr.charCodeAt(this.index + to_check.length)))
 			)) {
 				this.index += tc_len;
 				return to_check;
@@ -410,7 +532,7 @@ export class Jsep {
 
 		// Otherwise, we need to start a stack to properly place the binary operations in their
 		// precedence structure
-		biop_info = { value: biop, prec: Jsep.binaryPrecedence(biop), right_a: Jsep.right_associative.has(biop) };
+		biop_info = { value: biop, prec: this.binaryPrecedence(biop), right_a: this.right_associative.has(biop) };
 
 		right = this.gobbleToken();
 
@@ -422,14 +544,14 @@ export class Jsep {
 
 		// Properly deal with precedence using [recursive descent](http://www.engr.mun.ca/~theo/Misc/exp_parsing.htm)
 		while ((biop = this.gobbleBinaryOp())) {
-			prec = Jsep.binaryPrecedence(biop);
+			prec = this.binaryPrecedence(biop);
 
 			if (prec === 0) {
 				this.index -= biop.length;
 				break;
 			}
 
-			biop_info = { value: biop, prec, right_a: Jsep.right_associative.has(biop) };
+			biop_info = { value: biop, prec, right_a: this.right_associative.has(biop) };
 
 			cur_biop = biop;
 
@@ -442,7 +564,7 @@ export class Jsep {
 				biop = stack.pop().value;
 				left = stack.pop();
 				node = {
-					type: Jsep.BINARY_EXP,
+					type: this.BINARY_EXP,
 					operator: biop,
 					left,
 					right
@@ -464,7 +586,7 @@ export class Jsep {
 
 		while (i > 1) {
 			node = {
-				type: Jsep.BINARY_EXP,
+				type: this.BINARY_EXP,
 				operator: stack[i - 1].value,
 				left: stack[i - 2],
 				right: node
@@ -491,29 +613,29 @@ export class Jsep {
 
 		ch = this.code;
 
-		if (Jsep.isDecimalDigit(ch) || ch === Jsep.PERIOD_CODE) {
+		if (this.isDecimalDigit(ch) || ch === this.PERIOD_CODE) {
 			// Char code 46 is a dot `.` which can start off a numeric literal
 			return this.gobbleNumericLiteral();
 		}
 
-		if (ch === Jsep.SQUOTE_CODE || ch === Jsep.DQUOTE_CODE) {
+		if (ch === this.SQUOTE_CODE || ch === this.DQUOTE_CODE) {
 			// Single or double quotes
 			node = this.gobbleStringLiteral();
 		}
-		else if (ch === Jsep.OBRACK_CODE) {
+		else if (ch === this.OBRACK_CODE) {
 			node = this.gobbleArray();
 		}
 		else {
-			to_check = this.expr.substr(this.index, Jsep.max_unop_len);
+			to_check = this.expr.substr(this.index, this.max_unop_len);
 			tc_len = to_check.length;
 
 			while (tc_len > 0) {
 				// Don't accept an unary op when it is an identifier.
 				// Unary ops that start with a identifier-valid character must be followed
 				// by a non identifier-part valid character
-				if (Jsep.unary_ops.hasOwnProperty(to_check) && (
-					!Jsep.isIdentifierStart(this.code) ||
-					(this.index + to_check.length < this.expr.length && !Jsep.isIdentifierPart(this.expr.charCodeAt(this.index + to_check.length)))
+				if (this.unary_ops.hasOwnProperty(to_check) && (
+					!this.isIdentifierStart(this.code) ||
+					(this.index + to_check.length < this.expr.length && !this.isIdentifierPart(this.expr.charCodeAt(this.index + to_check.length)))
 				)) {
 					this.index += tc_len;
 					const argument = this.gobbleToken();
@@ -521,7 +643,7 @@ export class Jsep {
 						this.throwError('missing unaryOp argument');
 					}
 					return this.runHook('after-token', {
-						type: Jsep.UNARY_EXP,
+						type: this.UNARY_EXP,
 						operator: to_check,
 						argument,
 						prefix: true
@@ -531,20 +653,20 @@ export class Jsep {
 				to_check = to_check.substr(0, --tc_len);
 			}
 
-			if (Jsep.isIdentifierStart(ch)) {
+			if (this.isIdentifierStart(ch)) {
 				node = this.gobbleIdentifier();
-				if (Jsep.literals.hasOwnProperty(node.name)) {
+				if (this.literals.hasOwnProperty(node.name)) {
 					node = {
-						type: Jsep.LITERAL,
-						value: Jsep.literals[node.name],
+						type: this.LITERAL,
+						value: this.literals[node.name],
 						raw: node.name,
 					};
 				}
-				else if (node.name === Jsep.this_str) {
-					node = { type: Jsep.THIS_EXP };
+				else if (node.name === this.this_str) {
+					node = { type: this.THIS_EXP };
 				}
 			}
-			else if (ch === Jsep.OPAREN_CODE) { // open parenthesis
+			else if (ch === this.OPAREN_CODE) { // open parenthesis
 				node = this.gobbleGroup();
 			}
 		}
@@ -569,10 +691,10 @@ export class Jsep {
 		this.gobbleSpaces();
 
 		let ch = this.code;
-		while (ch === Jsep.PERIOD_CODE || ch === Jsep.OBRACK_CODE || ch === Jsep.OPAREN_CODE || ch === Jsep.QUMARK_CODE) {
+		while (ch === this.PERIOD_CODE || ch === this.OBRACK_CODE || ch === this.OPAREN_CODE || ch === this.QUMARK_CODE) {
 			let optional;
-			if (ch === Jsep.QUMARK_CODE) {
-				if (this.expr.charCodeAt(this.index + 1) !== Jsep.PERIOD_CODE) {
+			if (ch === this.QUMARK_CODE) {
+				if (this.expr.charCodeAt(this.index + 1) !== this.PERIOD_CODE) {
 					break;
 				}
 				optional = true;
@@ -582,9 +704,9 @@ export class Jsep {
 			}
 			this.index++;
 
-			if (ch === Jsep.OBRACK_CODE) {
+			if (ch === this.OBRACK_CODE) {
 				node = {
-					type: Jsep.MEMBER_EXP,
+					type: this.MEMBER_EXP,
 					computed: true,
 					object: node,
 					property: this.gobbleExpression()
@@ -594,26 +716,26 @@ export class Jsep {
 				}
 				this.gobbleSpaces();
 				ch = this.code;
-				if (ch !== Jsep.CBRACK_CODE) {
+				if (ch !== this.CBRACK_CODE) {
 					this.throwError('Unclosed [');
 				}
 				this.index++;
 			}
-			else if (ch === Jsep.OPAREN_CODE) {
+			else if (ch === this.OPAREN_CODE) {
 				// A function call is being made; gobble all the arguments
 				node = {
-					type: Jsep.CALL_EXP,
-					'arguments': this.gobbleArguments(Jsep.CPAREN_CODE),
+					type: this.CALL_EXP,
+					'arguments': this.gobbleArguments(this.CPAREN_CODE),
 					callee: node
 				};
 			}
-			else if (ch === Jsep.PERIOD_CODE || optional) {
+			else if (ch === this.PERIOD_CODE || optional) {
 				if (optional) {
 					this.index--;
 				}
 				this.gobbleSpaces();
 				node = {
-					type: Jsep.MEMBER_EXP,
+					type: this.MEMBER_EXP,
 					computed: false,
 					object: node,
 					property: this.gobbleIdentifier(),
@@ -639,14 +761,14 @@ export class Jsep {
 	gobbleNumericLiteral() {
 		let number = '', ch, chCode;
 
-		while (Jsep.isDecimalDigit(this.code)) {
+		while (this.isDecimalDigit(this.code)) {
 			number += this.expr.charAt(this.index++);
 		}
 
-		if (this.code === Jsep.PERIOD_CODE) { // can start with a decimal marker
+		if (this.code === this.PERIOD_CODE) { // can start with a decimal marker
 			number += this.expr.charAt(this.index++);
 
-			while (Jsep.isDecimalDigit(this.code)) {
+			while (this.isDecimalDigit(this.code)) {
 				number += this.expr.charAt(this.index++);
 			}
 		}
@@ -661,11 +783,11 @@ export class Jsep {
 				number += this.expr.charAt(this.index++);
 			}
 
-			while (Jsep.isDecimalDigit(this.code)) { // exponent itself
+			while (this.isDecimalDigit(this.code)) { // exponent itself
 				number += this.expr.charAt(this.index++);
 			}
 
-			if (!Jsep.isDecimalDigit(this.expr.charCodeAt(this.index - 1)) ) {
+			if (!this.isDecimalDigit(this.expr.charCodeAt(this.index - 1)) ) {
 				this.throwError('Expected exponent (' + number + this.char + ')');
 			}
 		}
@@ -673,16 +795,16 @@ export class Jsep {
 		chCode = this.code;
 
 		// Check to make sure this isn't a variable name that start with a number (123abc)
-		if (Jsep.isIdentifierStart(chCode)) {
+		if (this.isIdentifierStart(chCode)) {
 			this.throwError('Variable names cannot start with a number (' +
 				number + this.char + ')');
 		}
-		else if (chCode === Jsep.PERIOD_CODE || (number.length === 1 && number.charCodeAt(0) === Jsep.PERIOD_CODE)) {
+		else if (chCode === this.PERIOD_CODE || (number.length === 1 && number.charCodeAt(0) === this.PERIOD_CODE)) {
 			this.throwError('Unexpected period');
 		}
 
 		return {
-			type: Jsep.LITERAL,
+			type: this.LITERAL,
 			value: parseFloat(number),
 			raw: number
 		};
@@ -730,7 +852,7 @@ export class Jsep {
 		}
 
 		return {
-			type: Jsep.LITERAL,
+			type: this.LITERAL,
 			value: str,
 			raw: this.expr.substring(startIndex, this.index),
 		};
@@ -746,7 +868,7 @@ export class Jsep {
 	gobbleIdentifier() {
 		let ch = this.code, start = this.index;
 
-		if (Jsep.isIdentifierStart(ch)) {
+		if (this.isIdentifierStart(ch)) {
 			this.index++;
 		}
 		else {
@@ -756,7 +878,7 @@ export class Jsep {
 		while (this.index < this.expr.length) {
 			ch = this.code;
 
-			if (Jsep.isIdentifierPart(ch)) {
+			if (this.isIdentifierPart(ch)) {
 				this.index++;
 			}
 			else {
@@ -764,7 +886,7 @@ export class Jsep {
 			}
 		}
 		return {
-			type: Jsep.IDENTIFIER,
+			type: this.IDENTIFIER,
 			name: this.expr.slice(start, this.index),
 		};
 	}
@@ -791,21 +913,21 @@ export class Jsep {
 				closed = true;
 				this.index++;
 
-				if (termination === Jsep.CPAREN_CODE && separator_count && separator_count >= args.length){
+				if (termination === this.CPAREN_CODE && separator_count && separator_count >= args.length){
 					this.throwError('Unexpected token ' + String.fromCharCode(termination));
 				}
 
 				break;
 			}
-			else if (ch_i === Jsep.COMMA_CODE) { // between expressions
+			else if (ch_i === this.COMMA_CODE) { // between expressions
 				this.index++;
 				separator_count++;
 
 				if (separator_count !== args.length) { // missing argument
-					if (termination === Jsep.CPAREN_CODE) {
+					if (termination === this.CPAREN_CODE) {
 						this.throwError('Unexpected token ,');
 					}
-					else if (termination === Jsep.CBRACK_CODE) {
+					else if (termination === this.CBRACK_CODE) {
 						for (let arg = args.length; arg < separator_count; arg++) {
 							args.push(null);
 						}
@@ -819,7 +941,7 @@ export class Jsep {
 			else {
 				const node = this.gobbleExpression();
 
-				if (!node || node.type === Jsep.COMPOUND) {
+				if (!node || node.type === this.COMPOUND) {
 					this.throwError('Expected comma');
 				}
 
@@ -845,8 +967,8 @@ export class Jsep {
 	 */
 	gobbleGroup() {
 		this.index++;
-		let nodes = this.gobbleExpressions(Jsep.CPAREN_CODE);
-		if (this.code === Jsep.CPAREN_CODE) {
+		let nodes = this.gobbleExpressions(this.CPAREN_CODE);
+		if (this.code === this.CPAREN_CODE) {
 			this.index++;
 			if (nodes.length === 1) {
 				return nodes[0];
@@ -856,7 +978,7 @@ export class Jsep {
 			}
 			else {
 				return {
-					type: Jsep.SEQUENCE_EXP,
+					type: this.SEQUENCE_EXP,
 					expressions: nodes,
 				};
 			}
@@ -876,104 +998,12 @@ export class Jsep {
 		this.index++;
 
 		return {
-			type: Jsep.ARRAY_EXP,
-			elements: this.gobbleArguments(Jsep.CBRACK_CODE)
+			type: this.ARRAY_EXP,
+			elements: this.gobbleArguments(this.CBRACK_CODE)
 		};
 	}
 }
 
-// Static fields:
-const hooks = new Hooks();
-Object.assign(Jsep, {
-	hooks,
-	plugins: new Plugins(Jsep),
-
-	// Node Types
-	// ----------
-	// This is the full set of types that any JSEP node can be.
-	// Store them here to save space when minified
-	COMPOUND:        'Compound',
-	SEQUENCE_EXP:    'SequenceExpression',
-	IDENTIFIER:      'Identifier',
-	MEMBER_EXP:      'MemberExpression',
-	LITERAL:         'Literal',
-	THIS_EXP:        'ThisExpression',
-	CALL_EXP:        'CallExpression',
-	UNARY_EXP:       'UnaryExpression',
-	BINARY_EXP:      'BinaryExpression',
-	ARRAY_EXP:       'ArrayExpression',
-
-	TAB_CODE:    9,
-	LF_CODE:     10,
-	CR_CODE:     13,
-	SPACE_CODE:  32,
-	PERIOD_CODE: 46, // '.'
-	COMMA_CODE:  44, // ','
-	SQUOTE_CODE: 39, // single quote
-	DQUOTE_CODE: 34, // double quotes
-	OPAREN_CODE: 40, // (
-	CPAREN_CODE: 41, // )
-	OBRACK_CODE: 91, // [
-	CBRACK_CODE: 93, // ]
-	QUMARK_CODE: 63, // ?
-	SEMCOL_CODE: 59, // ;
-	COLON_CODE:  58, // :
-
-
-	// Operations
-	// ----------
-	// Use a quickly-accessible map to store all of the unary operators
-	// Values are set to `1` (it really doesn't matter)
-	unary_ops: {
-		'-': 1,
-		'!': 1,
-		'~': 1,
-		'+': 1
-	},
-
-	// Also use a map for the binary operations but set their values to their
-	// binary precedence for quick reference (higher number = higher precedence)
-	// see [Order of operations](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_Precedence)
-	binary_ops: {
-		'||': 1, '??': 1,
-		'&&': 2, '|': 3, '^': 4, '&': 5,
-		'==': 6, '!=': 6, '===': 6, '!==': 6,
-		'<': 7, '>': 7, '<=': 7, '>=': 7,
-		'<<': 8, '>>': 8, '>>>': 8,
-		'+': 9, '-': 9,
-		'*': 10, '/': 10, '%': 10,
-		'**': 11,
-	},
-
-	// sets specific binary_ops as right-associative
-	right_associative: new Set(['**']),
-
-	// Additional valid identifier chars, apart from a-z, A-Z and 0-9 (except on the starting char)
-	additional_identifier_chars: new Set(['$', '_']),
-
-	// Literals
-	// ----------
-	// Store the values to return for the various literals we may encounter
-	literals: {
-		'true': true,
-		'false': false,
-		'null': null
-	},
-
-	// Except for `this`, which is special. This could be changed to something like `'self'` as well
-	this_str: 'this',
-});
-Jsep.max_unop_len = Jsep.getMaxKeyLen(Jsep.unary_ops);
-Jsep.max_binop_len = Jsep.getMaxKeyLen(Jsep.binary_ops);
-
-// Backward Compatibility:
-const jsep = expr => (new Jsep(expr)).parse();
-const stdClassProps = Object.getOwnPropertyNames(class Test{});
-Object.getOwnPropertyNames(Jsep)
-	.filter(prop => !stdClassProps.includes(prop) && jsep[prop] === undefined)
-	.forEach((m) => {
-		jsep[m] = Jsep[m];
-	});
-jsep.Jsep = Jsep; // allows for const { Jsep } = require('jsep');
+const jsep = Jsep.instance(); // empty config (see index.js)
+jsep.defaultConfig();
 export default jsep;
-

@@ -100,11 +100,21 @@ declare module 'jsep' {
 			| UnaryExpression;
 
 		export type PossibleExpression = Expression | undefined;
+
+		export type jsepInstance = typeof jsep & ((val: string) => Expression | never);
+		function parse(expr: string): Expression | never;
+		function instance(): jsepInstance;
+		function defaultConfig(): jsepInstance;
+		function clearConfig(): jsepInstance;
+
 		export interface HookScope {
 			index: number;
-			readonly expr: string;
-			readonly char: string; // current character of the expression
-			readonly code: number; // current character code of the expression
+			get expr(): string;
+			get char(): string; // current character of the expression
+			get code(): number; // current character code of the expression
+			isDecimalDigit: (ch: number) => boolean;
+			isIdentifierStart: (ch: number) => boolean;
+			isIdentifierPart: (ch: number) => boolean;
 			gobbleSpaces: () => void;
 			gobbleExpressions: (untilICode?: number) => Expression[];
 			gobbleExpression: () => Expression;
@@ -149,32 +159,34 @@ declare module 'jsep' {
 		let literals: { [literal: string]: any };
 		let this_str: string;
 
-		function addBinaryOp(operatorName: string, precedence: number, rightToLeft?: boolean): void;
+		function addBinaryOp(operatorName: string, precedence: number, rightToLeft?: boolean): jsepInstance;
 
-		function addUnaryOp(operatorName: string): void;
+		function addUnaryOp(operatorName: string): jsepInstance;
 
-		function addLiteral(literalName: string, literalValue: any): void;
+		function addLiteral(literalName: string, literalValue: any): jsepInstance;
 
-		function addIdentifierChar(identifierName: string): void;
+		function addIdentifierChar(identifierName: string): jsepInstance;
 
-		function removeBinaryOp(operatorName: string): void;
+		function removeBinaryOp(operatorName: string): jsepInstance;
 
-		function removeUnaryOp(operatorName: string): void;
+		function removeUnaryOp(operatorName: string): jsepInstance;
 
-		function removeLiteral(literalName: string): void;
+		function removeLiteral(literalName: string): jsepInstance;
 
-		function removeIdentifierChar(identifierName: string): void;
+		function removeIdentifierChar(identifierName: string): jsepInstance;
 
-		function removeAllBinaryOps(): void;
+		function removeAllBinaryOps(): jsepInstance;
 
-		function removeAllUnaryOps(): void;
+		function removeAllUnaryOps(): jsepInstance;
 
-		function removeAllLiterals(): void;
+		function removeAllLiterals(): jsepInstance;
+
+		function removeAllIdentifierChars(): jsepInstance;
 
 		const version: string;
 	}
 
-	function jsep(val: string | jsep.Expression): jsep.Expression;
+	function jsep(val: string): jsep.Expression | never;
 
 	export = jsep;
 }

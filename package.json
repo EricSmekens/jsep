@@ -1,7 +1,7 @@
 {
-	"name": "jsep",
+	"name": "nc-jsep",
 	"version": "1.4.0",
-	"description": "a tiny JavaScript expression parser",
+	"description": "a tiny JavaScript expression parser (NocoDB fork)",
 	"author": "Stephen Oney <swloney@gmail.com> (http://from.so/)",
 	"maintainers": [
 		"Eric Smekens (https://github.com/EricSmekens)",
@@ -11,7 +11,7 @@
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/EricSmekens/jsep.git"
+		"url": "https://github.com/nocodb/nc-jsep.git"
 	},
 	"type": "module",
 	"main": "./dist/cjs/jsep.cjs.js",
@@ -138,15 +138,15 @@
 		]
 	},
 	"scripts": {
-		"default": "npm run lint && npm run build:all && npm run test:all && npm run docco",
-		"build": "npx rollup -c && cp package-cjs.json dist/cjs/package.json",
-		"build:watch": "npx rollup -c --watch",
+		"default": "pnpm run lint && pnpm run build:all && pnpm run test:all && pnpm run docco",
+		"build": "pnpm exec rollup -c && cp package-cjs.json dist/cjs/package.json",
+		"build:watch": "pnpm exec rollup -c --watch",
 		"build:all": "pnpm run build -r",
-		"test": "npx http-server -p 49649 --silent & npx node-qunit-puppeteer http://localhost:49649/test/unit_tests.html",
-		"test:all": "npx http-server -p 49649 --silent & pnpm run test -r --workspace-concurrency=1",
+		"test": "pnpm exec http-server -p 49649 --silent & pnpm exec node-qunit-puppeteer http://localhost:49649/test/unit_tests.html",
+		"test:all": "pnpm exec http-server -p 49649 --silent & pnpm run test -r --workspace-concurrency=1",
 		"test:performance": "node test/performance.test.js",
-		"docco": "npx docco src/jsep.js --css=src/docco.css --output=annotated_source/",
-		"lint": "npx eslint src/**/*.js test/*.js test/packages/**/*.js packages/**/*.js",
+		"docco": "pnpm exec docco src/jsep.js --css=src/docco.css --output=annotated_source/",
+		"lint": "pnpm exec eslint src/**/*.js test/*.js test/packages/**/*.js packages/**/*.js",
 		"prepare": "husky install",
 		"release": "./release.sh"
 	}

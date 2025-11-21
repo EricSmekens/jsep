@@ -2,7 +2,7 @@
 
 # Release jsep and all packages (dependent on what changes were made where)
 # To test, run command ./release.sh --debug --no-cli --dry-run
-# (or npm run release -- --debug --no-cli --dry-run)
+# (or pnpm run release -- --debug --no-cli --dry-run)
 
 echo "Semantic-Release JSEP"
 pnpx semantic-release "$@"

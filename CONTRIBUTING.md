@@ -9,7 +9,7 @@
 
 Please follow the code style of the rest of the project.
 This is enforced via ESLint, whose config is [here](.eslintrc.json).
-You can run `npm run lint` before committing to ensure your code does not violate the code style,
+You can run `pnpm run lint` before committing to ensure your code does not violate the code style,
 or -- better -- install an ESLint plugin for your editor, to see issues inline as you edit code.
 
 Here are the rules in the ESLint file with some commentary about what they are (since JSON does not allow comments):

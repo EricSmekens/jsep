@@ -65,6 +65,7 @@ export default [
 			versionPlugin,
 			replace({
 				'export class Jsep': 'class Jsep', // single default export
+				'export const Jsep = jsep': '// export const Jsep = jsep', // single default export
 				preventAssignment: false,
 			}),
 		],
