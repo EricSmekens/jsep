@@ -1,5 +1,5 @@
 {
-	"name": "@nc-jsep-plugin/template",
+	"name": "nc-jsep-plugin-template",
 	"version": "1.0.5",
 	"description": "Adds template literal expression support",
 	"author": "Shelly (https://github.com/6utt3rfly)",

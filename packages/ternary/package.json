@@ -1,5 +1,5 @@
 {
-	"name": "@nc-jsep-plugin/ternary",
+	"name": "nc-jsep-plugin-ternary",
 	"version": "1.1.4",
 	"description": "Adds ternary expression support",
 	"author": "Shelly (https://github.com/6utt3rfly)",
