@@ -12,13 +12,20 @@ export default {
 				}
 				env.node = node.argument;
 
-				// Change CALL_EXP to NewExpression (could be a nested member, even within a call expr)
+				// Track the constructor call without changing its member-expression callee.
 				let callNode = env.node;
-				while (callNode.type === jsep.MEMBER_EXP || (
-					callNode.type === jsep.CALL_EXP && callNode.callee.type === jsep.MEMBER_EXP)) {
-					callNode = callNode.type === jsep.MEMBER_EXP
-						? callNode.object
-						: callNode.callee.object;
+				let memberNode = env.node;
+				while (memberNode.type === jsep.MEMBER_EXP || (
+					memberNode.type === jsep.CALL_EXP && memberNode.callee.type === jsep.MEMBER_EXP)) {
+					memberNode = memberNode.type === jsep.MEMBER_EXP
+						? memberNode.object
+						: memberNode.callee.object;
+					if (memberNode.type === jsep.CALL_EXP) {
+						callNode = memberNode;
+					}
+				}
+				if (callNode.type !== jsep.CALL_EXP) {
+					this.throwError('Expected new function()');
 				}
 				callNode.type = 'NewExpression';
 			}

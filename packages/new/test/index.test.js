@@ -1,6 +1,6 @@
 import jsep from '../../../src/index.js';
 import jsepNew from '../src/index.js';
-import { testParser, resetJsepDefaults } from '../../../test/test_utils.js';
+import { testParser, resetJsepDefaults, esprimaComparisonTest } from '../../../test/test_utils.js';
 
 const { test } = QUnit;
 
@@ -112,6 +112,36 @@ const { test } = QUnit;
 		});
 
 		[
+			'new window.Date()',
+			'new FullCalendar.Calendar()',
+			'new window.Date(123)',
+			'new namespace.constructors.A(1, 2)',
+			'new window["Date"](123)',
+			'new constructors[key](value)',
+			'new constructors[choose()]()',
+			'new this.Constructor(1)',
+			'new window.Date(1).month',
+			'new window.Date(1).getTime()',
+			'new window["Date"](1)["getTime"]()',
+			'new namespace.A(1).b(2).c(3)',
+			'new namespace.A(1).b[key]',
+			'new namespace.A(new namespace.B(2)).method(new namespace.C(3))',
+			'new (window.Date)(123)',
+			'(new window.Date(123)).getTime()',
+			'new Date(new Date().setDate(new Date().getDate() - 5))',
+			'new A().b()',
+			'new A().b.c(1)',
+			'new A()[key](1)',
+			'new (A)().b',
+			'new (factory())(1)',
+			'new (namespace.factory())(1)',
+			'new (condition ? A : B)(1)',
+			'window.Date(123)',
+		].forEach(expr => test(`should match Esprima: ${expr}`, (assert) => {
+			esprimaComparisonTest(expr, assert);
+		}));
+
+		[
 			'new A().b',
 			'new A()["b"].c + 2',
 			'new A() + 2',
@@ -125,15 +155,20 @@ const { test } = QUnit;
 		}));
 
 		[
-			'new A',
-			'new A,new B',
-			'fn(new A)',
-			'!new A',
-			'new 123',
-			'new (a > 2 ? A : B)',
-			'new (a > 1)',
-		].forEach(expr => test(`should give an error for invalid expression ${expr}`, (assert) => {
-			assert.throws(() => jsep(expr));
+			['new A', 5],
+			['new A,new B', 5],
+			['fn(new A)', 8],
+			['!new A', 6],
+			['new 123', 7],
+			['new (a > 2 ? A : B)', 19],
+			['new (a > 1)', 11],
+			['new A.b', 7],
+			['new A["b"]', 10],
+			['new (A.b)', 9],
+		].forEach(([expr, index]) => test(`should give an error for invalid expression ${expr}`, (assert) => {
+			assert.throws(() => jsep(expr), function (error) {
+				return error.description === 'Expected new function()' && error.index === index;
+			});
 		}));
 	});
 }());

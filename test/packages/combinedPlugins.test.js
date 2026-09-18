@@ -215,6 +215,14 @@ const { test } = QUnit;
 			'(Object.variable.toLowerCase())  .  length == 3',
 			'[1] + [2]',
 
+			// new
+			'new window.Date()',
+			'new FullCalendar.Calendar(1, 2)',
+			'new constructors[key](1).method(2)',
+			'new namespace.A(new namespace.B()).method(new namespace.C())',
+			'new Date(new Date().setDate(new Date().getDate() - 5))',
+			'new /* constructor */ window.Date(123).getTime()',
+
 			// assignment
 			'a = 2',
 			'a *= 2',
