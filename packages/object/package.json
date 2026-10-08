@@ -25,8 +25,8 @@
 		"jsep": "^0.4.0||^1.0.0"
 	},
 	"devDependencies": {
-		"rollup": "^2.44.0",
-		"rollup-plugin-delete": "^2.0.0"
+		"rollup": "^4.64.2",
+		"rollup-plugin-delete": "^3.0.2"
 	},
 	"engines": {
 		"node": ">= 10.16.0"

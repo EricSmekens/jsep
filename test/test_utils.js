@@ -15,8 +15,6 @@ export const unOps = {
 	'+': a => +a,
 };
 
-/* eslint-enable brace-style */
-
 export function doEval(node) {
 	if (node.type === 'BinaryExpression') {
 		return binOps[node.operator](doEval(node.left), doEval(node.right));
