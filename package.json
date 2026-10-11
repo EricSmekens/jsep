@@ -141,7 +141,7 @@
 		"default": "npm run lint && npm run build:all && npm run test:all && npm run docco",
 		"build": "npx rollup -c && cp package-cjs.json dist/cjs/package.json",
 		"build:watch": "npx rollup -c --watch",
-		"build:all": "pnpm --recursive --include-workspace-root run build",
+		"build:all": "pnpm --recursive --workspace-root run build",
 		"test": "npx http-server -p 49649 --silent & npx node-qunit-puppeteer http://localhost:49649/test/unit_tests.html 30000 \"--no-sandbox\" ",
 		"test:all": "pnpm -r --workspace-concurrency=1 run test",
 		"test:performance": "node test/performance.test.js",
