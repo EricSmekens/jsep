@@ -1,3 +1,10 @@
+# [1.6.0](https://github.com/EricSmekens/jsep/compare/v1.5.0...v1.6.0) (2026-10-11)
+
+
+### Features
+
+* trigger root package release ([6d2c876](https://github.com/EricSmekens/jsep/commit/6d2c876de07ffc80179fb51daf0fcdc9d6e1cf18))
+
 # [1.5.0](https://github.com/EricSmekens/jsep/compare/v1.4.0...v1.5.0) (2026-10-11)
 
 
