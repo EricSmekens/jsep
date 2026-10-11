@@ -105,6 +105,11 @@ const { test } = QUnit;
 		}));
 
 		[
+			...['\n', '\r', '\u2028', '\u2029'].flatMap(lineBreak => [
+				`/a${lineBreak}b/`,
+				`/[a${lineBreak}b]/`,
+				`/a\\${lineBreak}b/`,
+			]),
 			'/abc', // unclosed regex
 			'/a/xzw', // invalid flag
 			'/a/xyz.test(a)', // invalid flag
