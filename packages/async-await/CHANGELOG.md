@@ -1,3 +1,10 @@
+# [@jsep-plugin/async-await-v1.1.0](https://github.com/EricSmekens/jsep/compare/@jsep-plugin/async-await-v1.0.3...@jsep-plugin/async-await-v1.1.0) (2026-10-11)
+
+
+### Features
+
+* release all packages with minor version bumps ([a5fc56a](https://github.com/EricSmekens/jsep/commit/a5fc56a51816cfd5bdd7652aed65d049b5373d90))
+
 # [@jsep-plugin/async-await-v1.0.3](https://github.com/EricSmekens/jsep/compare/@jsep-plugin/async-await-v1.0.2...@jsep-plugin/async-await-v1.0.3) (2024-11-05)
 
 
