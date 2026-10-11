@@ -46,7 +46,7 @@
 		"semantic-release-plus": "^18.4.1"
 	},
 	"engines": {
-		"node": ">= 10.16.0"
+		"node": ">= 20.16.0"
 	},
 	"directories": {
 		"test": "test"
