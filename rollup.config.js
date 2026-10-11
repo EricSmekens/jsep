@@ -1,8 +1,9 @@
 import { terser } from "rollup-plugin-terser";
 import replace from '@rollup/plugin-replace';
 import del from 'rollup-plugin-delete';
+import { readFileSync } from 'node:fs';
 
-const { version: pkgVersion } = require('./package.json');
+const { version: pkgVersion } = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8'));
 
 const version = process.env.NEXT_VERSION || pkgVersion;
 

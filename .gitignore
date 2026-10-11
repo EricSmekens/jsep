@@ -9,3 +9,4 @@ node_modules/
 annotated_source/
 dist/
 docs/
+packages/*/LICENSE
