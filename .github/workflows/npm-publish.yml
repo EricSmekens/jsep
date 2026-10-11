@@ -22,6 +22,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
+      - name: Install Chromium SUID sandbox
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y chromium-sandbox
+          sudo chmod 4755 /usr/lib/chromium-browser/chrome-sandbox || true
+          sudo chown root:root /usr/lib/chromium-browser/chrome-sandbox || true
       - name: Cache pnpm modules
         uses: actions/cache@v4
         with:
