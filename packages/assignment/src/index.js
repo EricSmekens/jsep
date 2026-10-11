@@ -33,6 +33,7 @@ const plugin = {
 			const code = this.code;
 			if (plugin.updateOperators.some(c => c === code && c === this.expr.charCodeAt(this.index + 1))) {
 				this.index += 2;
+				this.gobbleSpaces();
 				env.node = {
 					type: 'UpdateExpression',
 					operator: code === PLUS_CODE ? '++' : '--',
