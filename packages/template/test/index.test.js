@@ -9,6 +9,30 @@ const { test } = QUnit;
 		qunit.before(() => jsep.plugins.register(templateLiteral));
 		qunit.after(resetJsepDefaults);
 
+		[
+			['`hi ${a, b}`', [['a', 'b']]],
+			['`hi ${a, b} ${c, d}`', [['a', 'b'], ['c', 'd']]],
+			['tag`hi ${a, b}`', [['a', 'b']]],
+		].forEach(([expr, names]) => test(`should preserve a sequence within an interpolation: ${expr}`, (assert) => {
+			const parsed = jsep(expr);
+			const template = parsed.type === 'TaggedTemplateExpression' ? parsed.quasi : parsed;
+			assert.equal(template.quasis.length, template.expressions.length + 1);
+			assert.deepEqual(template.expressions, names.map(sequence => ({
+				type: 'SequenceExpression',
+				expressions: sequence.map(name => ({ type: 'Identifier', name })),
+			})));
+		}));
+
+		test('should preserve a sequence within a nested template', (assert) => {
+			const parsed = jsep('`outer ${`inner ${a, b}`}`');
+			const inner = parsed.expressions[0];
+			assert.equal(inner.quasis.length, inner.expressions.length + 1);
+			assert.deepEqual(inner.expressions, [{
+				type: 'SequenceExpression',
+				expressions: [{ type: 'Identifier', name: 'a' }, { type: 'Identifier', name: 'b' }],
+			}]);
+		});
+
 		test('should parse basic template literal expression', (assert) => {
 			testParser('`hi ${name}`', {
 				type: 'TemplateLiteral',
@@ -348,6 +372,8 @@ const { test } = QUnit;
 		}));
 
 		[
+			'`${}`',
+			'`${ }`',
 			'`abc ${ `',
 			'abc`123',
 			'abc`${a`',

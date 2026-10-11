@@ -50,10 +50,17 @@ export default {
 						pushQuasi();
 						raw = '';
 						cooked = '';
-						node.expressions.push(...this.gobbleExpressions(CCURLY_CODE));
+						const expressions = this.gobbleExpressions(CCURLY_CODE);
 						if (this.code !== CCURLY_CODE) {
 							this.throwError('unclosed ${');
 						}
+						if (!expressions.length) {
+							this.throwError('Expected expression');
+						}
+						node.expressions.push(expressions.length === 1 ? expressions[0] : {
+							type: jsep.SEQUENCE_EXP,
+							expressions,
+						});
 					}
 					else if (ch === '\\') {
 						// Check for all of the common escape codes
