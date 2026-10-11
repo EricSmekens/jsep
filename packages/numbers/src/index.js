@@ -35,9 +35,13 @@ export default {
 					this.throwError('unexpected char within number');
 				}
 
+				const value = parseInt(number, getNumberBase(numType));
+				if (Number.isNaN(value)) {
+					this.throwError('Expected digits within number');
+				}
 				env.node = {
 					type: Jsep.LITERAL,
-					value: parseInt(number, getNumberBase(numType)),
+					value,
 					raw: this.expr.substring(startIndex, this.index),
 				};
 			}
@@ -156,9 +160,13 @@ export default {
 				return;
 			}
 
+			const value = parseFloat(number);
+			if (Number.isNaN(value)) {
+				this.throwError('Expected digits within number');
+			}
 			env.node = {
 				type: Jsep.LITERAL,
-				value: parseFloat(number),
+				value,
 				raw: this.expr.substring(startIndex, this.index),
 			};
 		}
