@@ -1,5 +1,6 @@
 const FSLASH_CODE = 47; // '/'
 const BSLASH_CODE = 92; // '\\'
+const LINE_TERMINATORS = new Set([10, 13, 0x2028, 0x2029]);
 
 export default {
 	name: 'regex',
@@ -12,6 +13,12 @@ export default {
 
 				let inCharSet = false;
 				while (this.index < this.expr.length) {
+					const code = this.code === BSLASH_CODE
+						? this.expr.charCodeAt(this.index + 1)
+						: this.code;
+					if (LINE_TERMINATORS.has(code)) {
+						this.throwError('Unclosed Regex');
+					}
 					if (this.code === FSLASH_CODE && !inCharSet) {
 						const pattern = this.expr.slice(patternIndex, this.index);
 
