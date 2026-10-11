@@ -12,8 +12,12 @@ A JSEP plugin for adding `new` expression support. Allows expressions of the for
 
 ```javascript
 jsep('new Date()');
+jsep('new window.Date()');
+jsep('new constructors[name](value)');
 jsep('new RegExp("^\d+$")');
 ```
+
+Constructor calls require parentheses, even when there are no arguments.
 
 ## Install
 
