@@ -1,12 +1,13 @@
 import jsep from '../../../src/jsep.js';
 import arrow from '../src/index.js';
+import ternary from '../../ternary/src/index.js';
 import { testParser, resetJsepDefaults } from '../../../test/test_utils.js';
 
 const { test } = QUnit;
 
 (function () {
 	QUnit.module('Plugin:Arrow Function', (qunit) => {
-		qunit.before(() => jsep.plugins.register(arrow));
+		qunit.before(() => jsep.plugins.register(ternary, arrow));
 		qunit.after(resetJsepDefaults);
 
 		test('should parse basic arrow expression with no args, () =>', (assert) => {
@@ -170,6 +171,37 @@ const { test } = QUnit;
 			}, assert);
 		});
 
+		const identifier = name => ({ type: 'Identifier', name });
+		const literal = value => ({ type: 'Literal', value, raw: String(value) });
+		const conditional = (test, consequent, alternate) => ({
+			type: 'ConditionalExpression', test, consequent, alternate,
+		});
+		const arrowNode = (params, body) => ({ type: 'ArrowFunctionExpression', params, body });
+		const body = conditional(identifier('a'), literal(1), literal(0));
+		[
+			['f(() => a ? 1 : 0)', arrowNode(null, body)],
+			['f(v => a ? 1 : 0)', arrowNode([identifier('v')], body)],
+			['f((v, w) => a ? 1 : 0)', arrowNode([identifier('v'), identifier('w')], body)],
+			['f(() => a ? b ? 1 : 2 : 0)', arrowNode(null,
+				conditional(identifier('a'), conditional(identifier('b'), literal(1), literal(2)), literal(0)))],
+			['f(() => a || b ? 1 : 0)', arrowNode(null, conditional({
+				type: 'BinaryExpression', operator: '||', left: identifier('a'), right: identifier('b'),
+			}, literal(1), literal(0)))],
+			['f(() => v => a ? 1 : 0)', arrowNode(null, arrowNode([identifier('v')], body))],
+			['f(v => (() => a ? 1 : 0))', arrowNode([identifier('v')], arrowNode(null, body))],
+			['f((() => a) ? 1 : 0)', conditional(arrowNode(null, identifier('a')), literal(1), literal(0))],
+		].forEach(([expr, expected]) => {
+			test(`should keep conditional expressions within their arrow body: ${expr}`, (assert) => {
+				assert.deepEqual(jsep(expr), {
+					type: 'CallExpression', callee: identifier('f'), arguments: [expected],
+				});
+			});
+		});
+
+		test('should stop the conditional arrow body at an argument separator', (assert) => {
+			assert.deepEqual(jsep('f(() => a ? 1 : 0, c)').arguments, [arrowNode(null, body), identifier('c')]);
+		});
+
 		[
 			'(["a", "b"].find(v => v === "b").length > 1 || 2) === true',
 			'a.find(val => key === "abc")',
@@ -184,6 +216,8 @@ const { test } = QUnit;
 
 		[
 			'() =>',
+			'() => a ? 1',
+			'() => a ? 1 :',
 			'a.find((  ) => )',
 			'a.find((   ',
 		].forEach(expr => {

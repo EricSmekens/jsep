@@ -33,6 +33,30 @@ const { test } = QUnit;
 		});
 		qunit.after(resetJsepDefaults);
 
+		['f(() => x = a ? 1 : 0)', 'f(() => x = y = a ? 1 : 0)'].forEach(expr => {
+			test(`should keep assignment and ternary inside an empty-parameter arrow: ${expr}`, (assert) => {
+				const conditional = {
+					type: 'ConditionalExpression',
+					test: { type: 'Identifier', name: 'a' },
+					consequent: { type: 'Literal', value: 1, raw: '1' },
+					alternate: { type: 'Literal', value: 0, raw: '0' },
+				};
+				const body = {
+					type: 'AssignmentExpression', operator: '=',
+					left: { type: 'Identifier', name: 'x' },
+					right: expr.includes('y =') ? {
+						type: 'AssignmentExpression', operator: '=',
+						left: { type: 'Identifier', name: 'y' }, right: conditional,
+					} : conditional,
+				};
+				assert.deepEqual(jsep(expr), {
+					type: 'CallExpression',
+					callee: { type: 'Identifier', name: 'f' },
+					arguments: [{ type: 'ArrowFunctionExpression', params: null, body }],
+				});
+			});
+		});
+
 		[
 			'a.find(() => true)',
 			'[1, 2].find(v => v === 2)',
