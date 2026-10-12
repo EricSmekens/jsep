@@ -196,6 +196,43 @@ import {testParser, testOpExpression, esprimaComparisonTest, resetJsepDefaults} 
 		}, assert);
 	});
 
+	QUnit.test('Exponentiation with unary left operand', function (assert) {
+		// ECMAScript forbids an unparenthesized unary expression as the left
+		// operand of `**` (ExponentiationExpression: UpdateExpression ** ...).
+		// `-2 ** 2` is a SyntaxError; it must be written `(-2) ** 2` or `-(2 ** 2)`.
+		[
+			'-2 ** 2',
+			'-a ** b',
+			'!a ** b',
+			'~a ** b',
+			'+a ** b',
+		].forEach((expr) => {
+			assert.throws(() => jsep(expr), `should reject ${expr}`);
+		});
+
+		// Valid forms must keep parsing unchanged:
+		testParser('(-a) ** b', {
+			type: 'BinaryExpression',
+			operator: '**',
+			left: { type: 'UnaryExpression', operator: '-' },
+			right: { type: 'Identifier', name: 'b' },
+		}, assert);
+		testParser('2 ** -3', {
+			type: 'BinaryExpression',
+			operator: '**',
+			left: { type: 'Literal', value: 2 },
+			right: { type: 'UnaryExpression', operator: '-' },
+		}, assert);
+		testParser('a ** b ** c', {
+			type: 'BinaryExpression',
+			operator: '**',
+			left: { type: 'Identifier', name: 'a' },
+			right: { type: 'BinaryExpression', operator: '**' },
+		}, assert);
+		testParser('-a', { type: 'UnaryExpression', operator: '-' }, assert);
+		testParser('a ** b', { type: 'BinaryExpression', operator: '**' }, assert);
+	});
+
 	QUnit.test('Custom alphanumeric operators', function (assert) {
 		jsep.addBinaryOp('and', 2);
 		testParser('a and b', {

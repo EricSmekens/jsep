@@ -520,6 +520,19 @@ export class Jsep {
 					if (!argument) {
 						this.throwError('missing unaryOp argument');
 					}
+
+					// An unparenthesized unary expression cannot be the left
+					// operand of `**`. ECMAScript requires the left operand of an
+					// ExponentiationExpression to be an UpdateExpression, so e.g.
+					// `-2 ** 2` is a SyntaxError and must be written `(-2) ** 2`
+					// or `-(2 ** 2)`. Parenthesized unaries are unaffected because
+					// gobbleGroup consumes them as a single token.
+					const backtrack = this.index;
+					if (this.gobbleBinaryOp() === '**') {
+						this.throwError('Unexpected token **');
+					}
+					this.index = backtrack;
+
 					return this.runHook('after-token', {
 						type: Jsep.UNARY_EXP,
 						operator: to_check,
