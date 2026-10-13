@@ -1,6 +1,4 @@
 declare module 'jsep' {
-
-	namespace jsep {
 		export type baseTypes = string | number | boolean | RegExp | null | undefined | object;
 		export interface Expression {
 			type: string;
@@ -172,9 +170,6 @@ declare module 'jsep' {
 		function removeAllLiterals(): void;
 
 		const version: string;
-	}
-
-	function jsep(val: string | jsep.Expression): jsep.Expression;
-
-	export = jsep;
 }
+
+export default function jsep(val: string | Expression): Expression;
