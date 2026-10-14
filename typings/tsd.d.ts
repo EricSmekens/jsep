@@ -123,7 +123,7 @@ declare module 'jsep' {
 
 		export type HookType = 'gobble-expression' | 'after-expression' | 'gobble-token' | 'after-token' | 'gobble-spaces';
 		export type HookCallback = (this: HookScope, env: { node?: Expression }) => void;
-		type HookTypeObj = Partial<{ [key in HookType]: HookCallback}>
+		type HookTypeObj = Partial<{ [key in HookType]: HookCallback[] }>
 
 		export interface IHooks extends HookTypeObj {
 			add(name: HookType, cb: HookCallback, first?: boolean): void;
@@ -134,7 +134,7 @@ declare module 'jsep' {
 
 		export interface IPlugin {
 			name: string;
-			init: (this: typeof jsep) => void;
+			init: (jsep: typeof jsep) => void;
 		}
 		export interface IPlugins {
 			registered: { [name: string]: IPlugin };
